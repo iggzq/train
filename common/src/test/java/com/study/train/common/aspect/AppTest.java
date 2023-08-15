@@ -1,4 +1,4 @@
-package org.example;
+package com.study.train.common.aspect;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -7,7 +7,7 @@ import junit.framework.TestSuite;
 /**
  * Unit test for simple App.
  */
-public class MemberAppTest
+public class AppTest 
     extends TestCase
 {
     /**
@@ -15,7 +15,7 @@ public class MemberAppTest
      *
      * @param testName name of the test case
      */
-    public MemberAppTest(String testName )
+    public AppTest( String testName )
     {
         super( testName );
     }
@@ -25,7 +25,7 @@ public class MemberAppTest
      */
     public static Test suite()
     {
-        return new TestSuite( MemberAppTest.class );
+        return new TestSuite( AppTest.class );
     }
 
     /**
