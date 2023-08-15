@@ -12,6 +12,7 @@ public class GatewayApplication {
     private static final Logger LOG = LoggerFactory.getLogger(GatewayApplication.class);
 
     public static void main(String[] args) {
+//        System.setProperty("reactor.netty.http.server.accessLogEnabled", "true");
         SpringApplication app = new SpringApplication(GatewayApplication.class);
         Environment env = app.run(args).getEnvironment();
         LOG.info("启动成功！！！");
