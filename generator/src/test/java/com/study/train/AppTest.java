@@ -1,4 +1,4 @@
-package com.study.train.gateway.config;
+package com.study.train;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
