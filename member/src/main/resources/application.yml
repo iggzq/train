@@ -2,3 +2,18 @@ server:
   port: 8001
   servlet:
     context-path: /member
+
+spring:
+  #数据库连接
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 86530890a
+    url: jdbc:mysql://8.130.78.164/train?characterEncoding=UTF8&autoReconnect=true&serverTimezone=Asia/Shanghai
+#mybatis xml路径
+mybatis:
+  mapper-locations: classpath:/mapper/**/*xml
+
+logging:
+  level:
+    com.study.train.member.mapper: trace
