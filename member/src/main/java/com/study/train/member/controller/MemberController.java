@@ -18,12 +18,12 @@ public class MemberController {
     private MemberService memberService;
 
     @GetMapping("/count")
-    public Integer count(){
+    public Integer count() {
         return memberService.count();
     }
 
     @PostMapping("/register")
-    public CommonResp<Long> register(@Valid MemberRegisterDTO memberRegisterDTO){
+    public CommonResp<Long> register(@Valid MemberRegisterDTO memberRegisterDTO) {
         Long registered = memberService.register(memberRegisterDTO);
         return new CommonResp<>(registered);
     }

@@ -19,17 +19,17 @@ public class MemberService {
     @Resource
     private MemberMapper memberMapper;
 
-    public int count(){
+    public int count() {
         return Math.toIntExact(memberMapper.countByExample(null));
     }
 
-    public Long register(MemberRegisterDTO memberRegisterDTO){
+    public Long register(MemberRegisterDTO memberRegisterDTO) {
         String mobile = memberRegisterDTO.getMobile();
         MemberExample memberExample = new MemberExample();
         memberExample.createCriteria().andMobileEqualTo(mobile);
         List<Member> members = memberMapper.selectByExample(memberExample);
 
-        if(!CollectionUtils.isEmpty(members)){
+        if (!CollectionUtils.isEmpty(members)) {
             throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_EXIST);
         }
 

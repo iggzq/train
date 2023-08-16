@@ -2,7 +2,9 @@ package com.study.train.member.mapper;
 
 import com.study.train.member.domain.Member;
 import com.study.train.member.domain.MemberExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface MemberMapper {
