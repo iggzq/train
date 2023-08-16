@@ -1,7 +1,10 @@
 package com.study.train.member.service;
 
+import com.study.train.common.exception.BusinessExceptionEnum;
+import com.study.train.common.exception.BusinessException;
 import com.study.train.member.domain.Member;
 import com.study.train.member.domain.MemberExample;
+import com.study.train.member.dto.MemberRegisterDTO;
 import com.study.train.member.mapper.MemberMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -19,13 +22,14 @@ public class MemberService {
         return Math.toIntExact(memberMapper.countByExample(null));
     }
 
-    public long register(String mobile){
+    public Long register(MemberRegisterDTO memberRegisterDTO){
+        String mobile = memberRegisterDTO.getMobile();
         MemberExample memberExample = new MemberExample();
         memberExample.createCriteria().andMobileEqualTo(mobile);
         List<Member> members = memberMapper.selectByExample(memberExample);
 
-        if(CollectionUtils.isEmpty(members)){
-            throw new RuntimeException("手机号已注册");
+        if(!CollectionUtils.isEmpty(members)){
+            throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_EXIST);
         }
 
         Member member = new Member();

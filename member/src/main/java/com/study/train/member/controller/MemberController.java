@@ -1,5 +1,7 @@
 package com.study.train.member.controller;
 
+import com.study.train.common.resp.CommonResp;
+import com.study.train.member.dto.MemberRegisterDTO;
 import com.study.train.member.service.MemberService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +22,8 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public Long register(String mobile){
-        return memberService.register(mobile);
+    public CommonResp<Long> register(MemberRegisterDTO memberRegisterDTO){
+        Long registered = memberService.register(memberRegisterDTO);
+        return new CommonResp<>(registered);
     }
 }
