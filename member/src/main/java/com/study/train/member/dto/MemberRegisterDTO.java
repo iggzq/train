@@ -1,7 +1,10 @@
 package com.study.train.member.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class MemberRegisterDTO {
 
+    @NotBlank(message = "手机号不能为空")
     private String mobile;
 
     @Override
