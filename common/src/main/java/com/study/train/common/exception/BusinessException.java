@@ -23,4 +23,9 @@ public class BusinessException extends RuntimeException{
     public void setBusinessExceptionEnum(BusinessExceptionEnum businessExceptionEnum) {
         this.businessExceptionEnum = businessExceptionEnum;
     }
+
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return this;
+    }
 }
