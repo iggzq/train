@@ -47,17 +47,17 @@ import {defineComponent, reactive} from 'vue';
 import {left} from "core-js/internals/array-reduce";
 import axios from 'axios';
 import {notification} from "ant-design-vue";
+import {useRouter} from "vue-router";
 
 export default defineComponent({
   name: "login-view",
   methods: {left},
   setup() {
+    const router = useRouter();
     const loginForm = reactive({
       mobile: '18212341234',
       code: '',
     });
-
-
     const sendCode = () => {
       axios.post("member/member/send-code", {
         mobile: loginForm.mobile
@@ -78,6 +78,8 @@ export default defineComponent({
             let data = resp.data;
             if (data.success) {
               notification.success({description: '登陆成功'});
+              //登陆成功跳到主页面
+              router.push("/");
               loginForm.code = "8888";
             } else {
               notification.error({description: data.message})
