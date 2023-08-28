@@ -47,6 +47,7 @@
 <script>
 import {defineComponent, reactive} from 'vue';
 import {left} from "core-js/internals/array-reduce";
+import axios from 'axios';
 
 export default defineComponent({
   name: "login-view",
@@ -62,10 +63,19 @@ export default defineComponent({
     const onFinishFailed = errorInfo => {
       console.log('Failed:', errorInfo);
     };
+
+    const sendCode = () => {
+      axios.post("http://localhost:8000/member/member/send-code", {
+        mobile: loginForm.mobile
+      }).then(resp => {
+        console.log(resp);
+      })
+    };
     return {
       loginForm,
       onFinish,
       onFinishFailed,
+      sendCode,
     };
   },
 });
