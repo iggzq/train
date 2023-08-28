@@ -12,9 +12,7 @@ mobile = 123456
 
 POST http://localhost:8000/member/member/send-code
 Content-Type: application/json
-{
- "mobile" : "18212341231",
-}
+
 
 ###
 
