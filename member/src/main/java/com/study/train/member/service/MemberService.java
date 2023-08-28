@@ -3,9 +3,9 @@ package com.study.train.member.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.jwt.JWTUtil;
 import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
+import com.study.train.common.util.JWTutil;
 import com.study.train.common.util.SnowUtil;
 import com.study.train.member.domain.Member;
 import com.study.train.member.domain.MemberExample;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class MemberService {
@@ -93,10 +92,8 @@ public class MemberService {
         MemberLoginResp memberLoginResp = BeanUtil.copyProperties(member, MemberLoginResp.class);
 
 
-        Map<String, Object> memberLoginRespMap = BeanUtil.beanToMap(memberLoginResp);
 
-        String key = "helloworld";
-        String token = JWTUtil.createToken(memberLoginRespMap, key.getBytes());
+        String token =  JWTutil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
         memberLoginResp.setJWTtoken(token);
 
 
