@@ -3,6 +3,7 @@ package com.study.train.member.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.jwt.JWTUtil;
 import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.util.SnowUtil;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class MemberService {
@@ -88,8 +90,17 @@ public class MemberService {
             throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_CODE_ERROR);
         }
 
+        MemberLoginResp memberLoginResp = BeanUtil.copyProperties(member, MemberLoginResp.class);
 
-        return BeanUtil.copyProperties(member, MemberLoginResp.class);
+
+        Map<String, Object> memberLoginRespMap = BeanUtil.beanToMap(memberLoginResp);
+
+        String key = "helloworld";
+        String token = JWTUtil.createToken(memberLoginRespMap, key.getBytes());
+        memberLoginResp.setJWTtoken(token);
+
+
+        return memberLoginResp;
 
     }
 
