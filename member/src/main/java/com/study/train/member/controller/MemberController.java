@@ -1,8 +1,10 @@
 package com.study.train.member.controller;
 
 import com.study.train.common.resp.CommonResp;
+import com.study.train.member.dto.MemberLoginDTO;
 import com.study.train.member.dto.MemberRegisterDTO;
 import com.study.train.member.dto.MemberSendCodeDTO;
+import com.study.train.member.resp.MemberLoginResp;
 import com.study.train.member.service.MemberService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -32,5 +34,10 @@ public class MemberController {
     @PostMapping("/send-code")
     public CommonResp<String> register(@Valid MemberSendCodeDTO memberSendCodeDTO) {
         return new CommonResp<>(memberService.sendCode(memberSendCodeDTO));
+    }
+
+    @PostMapping("/login")
+    public CommonResp<MemberLoginResp> login(@Valid MemberLoginDTO memberLoginDTO) {
+        return new CommonResp<>(memberService.login(memberLoginDTO));
     }
 }
