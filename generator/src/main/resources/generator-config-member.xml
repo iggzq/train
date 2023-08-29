@@ -36,8 +36,7 @@
         <sqlMapGenerator targetProject="../member/src/main/resources"
                          targetPackage="mapper"/>
 
-        <!-- mapper类的位置 targetProject是相对pom.xml的路径 -->
-        <javaClientGenerator targetProject="../member/src/main/java"
+        <!-- mapper类的位置 tart="../member/src/main/java"
                              targetPackage="com.study.train.member.mapper"
                              type="XMLMAPPER"/>
 
