@@ -1,27 +1,27 @@
-package com.study.train.member.resp;
+package com.study.train.common.resp;
 
 public class MemberLoginResp {
     private Long id;
 
     private String mobile;
 
-    private String token;
+    private String JWTtoken;
 
     @Override
     public String toString() {
         return "MemberLoginResp{" +
                 "id=" + id +
                 ", mobile='" + mobile + '\'' +
-                ", JWTtoken='" + token + '\'' +
+                ", JWTtoken='" + JWTtoken + '\'' +
                 '}';
     }
 
-    public String getToken() {
-        return token;
+    public String getJWTtoken() {
+        return JWTtoken;
     }
 
-    public void setToken(String JWTtoken) {
-        this.token = JWTtoken;
+    public void setJWTtoken(String JWTtoken) {
+        this.JWTtoken = JWTtoken;
     }
 
     public Long getId() {

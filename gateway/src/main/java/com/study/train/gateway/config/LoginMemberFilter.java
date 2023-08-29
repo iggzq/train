@@ -24,27 +24,28 @@ public class LoginMemberFilter implements GlobalFilter {
         if (path.contains("/admin")
                 || path.contains("/hello")
                 || path.contains("/member/member/login")
-                || path.contains("/member/member/send-code")){
-            LOG.info("不需要登陆验证：『{}』",path);
+                || path.contains("/member/member/send-code")
+                || path.contains("/member/member/register")) {
+            LOG.info("不需要登陆验证：『{}』", path);
             return chain.filter(exchange);
-        }else {
-            LOG.info("需要登陆验证:『{}』",path);
+        } else {
+            LOG.info("需要登陆验证:『{}』", path);
         }
 
         String token = exchange.getRequest().getHeaders().getFirst("token");
 
-        LOG.info("会员登陆验证开始，token:『{}』",token);
-        if(token == null || token.isEmpty()){
+        LOG.info("会员登陆验证开始，token:『{}』", token);
+        if (token == null || token.isEmpty()) {
             LOG.info("token为空，请求被拦截");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
         boolean validated = JWTutil.validate(token);
-        if(validated){
+        if (validated) {
             LOG.info("token有效，放行请求");
             return chain.filter(exchange);
-        }else {
+        } else {
             LOG.info("token无效，拦截请求");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();

@@ -23,7 +23,7 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public CommonResp<Long> register(@Valid MemberRegisterDTO memberRegisterDTO) {
+    public CommonResp<Long> register(@Valid @RequestBody MemberRegisterDTO memberRegisterDTO) {
         Long registered = memberService.register(memberRegisterDTO);
         return new CommonResp<>(registered);
     }

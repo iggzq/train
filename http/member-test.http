@@ -4,9 +4,12 @@ token: 123
 ###
 
 POST http://localhost:8000/member/member/register
-Content-Type: application/x-www-form-urlencoded
+Content-Type: application/json
 
-mobile = 123456
+{
+ "mobile" : "18212341234",
+ "code" : "8888"
+}
 
 ###
 
@@ -17,12 +20,11 @@ Content-Type: application/json
  "mobile" : "18212341234",
  "code" : "8888"
 }
+
+> {%
+    client.log(JSON.stringify(response.body));
+    client.log(JSON.stringify(response.body.content.token));
+    client.global.set("token",response.body.content.token);
+%}
 ###
 
-POST http://localhost:8000/member/member/login
-Content-Type: application/x-www-form-urlencoded
-
-mobile = 18212341231 &
-code = 1234
-
-###

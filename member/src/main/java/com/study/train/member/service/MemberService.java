@@ -94,7 +94,7 @@ public class MemberService {
 
 
         String token =  JWTutil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
-        memberLoginResp.setJWTtoken(token);
+        memberLoginResp.setToken(token);
 
 
         return memberLoginResp;

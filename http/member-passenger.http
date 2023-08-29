@@ -1,17 +1,7 @@
-GET http://localhost:8000/member/member/count
-Accept: application/json
-token: 123
-###
 
-POST http://localhost:8000/member/member/register
-Content-Type: application/x-www-form-urlencoded
-
-mobile = 123456
-
-###
-
-POST http://localhost:8001/member/passenger/save
+POST http://localhost:8000/member/passenger/save
 Content-Type: application/json
+token: {{token}}
 
 {
   "memberId": "18212341234",
@@ -19,12 +9,4 @@ Content-Type: application/json
   "idCard": "123",
   "type": "1"
 }
-###
-
-POST http://localhost:8000/member/member/login
-Content-Type: application/x-www-form-urlencoded
-
-mobile = 18212341231 &
-code = 1234
-
 ###
