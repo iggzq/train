@@ -48,6 +48,7 @@ import {left} from "core-js/internals/array-reduce";
 import axios from 'axios';
 import {notification} from "ant-design-vue";
 import {useRouter} from "vue-router";
+import store from "@/store";
 
 export default defineComponent({
   name: "login-view",
@@ -80,6 +81,7 @@ export default defineComponent({
               notification.success({description: '登陆成功'});
               //登陆成功跳到主页面
               router.push("/");
+              store.commit("setMember",data.content);
               loginForm.code = "8888";
             } else {
               notification.error({description: data.message})
