@@ -8,13 +8,20 @@
       </router-link>
     </div>
     <a-menu
-        v-model:selectedKeys="selectedKeys1"
         theme="dark"
         mode="horizontal"
         :style="{ lineHeight: '64px' }"
     >
-      <a-menu-item key="1">nav 1</a-menu-item>
-      <a-menu-item key="2">nav 2</a-menu-item>
+      <a-menu-item key="/welcome">
+        <router-link to="/welcome">
+          <coffee-outlined /> &nbsp; 欢迎
+        </router-link>
+      </a-menu-item>
+      <a-menu-item key="/passenger">
+        <router-link to="/passenger">
+          <user-outlined /> &nbsp; 乘车人管理
+        </router-link>
+      </a-menu-item>
       <a-menu-item key="3">nav 3</a-menu-item>
     </a-menu>
   </a-layout-header>
@@ -30,7 +37,6 @@ export default defineComponent({
   setup() {
     let member = store.state.member;
     return{
-      selectedKeys1: ref(['2']),
       member,
     }
   }
