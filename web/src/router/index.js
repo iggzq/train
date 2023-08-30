@@ -16,6 +16,9 @@ const routes = [
         children: [{
             path: '/welcome',
             component: () => import('../views/main/welcome.vue'),
+        },{
+            path: '/passenger',
+            component: () => import('../views/main/passenger.vue')
         }]
     },
     {
@@ -33,7 +36,7 @@ router.beforeEach((to, from, next) => {
     if (to.matched.some(function (item) {
         console.log(item, "是否需要登陆校验：", item.meta.loginRequire || false);
 
-        return item.meta.loginRequire
+        return item.meta.loginRequire;
     })) {
         const member = store.state.member;
         console.log("登录页面校验开始:", member);
