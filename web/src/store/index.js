@@ -5,7 +5,6 @@ const MEMBER = "MEMBER";
 export default createStore({
     state: {
         member: window.SessionStorage.get(MEMBER) || {},
-
     },
     getters: {},
     mutations: {

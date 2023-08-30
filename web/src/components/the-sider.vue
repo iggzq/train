@@ -3,7 +3,7 @@
     <a-menu
         mode="inline"
         :style="{ height: '100%' , borderRight: 0 }"
-        v-model:selected-keys(v-model)="selectedKey"
+        v-model:selected-keys="selectedKey"
     >
       <a-menu-item key="/welcome">
         <router-link to="/welcome">

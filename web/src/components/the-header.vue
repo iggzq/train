@@ -11,7 +11,7 @@
         theme="dark"
         mode="horizontal"
         :style="{ lineHeight: '64px' }"
-        v-model:selected-keys(v-model)="selectedKeys"
+        v-model:selected-keys="selectedKeys"
     >
       <a-menu-item key="/welcome">
         <router-link to="/welcome">
