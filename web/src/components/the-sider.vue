@@ -3,6 +3,7 @@
     <a-menu
         mode="inline"
         :style="{ height: '100%' , borderRight: 0 }"
+        v-model:selected-keys(v-model)="selectedKey"
     >
       <a-menu-item key="/welcome">
         <router-link to="/welcome">
@@ -20,14 +21,22 @@
 </template>
 
 <script>
-import {defineComponent, ref} from 'vue';
+import {defineComponent, ref, watch} from 'vue';
+import router from "@/router";
 
 
 export default defineComponent({
   name: "the-sider",
   setup() {
-
-    return {}
+    const selectedKey = ref([]);
+    watch(() => router.currentRoute.value.path, (newValue) => {
+      console.log('watch ', newValue);
+      selectedKey.value = [];
+      selectedKey.value.push(newValue);
+    },{immediate: true})
+    return {
+      selectedKey
+    }
   }
 });
 </script>

@@ -11,6 +11,7 @@
         theme="dark"
         mode="horizontal"
         :style="{ lineHeight: '64px' }"
+        v-model:selected-keys(v-model)="selectedKeys"
     >
       <a-menu-item key="/welcome">
         <router-link to="/welcome">
@@ -28,16 +29,23 @@
 </template>
 
 <script>
-import {defineComponent, ref} from 'vue';
+import {defineComponent, ref, watch} from 'vue';
 import store from "@/store";
+import router from "@/router";
 
 
 export default defineComponent({
-  name: "the-header",
   setup() {
     let member = store.state.member;
+    const selectedKeys = ref([]);
+    watch(() => router.currentRoute.value.path, (newValue) => {
+      console.log('watch ',newValue);
+      selectedKeys.value = [];
+      selectedKeys.value.push(newValue);
+    },{immediate: true});
     return{
       member,
+      selectedKeys,
     }
   }
 });

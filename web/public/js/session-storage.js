@@ -1,20 +1,21 @@
+
+SESSION_ORDER = "SESSION_ORDER";
+SESSION_TICKET_PARAMS = "SESSION_TICKET_PARAMS";
+
 SessionStorage = {
     get: function (key) {
         var v = sessionStorage.getItem(key);
-        if(v && typeof(v) !== "undefined" && v !== "undefined"){
+        if (v && typeof(v) !== "undefined" && v !== "undefined") {
             return JSON.parse(v);
         }
     },
-
-    set: function (key,data){
-        sessionStorage.setItem(key,JSON.stringify(data));
+    set: function (key, data) {
+        sessionStorage.setItem(key, JSON.stringify(data));
     },
-
-    remove:function (key){
+    remove: function (key) {
         sessionStorage.removeItem(key);
     },
-
-    clearAll:function (){
+    clearAll: function () {
         sessionStorage.clear();
     }
 };
