@@ -1,6 +1,6 @@
 <template>
   <a-button type="primary" @click="showModal">新增</a-button>
-  <a-table :data-source="passengers" :columns="columns"/>
+  <a-table :data-source="passengers" :columns="columns" :pagination="pagination"/>
 
   <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="确认" cancel-text="取消">
     <a-form :model="passenger" :label-col="{span: 4}" :wrapper-col="{span: 20}">
@@ -55,7 +55,14 @@ export default defineComponent({
       title: "类型",
       dataIndex: "type",
       key: "type",
-    }]
+    }];
+
+    const pagination = reactive({
+      total: 0,
+      current: 1,
+      pageSize: 2,
+    })
+
     const showModal = () => {
       visible.value = true;
     }
@@ -103,7 +110,8 @@ export default defineComponent({
       passenger,
       passengers,
       handleQuery,
-      columns
+      columns,
+      pagination
     };
   },
 
