@@ -1,6 +1,8 @@
 package com.study.train.member.dto;
 
-public class PassengerQueryDTO {
+import com.study.train.common.req.PageReq;
+
+public class PassengerQueryDTO extends PageReq {
 
     private Long memberId;
 
