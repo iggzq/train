@@ -1,7 +1,14 @@
 <template>
-  <a-button type="primary" @click="showModal">新增</a-button>
-  <a-table :data-source="passengers" :columns="columns" :pagination="pagination" @change="handleTableChange"/>
+  <a-space>
+    <a-button type="primary" @click="handleQuery()">刷新</a-button>
+    <a-button type="primary" @click="showModal">新增</a-button>
+  </a-space>
 
+  <a-table :data-source="passengers"
+           :columns="columns"
+           :pagination="pagination"
+           @change="handleTableChange"
+           :loading="loading"/>
   <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="确认" cancel-text="取消">
     <a-form :model="passenger" :label-col="{span: 4}" :wrapper-col="{span: 20}">
       <a-form-item label="姓名">
@@ -51,7 +58,7 @@ export default defineComponent({
       title: "身份证",
       dataIndex: "idCard",
       key: "idCard",
-    },{
+    }, {
       title: "类型",
       dataIndex: "type",
       key: "type",
@@ -66,6 +73,9 @@ export default defineComponent({
     const showModal = () => {
       visible.value = true;
     }
+
+    let loading = ref(false);
+
     const handleOk = (e) => {
       axios.post("member/passenger/save", passenger).then((resp) => {
         let data = resp.data;
@@ -81,12 +91,22 @@ export default defineComponent({
     };
 
     const handleQuery = (param) => {
+      console.log("1 " + param);
+      if (!param) {
+        param = {
+          page: 1,
+          size: pagination.pageSize,
+        }
+      }
+      loading.value = true;
+      console.log("2 " + param)
       axios.get("/member/passenger/query-list", {
         params: {
           page: param.page,
           size: param.size
         }
       }).then((resp) => {
+        loading.value = false;
         let data = resp.data;
         if (data.success) {
           passengers.value = data.content.data;
