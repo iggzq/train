@@ -18,7 +18,7 @@
         <a-input v-model:value="passenger.idCard"/>
       </a-form-item>
       <a-form-item label="类型">
-        <a-select v-model="passenger.type">
+        <a-select v-model:value="passenger.type">
           <a-select-option value="1">成人</a-select-option>
           <a-select-option value="2">儿童</a-select-option>
           <a-select-option value="3">学生</a-select-option>
@@ -82,6 +82,10 @@ export default defineComponent({
         if (data.success) {
           notification.success({description: "保存成功"});
           visible.value = false;
+          handleQuery({
+            page: pagination.current,
+            size: pagination.pageSize,
+          });
         } else {
           notification.error({description: "保存失败"})
         }
@@ -111,6 +115,7 @@ export default defineComponent({
         if (data.success) {
           passengers.value = data.content.data;
           pagination.current = param.page;
+          pagination.total = data.content.total;
         } else {
           notification.error({description: data.message});
         }
@@ -140,7 +145,8 @@ export default defineComponent({
       handleQuery,
       columns,
       pagination,
-      handleTableChange
+      handleTableChange,
+      loading
     };
   },
 
