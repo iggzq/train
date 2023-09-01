@@ -8,7 +8,16 @@
            :columns="columns"
            :pagination="pagination"
            @change="handleTableChange"
-           :loading="loading"/>
+           :loading="loading">
+
+    <template #bodyCell="{column,record}">
+      <template v-if="column.dataIndex === 'operation'">
+        <a-space>
+          <a @click="onEdit(record)">编辑</a>
+        </a-space>
+      </template>
+    </template>
+  </a-table>
   <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="确认" cancel-text="取消">
     <a-form :model="passenger" :label-col="{span: 4}" :wrapper-col="{span: 20}">
       <a-form-item label="姓名">
@@ -31,14 +40,14 @@
 </template>
 
 <script>
-import {defineComponent, reactive, ref, onMounted} from "vue";
+import {defineComponent, ref, onMounted} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
 
 export default defineComponent({
   setup() {
     const visible = ref(false);
-    const passenger = reactive({
+    const passenger = ref({
       id: undefined,
       memberId: undefined,
       name: undefined,
@@ -62,15 +71,19 @@ export default defineComponent({
       title: "类型",
       dataIndex: "type",
       key: "type",
+    }, {
+      title: "操作",
+      dataIndex: "operation",
     }];
 
-    const pagination = reactive({
+    const pagination = ref({
       total: 0,
       current: 1,
       pageSize: 2,
     })
 
     const showModal = () => {
+      passenger.value = {};
       visible.value = true;
     }
 
@@ -83,8 +96,8 @@ export default defineComponent({
           notification.success({description: "保存成功"});
           visible.value = false;
           handleQuery({
-            page: pagination.current,
-            size: pagination.pageSize,
+            page: pagination.value.current,
+            size: pagination.value.pageSize,
           });
         } else {
           notification.error({description: "保存失败"})
@@ -99,7 +112,7 @@ export default defineComponent({
       if (!param) {
         param = {
           page: 1,
-          size: pagination.pageSize,
+          size: pagination.value.pageSize,
         }
       }
       loading.value = true;
@@ -114,8 +127,8 @@ export default defineComponent({
         let data = resp.data;
         if (data.success) {
           passengers.value = data.content.data;
-          pagination.current = param.page;
-          pagination.total = data.content.total;
+          pagination.value.current = param.page;
+          pagination.value.total = data.content.total;
         } else {
           notification.error({description: data.message});
         }
@@ -129,10 +142,15 @@ export default defineComponent({
       })
     }
 
+    const onEdit = (record) => {
+      passenger.value = window.Tool.copy(record);
+      visible.value = true;
+    }
+
     onMounted(() => {
       handleQuery({
         page: 1,
-        size: pagination.pageSize,
+        size: pagination.value.pageSize,
       })
     });
 
@@ -146,7 +164,8 @@ export default defineComponent({
       columns,
       pagination,
       handleTableChange,
-      loading
+      loading,
+      onEdit
     };
   },
 

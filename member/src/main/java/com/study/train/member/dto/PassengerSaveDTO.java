@@ -1,5 +1,6 @@
 package com.study.train.member.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 
 import java.util.Date;
@@ -18,8 +19,10 @@ public class PassengerSaveDTO {
     @NotBlank(message = "乘客类型不能为空")
     private String type;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date createTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date updateTime;
 
     public Long getId() {
