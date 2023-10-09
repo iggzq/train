@@ -166,10 +166,6 @@ export default defineComponent({
             const data = resp.data;
             if (data.success) {
               notification.success({description: "删除成功！"});
-              let x = 1;
-              for (let i = 0; i < 10; i++) {
-                x++;
-              }
               handleQuery({
                 page: pagination.value.current,
                 size: pagination.value.pageSize,

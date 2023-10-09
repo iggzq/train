@@ -3,7 +3,7 @@
     <a-col :span="8" :offset="8" class="login-main">
       <h1 style="text-align: center">
         <rocket-two-tone/>
-        12306售票系统
+        模拟12306售票系统
       </h1>
       <a-form
           :model="loginForm"

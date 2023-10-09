@@ -40,7 +40,7 @@
                              targetPackage="com.study.train.member.mapper"
                              type="XMLMAPPER"/>
 
-        <!--<table tableName="member" domainObjectName="Member"/>-->
+        <!- <table tableName="member" domainObjectName="Member"/>-->
         <table tableName="passenger" domainObjectName="Passenger"/>
 <!--        <table tableName="member" domainObjectName="Member"/>-->
     </context>

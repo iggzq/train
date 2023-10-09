@@ -1,4 +1,4 @@
-package com.study.train;
+package com.study.train.generator.util;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

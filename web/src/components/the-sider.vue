@@ -15,7 +15,6 @@
           <user-outlined/> &nbsp; 乘车人管理
         </router-link>
       </a-menu-item>
-      <a-menu-item key="3">nav 3</a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>
