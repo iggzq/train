@@ -17,16 +17,15 @@ public class ServerGenerate {
     static String serviceToPath = "[module]/src/main/java/com/study/train/[module]/";
     static String pomPath = "generator/pom.xml";
 
-    static {
-        new File(serviceToPath).mkdirs();
-    }
-
     public static void main(String[] args) throws DocumentException, IOException, TemplateException {
 
         String generatorPath = getGeneratorPath();
 
         String moduleName = generatorPath.replace("src/main/resources/generator-config-", "").replace(".xml", "");
         System.out.println("moduleName:" + moduleName);
+        serviceToPath = serviceToPath.replace("[module]", moduleName);
+        new File(serviceToPath).mkdirs();
+        System.out.println(serviceToPath);
         Document document = new SAXReader().read("generator/" + generatorPath);
         Node table = document.selectSingleNode("//table");
         System.out.println(table);

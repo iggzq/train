@@ -12,29 +12,29 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/passenger")
+@RequestMapping("/Passenger")
 public class PassengerController {
 
     @Resource
-    private PassengerService passengerService;
+    private PassengerService PassengerService;
 
 
     @PostMapping("/save")
-    public CommonResp<Object> register(@Valid @RequestBody PassengerSaveDTO passengerSaveDTO) {
-        passengerService.save(passengerSaveDTO);
+    public CommonResp<Object> register(@Valid @RequestBody PassengerSaveDTO PassengerSaveDTO) {
+        PassengerService.save(PassengerSaveDTO);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageDTO<PassengerQueryResp>> queryList(@Valid PassengerQueryDTO passengerQueryDTO) {
-        passengerQueryDTO.setMemberId(LoginMemberContext.getId());
-        PageDTO<PassengerQueryResp> list = passengerService.queryList(passengerQueryDTO);
+    public CommonResp<PageDTO<PassengerQueryResp>> queryList(@Valid PassengerQueryDTO PassengerQueryDTO) {
+        PassengerQueryDTO.setMemberId(LoginMemberContext.getId());
+        PageDTO<PassengerQueryResp> list = PassengerService.queryList(PassengerQueryDTO);
         return new CommonResp<>(list);
     }
 
     @DeleteMapping("/delete/{id}")
     public CommonResp<Object> delete(@PathVariable Long id) {
-        passengerService.delete(id);
+        PassengerService.delete(id);
         return new CommonResp<>();
     }
 
