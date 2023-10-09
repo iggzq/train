@@ -33,6 +33,14 @@ public class ServerGenerate {
         Node domainObjectName = table.selectSingleNode("@domainObjectName");
         System.out.println(tableName.getText() + "/" + domainObjectName.getText());
 
+        Node connectionURL = document.selectSingleNode("//@connectionURL");
+        Node userId = document.selectSingleNode("//@userId");
+        Node password = document.selectSingleNode("//@password");
+        System.out.println("DB_URL:" + connectionURL.getText());
+        System.out.println("DB_userId:" + userId.getText());
+        System.out.println("DB_password:" + password);
+
+
         //获取表名do_main,实体类名Domain,业务类前缀domain
         String Domain = domainObjectName.getText();
         String domain = Domain.substring(0, 1).toLowerCase() + Domain.substring(1);
