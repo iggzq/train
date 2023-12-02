@@ -5,7 +5,6 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.util.SnowUtil;
 import com.study.train.${module}.domain.${Domain};
 import com.study.train.${module}.domain.${Domain}Example;
@@ -33,7 +32,6 @@ public class ${Domain}Service {
         DateTime now = new DateTime();
         ${Domain} ${domain} = BeanUtil.copyProperties(${domain}SaveDTO, ${Domain}.class);
         if (ObjectUtil.isNull(${domain}.getId())) {
-            ${domain}.setMemberId(LoginMemberContext.getId());
             ${domain}.setId(SnowUtil.getSnowflakeNextId());
             ${domain}.setCreateTime(now);
             ${domain}.setUpdateTime(now);
@@ -48,9 +46,6 @@ public class ${Domain}Service {
     public PageDTO<${Domain}QueryResp> queryList(${Domain}QueryDTO ${domain}QueryDTO) {
         ${Domain}Example ${domain}Example = new ${Domain}Example();
         ${Domain}Example.Criteria criteria = ${domain}Example.createCriteria();
-        if (ObjectUtil.isNotNull(${domain}QueryDTO.getMemberId())) {
-            criteria.andMemberIdEqualTo(${domain}QueryDTO.getMemberId());
-        }
         PageHelper.startPage(${domain}QueryDTO.getPage(), ${domain}QueryDTO.getSize());
         List<${Domain}> ${domain}s = ${domain}Mapper.selectByExample(${domain}Example);
 
