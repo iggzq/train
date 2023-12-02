@@ -8,8 +8,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: root
-    url: jdbc:mysql://192.168.31.138/train?characterEncoding=UTF8&autoReconnect=true&serverTimezone=Asia/Shanghai
+    password: 123456
+    url: jdbc:mysql://localhost/train?characterEncoding=UTF8&autoReconnect=true&serverTimezone=Asia/Shanghai
 #mybatis xml路径
 mybatis:
   mapper-locations: classpath:/mapper/**/*xml

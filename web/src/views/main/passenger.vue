@@ -1,20 +1,18 @@
 <template>
   <a-space>
     <a-button type="primary" @click="handleQuery()">刷新</a-button>
-    <a-button type="primary" @click="showModal">新增</a-button>
+    <a-button type="primary" @click="onAdd">新增</a-button>
   </a-space>
-
-  <a-table :data-source="passengers"
+  <a-table :data-Source="passengers"
            :columns="columns"
            :pagination="pagination"
            @change="handleTableChange"
            :loading="loading">
-
-    <template #bodyCell="{column,record}">
+    <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
         <a-space>
           <a-popconfirm
-              title="删除后不可恢复，确认删除？"
+              title="删除后不可恢复，确认删除?"
               @confirm="onDelete(record)"
               ok-text="确认" cancel-text="取消">
             <a style="color: red">删除</a>
@@ -22,33 +20,34 @@
           <a @click="onEdit(record)">编辑</a>
         </a-space>
       </template>
-
       <template v-else-if="column.dataIndex === 'type'">
         <span v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key">
           <span v-if="item.key === record.type">
-            {{item.value}}
+            {{ item.value }}
           </span>
         </span>
       </template>
     </template>
   </a-table>
   <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="确认" cancel-text="取消">
-    <a-form :model="passenger" :label-col="{span: 4}" :wrapper-col="{span: 20}">
+    <a-form :model="passenger" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
+      <a-form-item label="会员id">
+        <a-input v-model:value="passenger.memberId"/>
+      </a-form-item>
       <a-form-item label="姓名">
         <a-input v-model:value="passenger.name"/>
       </a-form-item>
       <a-form-item label="身份证">
         <a-input v-model:value="passenger.idCard"/>
       </a-form-item>
-      <a-form-item label="类型">
+      <a-form-item label="旅客类型">
         <a-select v-model:value="passenger.type">
-          <a-select-option v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key" :value="item.key">{{item.value}}</a-select-option>
+          <a-select-option v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key" :value="item.key">{{ item.desc }}
+          </a-select-option>
         </a-select>
       </a-form-item>
     </a-form>
   </a-modal>
-
-
 </template>
 
 <script>
@@ -57,10 +56,11 @@ import {notification} from "ant-design-vue";
 import axios from "axios";
 
 export default defineComponent({
+  name: "passenger-view",
   setup() {
-    const PASSENGER_TYPE_ARRAY = [{key: "1",value: "成人"},{key: "2",value: "儿童"},{key: "3",value: "学生"}]
+    const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
     const visible = ref(false);
-    const passenger = ref({
+    let passenger = ref({
       id: undefined,
       memberId: undefined,
       name: undefined,
@@ -69,138 +69,140 @@ export default defineComponent({
       createTime: undefined,
       updateTime: undefined,
     });
-
     const passengers = ref([]);
-
-    const columns = [{
-      title: "姓名",
-      dataIndex: "name",
-      key: "name",
-    }, {
-      title: "身份证",
-      dataIndex: "idCard",
-      key: "idCard",
-    }, {
-      title: "类型",
-      dataIndex: "type",
-      key: "type",
-    }, {
-      title: "操作",
-      dataIndex: "operation",
-    }];
-
+    // 分页的三个属性名是固定的
     const pagination = ref({
       total: 0,
       current: 1,
-      pageSize: 2,
-    })
+      pageSize: 10,
+    });
+    let loading = ref(false);
+    const columns = [
+      {
+        title: '会员id',
+        dataIndex: 'memberId',
+        key: 'memberId',
+      },
+      {
+        title: '姓名',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '身份证',
+        dataIndex: 'idCard',
+        key: 'idCard',
+      },
+      {
+        title: '旅客类型',
+        dataIndex: 'type',
+        key: 'type',
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation'
+      }
+    ];
 
-    const showModal = () => {
+    const onAdd = () => {
       passenger.value = {};
       visible.value = true;
-    }
+    };
 
-    let loading = ref(false);
+    const onEdit = (record) => {
+      passenger.value = window.Tool.copy(record);
+      visible.value = true;
+    };
 
-    const handleOk = (e) => {
-      axios.post("member/passenger/save", passenger.value).then((resp) => {
-        let data = resp.data;
+    const onDelete = (record) => {
+      axios.delete("/member/admin/passenger/delete/" + record.id).then((response) => {
+        const data = response.data;
         if (data.success) {
-          notification.success({description: "保存成功"});
-          visible.value = false;
+          notification.success({description: "删除成功！"});
           handleQuery({
             page: pagination.value.current,
             size: pagination.value.pageSize,
           });
         } else {
-          notification.error({description: "保存失败"})
+          notification.error({description: data.message});
         }
-      })
-      console.log(e);
-      visible.value = false;
+      });
+    };
+
+    const handleOk = () => {
+      axios.post("/member/admin/passenger/save", passenger.value).then((response) => {
+        let data = response.data;
+        if (data.success) {
+          notification.success({description: "保存成功！"});
+          visible.value = false;
+          handleQuery({
+            page: pagination.value.current,
+            size: pagination.value.pageSize
+          });
+        } else {
+          notification.error({description: data.message});
+        }
+      });
     };
 
     const handleQuery = (param) => {
-      console.log("1 " + param);
       if (!param) {
         param = {
           page: 1,
-          size: pagination.value.pageSize,
-        }
+          size: pagination.value.pageSize
+        };
       }
       loading.value = true;
-      console.log("2 " + param)
-      axios.get("/member/passenger/query-list", {
+      axios.get("/member/admin/passenger/query-list", {
         params: {
           page: param.page,
           size: param.size
         }
-      }).then((resp) => {
+      }).then((response) => {
         loading.value = false;
-        let data = resp.data;
+        let data = response.data;
         if (data.success) {
-          passengers.value = data.content.data;
+          passengers.value = data.content.list;
+          // 设置分页控件的值
           pagination.value.current = param.page;
           pagination.value.total = data.content.total;
         } else {
           notification.error({description: data.message});
         }
-      })
+      });
     };
 
-    const handleTableChange = (pagination) => {
+    const handleTableChange = (page) => {
+      // console.log("看看自带的分页参数都有啥：" + JSON.stringify(page));
+      pagination.value.pageSize = page.pageSize;
       handleQuery({
-        page: pagination.current,
-        size: pagination.pageSize,
-      })
-    }
-
-    const onEdit = (record) => {
-      passenger.value = window.Tool.copy(record);
-      visible.value = true;
-    }
-
-    const onDelete = (record) => {
-      axios.delete("/member/passenger/delete/" + record.id)
-          .then((resp) => {
-            const data = resp.data;
-            if (data.success) {
-              notification.success({description: "删除成功！"});
-              handleQuery({
-                page: pagination.value.current,
-                size: pagination.value.pageSize,
-              })
-            } else {
-              notification.error({description: data.message});
-            }
-          })
-    }
+        page: page.current,
+        size: page.pageSize
+      });
+    };
 
     onMounted(() => {
       handleQuery({
         page: 1,
-        size: pagination.value.pageSize,
-      })
+        size: pagination.value.pageSize
+      });
     });
 
     return {
-      visible,
-      showModal,
-      handleOk,
+      PASSENGER_TYPE_ARRAY,
       passenger,
+      visible,
       passengers,
-      handleQuery,
-      columns,
       pagination,
+      columns,
       handleTableChange,
+      handleQuery,
       loading,
+      onAdd,
+      handleOk,
       onEdit,
-      onDelete,
-      PASSENGER_TYPE_ARRAY
+      onDelete
     };
   },
-
-})
+});
 </script>
-<style scoped>
-</style>

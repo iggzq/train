@@ -15,6 +15,10 @@ import java.util.*;
 
 public class ServerGenerate {
 
+    static boolean readOnly = false;
+    static String vuePath = "web/src/views/main/";
+
+
     static String serviceToPath = "[module]/src/main/java/com/study/train/[module]/";
     static String pomPath = "generator/pom.xml";
 
@@ -39,7 +43,7 @@ public class ServerGenerate {
         Node password = document.selectSingleNode("//@password");
         System.out.println("DB_URL:" + connectionURL.getText());
         System.out.println("DB_userId:" + userId.getText());
-        System.out.println("DB_password:" + password);
+        System.out.println("DB_password:" + password.getText());
 
         DbUtil.url = connectionURL.getText();
         DbUtil.user = userId.getText();
@@ -57,24 +61,36 @@ public class ServerGenerate {
 
         Map<String, Object> param = new HashMap<>();
         param.put("Domain", Domain);
-        param.put("module",moduleName);
+        param.put("module", moduleName);
         param.put("domain", domain);
         param.put("do_main", do_main);
+        param.put("fieldList",fieldList);
+        param.put("typeSet",typeSet);
+        param.put("tableNameCn",tableNameCn);
+        param.put("readOnly", readOnly);
         System.out.println("组装参数：" + param);
 
-        generateCode(Domain, param, "service","service");
-        generateCode(Domain, param, "controller","controller");
-        generateCode(Domain, param, "req","saveReq");
-
+//        generateCode(Domain, param, "service", "service");
+//        generateCode(Domain, param, "controller", "controller");
+//        generateCode(Domain, param, "req", "saveReq");
+        genVue(do_main,param);
 
     }
 
-    private static void generateCode(String Domain, Map<String, Object> param,String packageName, String targetType) throws IOException, TemplateException {
+    private static void generateCode(String Domain, Map<String, Object> param, String packageName, String targetType) throws IOException, TemplateException {
         FreeMarkerUtil.initConfig(targetType + ".ftl");
         String toPath = serviceToPath + packageName + "/";
         new File(toPath).mkdirs();
         String target = targetType.substring(0, 1).toUpperCase() + targetType.substring(1);
         String fileName = toPath + Domain + target + ".java";
+        FreeMarkerUtil.generator(fileName, param);
+    }
+
+    private static void genVue(String do_main, Map<String, Object> param) throws IOException, TemplateException {
+        FreeMarkerUtil.initConfig("vue.ftl");
+        new File(vuePath).mkdirs();
+        String fileName = vuePath + do_main + ".vue";
+        System.out.println("开始生成：" + fileName);
         FreeMarkerUtil.generator(fileName, param);
     }
 
@@ -101,3 +117,5 @@ public class ServerGenerate {
         return set;
     }
 }
+
+
