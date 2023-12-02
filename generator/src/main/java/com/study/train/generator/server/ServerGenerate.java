@@ -1,5 +1,7 @@
 package com.study.train.generator.server;
 
+import com.study.train.generator.util.DbUtil;
+import com.study.train.generator.util.Field;
 import com.study.train.generator.util.FreeMarkerUtil;
 import freemarker.template.TemplateException;
 import org.dom4j.Document;
@@ -9,15 +11,14 @@ import org.dom4j.io.SAXReader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ServerGenerate {
 
     static String serviceToPath = "[module]/src/main/java/com/study/train/[module]/";
     static String pomPath = "generator/pom.xml";
 
-    public static void main(String[] args) throws DocumentException, IOException, TemplateException {
+    public static void main(String[] args) throws Exception {
 
         String generatorPath = getGeneratorPath();
 
@@ -40,26 +41,37 @@ public class ServerGenerate {
         System.out.println("DB_userId:" + userId.getText());
         System.out.println("DB_password:" + password);
 
+        DbUtil.url = connectionURL.getText();
+        DbUtil.user = userId.getText();
+        DbUtil.password = password.getText();
+
 
         //获取表名do_main,实体类名Domain,业务类前缀domain
         String Domain = domainObjectName.getText();
         String domain = Domain.substring(0, 1).toLowerCase() + Domain.substring(1);
         String do_main = tableName.getText().replaceAll("_", "-");
 
+        String tableNameCn = DbUtil.getTableComment(tableName.getText());
+        List<Field> fieldList = DbUtil.getColumnByTableName(tableName.getText());
+        Set<String> typeSet = getJavaTypes(fieldList);
+
         Map<String, Object> param = new HashMap<>();
         param.put("Domain", Domain);
+        param.put("module",moduleName);
         param.put("domain", domain);
         param.put("do_main", do_main);
         System.out.println("组装参数：" + param);
 
-        generateCode(Domain, param, "service");
-        generateCode(Domain, param, "controller");
+        generateCode(Domain, param, "service","service");
+        generateCode(Domain, param, "controller","controller");
+        generateCode(Domain, param, "req","saveReq");
+
 
     }
 
-    private static void generateCode(String Domain, Map<String, Object> param, String targetType) throws IOException, TemplateException {
+    private static void generateCode(String Domain, Map<String, Object> param,String packageName, String targetType) throws IOException, TemplateException {
         FreeMarkerUtil.initConfig(targetType + ".ftl");
-        String toPath = serviceToPath + targetType + "/";
+        String toPath = serviceToPath + packageName + "/";
         new File(toPath).mkdirs();
         String target = targetType.substring(0, 1).toUpperCase() + targetType.substring(1);
         String fileName = toPath + Domain + target + ".java";
@@ -75,5 +87,17 @@ public class ServerGenerate {
         Node node = document.selectSingleNode("//pom:configurationFile");
         System.out.println(node.getText());
         return node.getText();
+    }
+
+    /**
+     * 获取所有的Java类型，使用Set去重
+     */
+    private static Set<String> getJavaTypes(List<Field> fieldList) {
+        Set<String> set = new HashSet<>();
+        for (int i = 0; i < fieldList.size(); i++) {
+            Field field = fieldList.get(i);
+            set.add(field.getJavaType());
+        }
+        return set;
     }
 }

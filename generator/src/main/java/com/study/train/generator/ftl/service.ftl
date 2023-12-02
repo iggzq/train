@@ -1,4 +1,4 @@
-package com.study.train.member.service;
+package com.study.train.${module}.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
@@ -7,13 +7,13 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.util.SnowUtil;
-import com.study.train.member.domain.${Domain};
-import com.study.train.member.domain.${Domain}Example;
-import com.study.train.member.dto.PageDTO;
-import com.study.train.member.dto.${Domain}QueryDTO;
-import com.study.train.member.dto.${Domain}SaveDTO;
-import com.study.train.member.mapper.${Domain}Mapper;
-import com.study.train.member.resp.${Domain}QueryResp;
+import com.study.train.${module}.domain.${Domain};
+import com.study.train.${module}.domain.${Domain}Example;
+import com.study.train.${module}.dto.PageDTO;
+import com.study.train.${module}.dto.${Domain}QueryDTO;
+import com.study.train.${module}.dto.${Domain}SaveDTO;
+import com.study.train.${module}.mapper.${Domain}Mapper;
+import com.study.train.${module}.resp.${Domain}QueryResp;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,12 +1,12 @@
-package com.study.train.member.controller;
+package com.study.train.${module}.controller;
 
 import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.resp.CommonResp;
-import com.study.train.member.dto.PageDTO;
-import com.study.train.member.dto.${Domain}QueryDTO;
-import com.study.train.member.dto.${Domain}SaveDTO;
-import com.study.train.member.resp.${Domain}QueryResp;
-import com.study.train.member.service.${Domain}Service;
+import com.study.train.${module}.dto.PageDTO;
+import com.study.train.${module}.dto.${Domain}QueryDTO;
+import com.study.train.${module}.dto.${Domain}SaveDTO;
+import com.study.train.${module}.resp.${Domain}QueryResp;
+import com.study.train.${module}.service.${Domain}Service;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
