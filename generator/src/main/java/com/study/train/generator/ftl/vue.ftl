@@ -4,7 +4,7 @@
             <#if !readOnly>
                 <a-button type="primary" @click="onAdd">新增</a-button></#if>
     </a-space>
-    <a-table :data-Source="${domain}s"
+    <a-table :data-source="${domain}s"
              :columns="columns"
              :pagination="pagination"
              @change="handleTableChange"
@@ -79,7 +79,7 @@ import axios from "axios";
         setup() {
             <#list fieldList as field>
             <#if field.enums>
-            const ${field.enumsConst}_ARRAY = window.${field.enumsConst}_ARRAY;
+            const ${field.enumsConst}_ARRAY = [{key: "1",value: "成人"},{key: "2",value: "儿童"},{key: "3",value: "学生"}];
             </#if>
             </#list>
             const visible = ref(false);
@@ -126,7 +126,7 @@ import axios from "axios";
             };
 
             const onDelete = (record) => {
-                axios.delete("/${module}/admin/${do_main}/delete/" + record.id).then((response) => {
+                axios.delete("/${module}/${do_main}/delete/" + record.id).then((response) => {
                     const data = response.data;
                     if (data.success) {
                         notification.success({description: "删除成功！"});
@@ -141,7 +141,7 @@ import axios from "axios";
             };
 
             const handleOk = () => {
-                axios.post("/${module}/admin/${do_main}/save", ${domain}.value).then((response) => {
+                axios.post("/${module}/${do_main}/save", ${domain}.value).then((response) => {
                     let data = response.data;
                     if (data.success) {
                         notification.success({description: "保存成功！"});
@@ -165,7 +165,7 @@ import axios from "axios";
                     };
                 }
                 loading.value = true;
-                axios.get("/${module}/admin/${do_main}/query-list", {
+                axios.get("/${module}/${do_main}/query-list", {
                     params: {
                         page: param.page,
                         size: param.size
@@ -174,7 +174,7 @@ import axios from "axios";
                     loading.value = false;
                     let data = response.data;
                     if (data.success) {
-                        ${domain}s.value = data.content.list;
+                        ${domain}s.value = data.content.data;
                         // 设置分页控件的值
                         pagination.value.current = param.page;
                         pagination.value.total = data.content.total;

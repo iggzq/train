@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/Passenger")
+@RequestMapping("/passenger")
 public class PassengerController {
 
     @Resource

@@ -3,7 +3,7 @@
     <a-button type="primary" @click="handleQuery()">刷新</a-button>
     <a-button type="primary" @click="onAdd">新增</a-button>
   </a-space>
-  <a-table :data-Source="passengers"
+  <a-table :data-source="passengers"
            :columns="columns"
            :pagination="pagination"
            @change="handleTableChange"
@@ -42,7 +42,7 @@
       </a-form-item>
       <a-form-item label="旅客类型">
         <a-select v-model:value="passenger.type">
-          <a-select-option v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key" :value="item.key">{{ item.desc }}
+          <a-select-option v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key" :value="item.key">{{ item.value }}
           </a-select-option>
         </a-select>
       </a-form-item>
@@ -58,7 +58,7 @@ import axios from "axios";
 export default defineComponent({
   name: "passenger-view",
   setup() {
-    const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
+    const PASSENGER_TYPE_ARRAY = [{key: "1", value: "成人"}, {key: "2", value: "儿童"}, {key: "3", value: "学生"}];
     const visible = ref(false);
     let passenger = ref({
       id: undefined,
@@ -115,7 +115,7 @@ export default defineComponent({
     };
 
     const onDelete = (record) => {
-      axios.delete("/member/admin/passenger/delete/" + record.id).then((response) => {
+      axios.delete("/member/passenger/delete/" + record.id).then((response) => {
         const data = response.data;
         if (data.success) {
           notification.success({description: "删除成功！"});
@@ -130,7 +130,7 @@ export default defineComponent({
     };
 
     const handleOk = () => {
-      axios.post("/member/admin/passenger/save", passenger.value).then((response) => {
+      axios.post("/member/passenger/save", passenger.value).then((response) => {
         let data = response.data;
         if (data.success) {
           notification.success({description: "保存成功！"});
@@ -153,7 +153,7 @@ export default defineComponent({
         };
       }
       loading.value = true;
-      axios.get("/member/admin/passenger/query-list", {
+      axios.get("/member/passenger/query-list", {
         params: {
           page: param.page,
           size: param.size
@@ -162,7 +162,7 @@ export default defineComponent({
         loading.value = false;
         let data = response.data;
         if (data.success) {
-          passengers.value = data.content.list;
+          passengers.value = data.content.data;
           // 设置分页控件的值
           pagination.value.current = param.page;
           pagination.value.total = data.content.total;
