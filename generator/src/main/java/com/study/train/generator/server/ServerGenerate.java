@@ -71,7 +71,7 @@ public class ServerGenerate {
         System.out.println("组装参数：" + param);
 
         generateCode(Domain, param, "service", "service");
-        generateCode(Domain, param, "controller", "controller");
+        generateCode(Domain, param, "controller/admin", "adminController");
         generateCode(Domain, param, "dto", "saveDTO");
         generateCode(Domain, param, "dto", "queryDTO");
         generateCode(Domain, param, "resp", "queryResp");

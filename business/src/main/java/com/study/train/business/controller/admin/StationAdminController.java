@@ -1,4 +1,4 @@
-package com.study.train.business.controller;
+package com.study.train.business.controller.admin;
 
 import com.study.train.business.dto.StationQueryDTO;
 import com.study.train.business.dto.StationSaveDTO;
@@ -11,8 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/Station")
-public class StationController {
+@RequestMapping("/admin/station")
+public class StationAdminController {
 
     @Resource
     private StationService StationService;

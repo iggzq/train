@@ -95,7 +95,7 @@ import axios from "axios";
             };
 
             const onDelete = (record) => {
-                axios.delete("/business/station/delete/" + record.id).then((response) => {
+                axios.delete("/business/admin/station/delete/" + record.id).then((response) => {
                     const data = response.data;
                     if (data.success) {
                         notification.success({description: "删除成功！"});
@@ -110,7 +110,7 @@ import axios from "axios";
             };
 
             const handleOk = () => {
-                axios.post("/business/station/save", station.value).then((response) => {
+                axios.post("/business/admin/station/save", station.value).then((response) => {
                     let data = response.data;
                     if (data.success) {
                         notification.success({description: "保存成功！"});
@@ -133,7 +133,7 @@ import axios from "axios";
                     };
                 }
                 loading.value = true;
-                axios.get("/business/station/query-list", {
+                axios.get("/business/admin/station/query-list", {
                     params: {
                         page: param.page,
                         size: param.size
