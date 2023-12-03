@@ -27,7 +27,6 @@ public class ${Domain}Controller {
 
     @GetMapping("/query-list")
     public CommonResp<PageDTO<${Domain}QueryResp>> queryList(@Valid ${Domain}QueryDTO ${Domain}QueryDTO) {
-        ${Domain}QueryDTO.setMemberId(LoginMemberContext.getId());
         PageDTO<${Domain}QueryResp> list = ${Domain}Service.queryList(${Domain}QueryDTO);
         return new CommonResp<>(list);
     }

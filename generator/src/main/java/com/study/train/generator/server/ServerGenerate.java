@@ -64,16 +64,19 @@ public class ServerGenerate {
         param.put("module", moduleName);
         param.put("domain", domain);
         param.put("do_main", do_main);
-        param.put("fieldList",fieldList);
-        param.put("typeSet",typeSet);
-        param.put("tableNameCn",tableNameCn);
+        param.put("fieldList", fieldList);
+        param.put("typeSet", typeSet);
+        param.put("tableNameCn", tableNameCn);
         param.put("readOnly", readOnly);
         System.out.println("组装参数：" + param);
 
-//        generateCode(Domain, param, "service", "service");
-//        generateCode(Domain, param, "controller", "controller");
-//        generateCode(Domain, param, "req", "saveReq");
-        genVue(do_main,param);
+        generateCode(Domain, param, "service", "service");
+        generateCode(Domain, param, "controller", "controller");
+        generateCode(Domain, param, "dto", "saveDTO");
+        generateCode(Domain, param, "dto", "queryDTO");
+        generateCode(Domain, param, "resp", "queryResp");
+
+        genVue(do_main, param);
 
     }
 
@@ -83,6 +86,7 @@ public class ServerGenerate {
         new File(toPath).mkdirs();
         String target = targetType.substring(0, 1).toUpperCase() + targetType.substring(1);
         String fileName = toPath + Domain + target + ".java";
+        System.out.println("开始生成" + toPath + Domain + target + ".java");
         FreeMarkerUtil.generator(fileName, param);
     }
 

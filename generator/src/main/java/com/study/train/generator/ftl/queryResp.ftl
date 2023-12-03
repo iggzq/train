@@ -1,4 +1,4 @@
-package com.study.train.${module}.dto;
+package com.study.train.${module}.resp;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
