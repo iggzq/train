@@ -9,7 +9,7 @@ import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.util.SnowUtil;
 import com.study.train.member.domain.Passenger;
 import com.study.train.member.domain.PassengerExample;
-import com.study.train.member.dto.PageDTO;
+import com.study.train.common.resp.PageResp;
 import com.study.train.member.dto.PassengerQueryDTO;
 import com.study.train.member.dto.PassengerSaveDTO;
 import com.study.train.member.mapper.PassengerMapper;
@@ -45,7 +45,7 @@ public class PassengerService {
 
     }
 
-    public PageDTO<PassengerQueryResp> queryList(PassengerQueryDTO passengerQueryDTO) {
+    public PageResp<PassengerQueryResp> queryList(PassengerQueryDTO passengerQueryDTO) {
         PassengerExample passengerExample = new PassengerExample();
         PassengerExample.Criteria criteria = passengerExample.createCriteria();
         if (ObjectUtil.isNotNull(passengerQueryDTO.getMemberId())) {
@@ -60,7 +60,7 @@ public class PassengerService {
         LOG.info("总页数:{}", pageInfo.getPages());
 
         List<PassengerQueryResp> passengerQueryResps = BeanUtil.copyToList(passengers, PassengerQueryResp.class);
-        PageDTO<PassengerQueryResp> pageDTO = new PageDTO<>();
+        PageResp<PassengerQueryResp> pageDTO = new PageResp<>();
         pageDTO.setTotal(pageInfo.getTotal());
         pageDTO.setData(passengerQueryResps);
 

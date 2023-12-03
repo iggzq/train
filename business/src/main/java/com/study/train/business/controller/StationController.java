@@ -2,7 +2,7 @@ package com.study.train.business.controller;
 
 import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.resp.CommonResp;
-import com.study.train.business.dto.PageDTO;
+import com.study.train.common.resp.PageResp;
 import com.study.train.business.dto.StationQueryDTO;
 import com.study.train.business.dto.StationSaveDTO;
 import com.study.train.business.resp.StationQueryResp;
@@ -26,8 +26,8 @@ public class StationController {
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageDTO<StationQueryResp>> queryList(@Valid StationQueryDTO StationQueryDTO) {
-        PageDTO<StationQueryResp> list = StationService.queryList(StationQueryDTO);
+    public CommonResp<PageResp<StationQueryResp>> queryList(@Valid StationQueryDTO StationQueryDTO) {
+        PageResp<StationQueryResp> list = StationService.queryList(StationQueryDTO);
         return new CommonResp<>(list);
     }
 

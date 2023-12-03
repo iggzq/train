@@ -8,7 +8,7 @@ import com.github.pagehelper.PageInfo;
 import com.study.train.common.util.SnowUtil;
 import com.study.train.business.domain.Station;
 import com.study.train.business.domain.StationExample;
-import com.study.train.business.dto.PageDTO;
+import com.study.train.common.resp.PageResp;
 import com.study.train.business.dto.StationQueryDTO;
 import com.study.train.business.dto.StationSaveDTO;
 import com.study.train.business.mapper.StationMapper;
@@ -43,7 +43,7 @@ public class StationService {
 
     }
 
-    public PageDTO<StationQueryResp> queryList(StationQueryDTO stationQueryDTO) {
+    public PageResp<StationQueryResp> queryList(StationQueryDTO stationQueryDTO) {
         StationExample stationExample = new StationExample();
         StationExample.Criteria criteria = stationExample.createCriteria();
         PageHelper.startPage(stationQueryDTO.getPage(), stationQueryDTO.getSize());
@@ -55,11 +55,11 @@ public class StationService {
         LOG.info("总页数:{}", pageInfo.getPages());
 
         List<StationQueryResp> stationQueryResps = BeanUtil.copyToList(stations, StationQueryResp.class);
-        PageDTO<StationQueryResp> pageDTO = new PageDTO<>();
-        pageDTO.setTotal(pageInfo.getTotal());
-        pageDTO.setData(stationQueryResps);
+        PageResp<StationQueryResp> pageResp = new PageResp<>();
+            pageResp.setTotal(pageInfo.getTotal());
+            pageResp.setData(stationQueryResps);
 
-        return pageDTO;
+        return pageResp;
     }
 
     public void delete(Long id){

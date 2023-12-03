@@ -8,7 +8,7 @@ import com.github.pagehelper.PageInfo;
 import com.study.train.common.util.SnowUtil;
 import com.study.train.${module}.domain.${Domain};
 import com.study.train.${module}.domain.${Domain}Example;
-import com.study.train.${module}.dto.PageDTO;
+import com.study.train.common.resp.PageResp;
 import com.study.train.${module}.dto.${Domain}QueryDTO;
 import com.study.train.${module}.dto.${Domain}SaveDTO;
 import com.study.train.${module}.mapper.${Domain}Mapper;
@@ -43,7 +43,7 @@ public class ${Domain}Service {
 
     }
 
-    public PageDTO<${Domain}QueryResp> queryList(${Domain}QueryDTO ${domain}QueryDTO) {
+    public PageResp<${Domain}QueryResp> queryList(${Domain}QueryDTO ${domain}QueryDTO) {
         ${Domain}Example ${domain}Example = new ${Domain}Example();
         ${Domain}Example.Criteria criteria = ${domain}Example.createCriteria();
         PageHelper.startPage(${domain}QueryDTO.getPage(), ${domain}QueryDTO.getSize());
@@ -55,11 +55,11 @@ public class ${Domain}Service {
         LOG.info("总页数:{}", pageInfo.getPages());
 
         List<${Domain}QueryResp> ${domain}QueryResps = BeanUtil.copyToList(${domain}s, ${Domain}QueryResp.class);
-        PageDTO<${Domain}QueryResp> pageDTO = new PageDTO<>();
-        pageDTO.setTotal(pageInfo.getTotal());
-        pageDTO.setData(${domain}QueryResps);
+        PageResp<${Domain}QueryResp> pageResp = new PageResp<>();
+            pageResp.setTotal(pageInfo.getTotal());
+            pageResp.setData(${domain}QueryResps);
 
-        return pageDTO;
+        return pageResp;
     }
 
     public void delete(Long id){

@@ -1,9 +1,9 @@
-package com.study.train.member.dto;
+package com.study.train.common.resp;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class PageDTO<T> implements Serializable {
+public class PageResp<T> implements Serializable {
 
     private Long total;
 

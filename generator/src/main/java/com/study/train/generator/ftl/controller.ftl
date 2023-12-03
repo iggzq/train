@@ -2,7 +2,7 @@ package com.study.train.${module}.controller;
 
 import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.resp.CommonResp;
-import com.study.train.${module}.dto.PageDTO;
+import com.study.train.common.resp.PageResp;
 import com.study.train.${module}.dto.${Domain}QueryDTO;
 import com.study.train.${module}.dto.${Domain}SaveDTO;
 import com.study.train.${module}.resp.${Domain}QueryResp;
@@ -26,8 +26,8 @@ public class ${Domain}Controller {
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageDTO<${Domain}QueryResp>> queryList(@Valid ${Domain}QueryDTO ${Domain}QueryDTO) {
-        PageDTO<${Domain}QueryResp> list = ${Domain}Service.queryList(${Domain}QueryDTO);
+    public CommonResp<PageResp<${Domain}QueryResp>> queryList(@Valid ${Domain}QueryDTO ${Domain}QueryDTO) {
+        PageResp<${Domain}QueryResp> list = ${Domain}Service.queryList(${Domain}QueryDTO);
         return new CommonResp<>(list);
     }
 

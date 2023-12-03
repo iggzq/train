@@ -7,8 +7,6 @@ public class StationQueryDTO extends PageReq {
 
     @Override
     public String toString() {
-        return "StationQueryDTO{" +
-                "memberId=" + memberId +
-                '}';
+        return "StationQueryDTO{}";
     }
 }

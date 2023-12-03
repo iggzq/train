@@ -7,8 +7,6 @@ public class ${Domain}QueryDTO extends PageReq {
 
     @Override
     public String toString() {
-        return "${Domain}QueryDTO{" +
-                "memberId=" + memberId +
-                '}';
+        return "${Domain}QueryDTO{}";
     }
 }
