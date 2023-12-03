@@ -41,7 +41,8 @@
                          targetPackage="com.study.train.business.mapper"
                          type="XMLMAPPER"/>
 
-        <table tableName="station" domainObjectName="Station"/>
+<!--        <table tableName="station" domainObjectName="Station"/>-->
+        <table tableName="train" domainObjectName="Train"/>
 
     </context>
 </generatorConfiguration>

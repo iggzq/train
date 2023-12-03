@@ -7,36 +7,36 @@ public enum PassengerTypeEnum {
 
     STUDENT("3","学生");
 
-    private String code;
+    private String key;
 
-    private String desc;
+    private String value;
 
-    public String getCode() {
-        return code;
+    public String getKey() {
+        return key;
     }
 
-    PassengerTypeEnum(String code, String desc) {
-        this.code = code;
-        this.desc = desc;
+    PassengerTypeEnum(String key, String value) {
+        this.key = key;
+        this.value = value;
     }
 
     @Override
     public String toString() {
         return "PassengerTypeEnum{" +
-                "code='" + code + '\'' +
-                ", desc='" + desc + '\'' +
+                "key='" + key + '\'' +
+                ", value='" + value + '\'' +
                 '}';
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getValue() {
+        return value;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setValue(String value) {
+        this.value = value;
     }
 }

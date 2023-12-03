@@ -1,5 +1,5 @@
 <template>
-    <a-space>
+    <a-space class="top_button">
             <a-button type="primary" @click="handleQuery()">刷新</a-button>
             <#if !readOnly>
                 <a-button type="primary" @click="onAdd">新增</a-button></#if>
@@ -44,7 +44,7 @@
                         <a-form-item label="${field.nameCn}">
                             <#if field.enums>
                                 <a-select v-model:value="${domain}.${field.nameHump}">
-                                    <a-select-option v-for="item in ${field.enumsConst}_ARRAY" :key="item.key" :value="item.key">{{item.desc}}</a-select-option>
+                                    <a-select-option v-for="item in ${field.enumsConst}_ARRAY" :key="item.key" :value="item.key">{{item.value}}</a-select-option>
                                 </a-select>
                             <#elseif field.javaType=='Date'>
                                 <#if field.type=='time'>
@@ -79,7 +79,7 @@ import axios from "axios";
         setup() {
             <#list fieldList as field>
             <#if field.enums>
-            const ${field.enumsConst}_ARRAY = [{key: "1",value: "成人"},{key: "2",value: "儿童"},{key: "3",value: "学生"}];
+            const ${field.enumsConst}_ARRAY = window.${field.enumsConst}_ARRAY;
             </#if>
             </#list>
             const visible = ref(false);
@@ -224,3 +224,9 @@ import axios from "axios";
         },
     });
 </script>
+<style scoped>
+.top_button{
+  position: relative;
+  display: flex;
+}
+</style>
