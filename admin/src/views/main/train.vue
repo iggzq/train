@@ -29,7 +29,7 @@
       </template>
     </template>
   </a-table>
-  <a-modal v-model:visible="visible" title="车次" @ok="handleOk" ok-text="确认" cancel-text="取消">
+  <a-modal v-model:visible="visible" title="车次" @ok=" " ok-text="确认" cancel-text="取消">
     <a-form :model="train" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
       <a-form-item label="车次编号">
         <a-input v-model:value="train.code"/>
