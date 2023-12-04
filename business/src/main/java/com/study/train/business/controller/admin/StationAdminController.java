@@ -10,30 +10,38 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/admin/station")
 public class StationAdminController {
 
     @Resource
-    private StationService StationService;
+    private StationService stationService;
 
 
     @PostMapping("/save")
     public CommonResp<Object> register(@Valid @RequestBody StationSaveDTO StationSaveDTO) {
-        StationService.save(StationSaveDTO);
+        stationService.save(StationSaveDTO);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
     public CommonResp<PageResp<StationQueryResp>> queryList(@Valid StationQueryDTO StationQueryDTO) {
-        PageResp<StationQueryResp> list = StationService.queryList(StationQueryDTO);
+        PageResp<StationQueryResp> list = stationService.queryList(StationQueryDTO);
         return new CommonResp<>(list);
     }
 
     @DeleteMapping("/delete/{id}")
     public CommonResp<Object> delete(@PathVariable Long id) {
-        StationService.delete(id);
+        stationService.delete(id);
         return new CommonResp<>();
+    }
+
+    @GetMapping("/query-all")
+    public CommonResp<List<StationQueryResp>> queryAll() {
+        List<StationQueryResp> list = stationService.queryAll();
+        return new CommonResp<>(list);
     }
 
 

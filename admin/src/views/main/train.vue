@@ -41,7 +41,7 @@
         </a-select>
       </a-form-item>
       <a-form-item label="始发站">
-        <a-input v-model:value="train.start"/>
+        <station-select-view v-model="train.start"></station-select-view>
       </a-form-item>
       <a-form-item label="始发站拼音">
         <a-input v-model:value="train.startPinyin" disabled/>
@@ -51,7 +51,8 @@
                        placeholder="请选择时间"/>
       </a-form-item>
       <a-form-item label="终点站">
-        <a-input v-model:value="train.end"/>
+        <station-select-view v-model="train.end"></station-select-view>
+
       </a-form-item>
       <a-form-item label="终点站拼音">
         <a-input v-model:value="train.endPinyin" disabled/>
@@ -69,9 +70,11 @@ import {defineComponent, ref, onMounted, watch} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
 import {pinyin} from "pinyin-pro";
+import StationSelectView from "@/components/station-select.vue";
 
 export default defineComponent({
   name: "train-view",
+  components: {StationSelectView},
   setup() {
     const TRAIN_TYPE_ARRAY = window.TRAIN_TYPE_ARRAY;
     const visible = ref(false);
@@ -142,21 +145,21 @@ export default defineComponent({
         dataIndex: 'operation'
       }
     ];
-    watch(() => train.value.start, ()=>{
-      if(Tool.isNotEmpty(train.value.start)){
-        train.value.startPinyin = pinyin(train.value.start,{toneType: 'none'}).replaceAll(" ", "");
-      }else {
+    watch(() => train.value.start, () => {
+      if (Tool.isNotEmpty(train.value.start)) {
+        train.value.startPinyin = pinyin(train.value.start, {toneType: 'none'}).replaceAll(" ", "");
+      } else {
         train.value.startPinyin = "";
       }
-    },{immediate: true});
+    }, {immediate: true});
 
-    watch(() => train.value.end, ()=>{
-      if(Tool.isNotEmpty(train.value.end)){
-        train.value.endPinyin = pinyin(train.value.end,{toneType: 'none'}).replaceAll(" ", "");
-      }else {
+    watch(() => train.value.end, () => {
+      if (Tool.isNotEmpty(train.value.end)) {
+        train.value.endPinyin = pinyin(train.value.end, {toneType: 'none'}).replaceAll(" ", "");
+      } else {
         train.value.endPinyin = "";
       }
-    },{immediate: true});
+    }, {immediate: true});
 
     const onAdd = () => {
       train.value = {};
@@ -261,7 +264,7 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-.top_button{
+.top_button {
   position: relative;
   display: flex;
 }
