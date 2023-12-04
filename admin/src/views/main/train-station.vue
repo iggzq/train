@@ -215,7 +215,6 @@ export default defineComponent({
 
 
     onMounted(() => {
-      queryTrainCode();
       handleQuery({
         page: 1,
         size: pagination.value.pageSize
@@ -235,8 +234,6 @@ export default defineComponent({
       handleOk,
       onEdit,
       onDelete,
-      queryTrainCode,
-      filterTrainCodeOption,
       trains
     };
   },
