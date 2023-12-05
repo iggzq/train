@@ -1,7 +1,7 @@
 <template>
   <a-space class="top_button">
     <train-select-view v-model="params.trainCode" style="width: 200px"></train-select-view>
-    <a-button type="primary" @click="handleQuery()">刷新</a-button>
+    <a-button type="primary" @click="handleQuery()">查找</a-button>
     <a-button type="primary" @click="onAdd">新增</a-button>
   </a-space>
   <a-table :data-source="trainCarriages"

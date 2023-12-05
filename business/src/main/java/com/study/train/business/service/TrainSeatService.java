@@ -46,6 +46,9 @@ public class TrainSeatService {
     public PageResp<TrainSeatQueryResp> queryList(TrainSeatQueryDTO trainSeatQueryDTO) {
         TrainSeatExample trainSeatExample = new TrainSeatExample();
         TrainSeatExample.Criteria criteria = trainSeatExample.createCriteria();
+        if (ObjectUtil.isNotEmpty(trainSeatQueryDTO.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(trainSeatQueryDTO.getTrainCode());
+        }
         PageHelper.startPage(trainSeatQueryDTO.getPage(), trainSeatQueryDTO.getSize());
         List<TrainSeat> trainSeats = trainSeatMapper.selectByExample(trainSeatExample);
 
