@@ -38,7 +38,7 @@
   <a-modal v-model:visible="visible" title="车次" @ok="handleOk" ok-text="确认" cancel-text="取消">
     <a-form :model="train" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
       <a-form-item label="车次编号">
-        <a-input v-model:value="train.code"/>
+        <a-input v-model:value="train.code" :disabled="!!train.id"/>
       </a-form-item>
       <a-form-item label="车次类型">
         <a-select v-model:value="train.type">
@@ -249,9 +249,9 @@ export default defineComponent({
       axios.post("/business/admin/train/gen-seat/" + record.code).then((response) => {
         loading.value = false;
         const data = response.data;
-        if(data.success){
+        if (data.success) {
           notification.success({description: "生成成功！"});
-        }else {
+        } else {
           notification.error({description: "生成失败！"});
         }
       })

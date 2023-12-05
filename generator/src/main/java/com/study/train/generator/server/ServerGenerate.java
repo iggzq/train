@@ -15,7 +15,7 @@ import java.util.*;
 
 public class ServerGenerate {
 
-    static boolean readOnly = false;
+    static boolean readOnly = true;
     static String vuePath = "admin/src/views/main/";
 
 
@@ -70,11 +70,11 @@ public class ServerGenerate {
         param.put("readOnly", readOnly);
         System.out.println("组装参数：" + param);
 
-        generateCode(Domain, param, "service", "service");
-        generateCode(Domain, param, "controller/admin", "adminController");
-        generateCode(Domain, param, "dto", "saveDTO");
-        generateCode(Domain, param, "dto", "queryDTO");
-        generateCode(Domain, param, "resp", "queryResp");
+//        generateCode(Domain, param, "service", "service");
+//        generateCode(Domain, param, "controller/admin", "adminController");
+//        generateCode(Domain, param, "dto", "saveDTO");
+//        generateCode(Domain, param, "dto", "queryDTO");
+//        generateCode(Domain, param, "resp", "queryResp");
 
         genVue(do_main, param);
 
