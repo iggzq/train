@@ -16,4 +16,4 @@ mybatis:
 
 logging:
   level:
-    com.study.train.member.mapper: trace
+    com.study.train.business.mapper: trace

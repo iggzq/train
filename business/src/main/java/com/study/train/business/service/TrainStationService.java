@@ -46,7 +46,7 @@ public class TrainStationService {
     public PageResp<TrainStationQueryResp> queryList(TrainStationQueryDTO trainStationQueryDTO) {
         TrainStationExample trainStationExample = new TrainStationExample();
         TrainStationExample.Criteria criteria = trainStationExample.createCriteria();
-        if (ObjectUtil.isNotNull(trainStationQueryDTO.getTrainCode())) {
+        if (ObjectUtil.isNotEmpty(trainStationQueryDTO.getTrainCode())) {
             criteria.andTrainCodeEqualTo(trainStationQueryDTO.getTrainCode());
         }
         PageHelper.startPage(trainStationQueryDTO.getPage(), trainStationQueryDTO.getSize());

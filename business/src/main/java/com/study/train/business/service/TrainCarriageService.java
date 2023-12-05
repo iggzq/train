@@ -46,6 +46,9 @@ public class TrainCarriageService {
     public PageResp<TrainCarriageQueryResp> queryList(TrainCarriageQueryDTO trainCarriageQueryDTO) {
         TrainCarriageExample trainCarriageExample = new TrainCarriageExample();
         TrainCarriageExample.Criteria criteria = trainCarriageExample.createCriteria();
+        if (ObjectUtil.isNotEmpty(trainCarriageQueryDTO.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(trainCarriageQueryDTO.getTrainCode());
+        }
         PageHelper.startPage(trainCarriageQueryDTO.getPage(), trainCarriageQueryDTO.getSize());
         List<TrainCarriage> trainCarriages = trainCarriageMapper.selectByExample(trainCarriageExample);
 
