@@ -1,6 +1,7 @@
 package com.study.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
@@ -11,6 +12,8 @@ import com.study.train.business.dto.TrainQueryDTO;
 import com.study.train.business.dto.TrainSaveDTO;
 import com.study.train.business.mapper.TrainMapper;
 import com.study.train.business.resp.TrainQueryResp;
+import com.study.train.common.exception.BusinessException;
+import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
@@ -32,6 +35,11 @@ public class TrainService {
         DateTime now = new DateTime();
         Train train = BeanUtil.copyProperties(trainSaveDTO, Train.class);
         if (ObjectUtil.isNull(train.getId())) {
+
+            Train byUnique = selectByUnique(trainSaveDTO.getCode());
+            if(ObjectUtil.isNotNull(byUnique)){
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_CODE_UNIQUE_ERROR);
+            }
             train.setId(SnowUtil.getSnowflakeNextId());
             train.setCreateTime(now);
             train.setUpdateTime(now);
@@ -41,6 +49,18 @@ public class TrainService {
             trainMapper.updateByPrimaryKey(train);
         }
 
+    }
+
+    private Train selectByUnique(String trainCode   ) {
+        TrainExample trainExample = new TrainExample();
+        TrainExample.Criteria criteria = trainExample.createCriteria();
+        criteria.andCodeEqualTo(trainCode);
+        List<Train> trains = trainMapper.selectByExample(trainExample);
+        if (CollUtil.isNotEmpty(trains)) {
+            return trains.get(0);
+        } else {
+            return null;
+        }
     }
 
     public PageResp<TrainQueryResp> queryList(TrainQueryDTO trainQueryDTO) {

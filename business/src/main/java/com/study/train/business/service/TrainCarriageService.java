@@ -1,19 +1,22 @@
 package com.study.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.business.enums.SeatColEnum;
-import com.study.train.common.util.SnowUtil;
 import com.study.train.business.domain.TrainCarriage;
 import com.study.train.business.domain.TrainCarriageExample;
-import com.study.train.common.resp.PageResp;
 import com.study.train.business.dto.TrainCarriageQueryDTO;
 import com.study.train.business.dto.TrainCarriageSaveDTO;
+import com.study.train.business.enums.SeatColEnum;
 import com.study.train.business.mapper.TrainCarriageMapper;
 import com.study.train.business.resp.TrainCarriageQueryResp;
+import com.study.train.common.exception.BusinessException;
+import com.study.train.common.exception.BusinessExceptionEnum;
+import com.study.train.common.resp.PageResp;
+import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,10 @@ public class TrainCarriageService {
         trainCarriageSaveDTO.setSeatCount(trainCarriageSaveDTO.getColCount() * trainCarriageSaveDTO.getRowCount());
         TrainCarriage trainCarriage = BeanUtil.copyProperties(trainCarriageSaveDTO, TrainCarriage.class);
         if (ObjectUtil.isNull(trainCarriage.getId())) {
+            TrainCarriage byUnique = selectByUnique(trainCarriageSaveDTO.getTrainCode(), trainCarriageSaveDTO.getIndex());
+            if (ObjectUtil.isNotNull(byUnique)) {
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_CARRIAGE_INDEX_UNIQUE_ERROR);
+            }
             trainCarriage.setId(SnowUtil.getSnowflakeNextId());
             trainCarriage.setCreateTime(now);
             trainCarriage.setUpdateTime(now);
@@ -45,6 +52,18 @@ public class TrainCarriageService {
             trainCarriageMapper.updateByPrimaryKey(trainCarriage);
         }
 
+    }
+
+    private TrainCarriage selectByUnique(String trainCode, Integer index) {
+        TrainCarriageExample trainCarriageExample = new TrainCarriageExample();
+        TrainCarriageExample.Criteria criteria = trainCarriageExample.createCriteria();
+        criteria.andTrainCodeEqualTo(trainCode).andIndexEqualTo(index);
+        List<TrainCarriage> trainCarriages = trainCarriageMapper.selectByExample(trainCarriageExample);
+        if (CollUtil.isNotEmpty(trainCarriages)) {
+            return trainCarriages.get(0);
+        } else {
+            return null;
+        }
     }
 
     public PageResp<TrainCarriageQueryResp> queryList(TrainCarriageQueryDTO trainCarriageQueryDTO) {
@@ -78,6 +97,7 @@ public class TrainCarriageService {
         TrainCarriageExample.Criteria criteria = trainCarriageExample.createCriteria();
         criteria.andTrainCodeEqualTo(trainCode);
         return trainCarriageMapper.selectByExample(trainCarriageExample);
-
     }
+
+
 }

@@ -1,18 +1,21 @@
 package com.study.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.common.util.SnowUtil;
 import com.study.train.business.domain.TrainStation;
 import com.study.train.business.domain.TrainStationExample;
-import com.study.train.common.resp.PageResp;
 import com.study.train.business.dto.TrainStationQueryDTO;
 import com.study.train.business.dto.TrainStationSaveDTO;
 import com.study.train.business.mapper.TrainStationMapper;
 import com.study.train.business.resp.TrainStationQueryResp;
+import com.study.train.common.exception.BusinessException;
+import com.study.train.common.exception.BusinessExceptionEnum;
+import com.study.train.common.resp.PageResp;
+import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +35,43 @@ public class TrainStationService {
         DateTime now = new DateTime();
         TrainStation trainStation = BeanUtil.copyProperties(trainStationSaveDTO, TrainStation.class);
         if (ObjectUtil.isNull(trainStation.getId())) {
+            TrainStation byUnique = selectByUnique(trainStationSaveDTO.getTrainCode(), trainStationSaveDTO.getIndex());
+            if (ObjectUtil.isNotNull(byUnique)) {
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_STATION_INDEX_UNIQUE_ERROR);
+            }
             trainStation.setId(SnowUtil.getSnowflakeNextId());
             trainStation.setCreateTime(now);
             trainStation.setUpdateTime(now);
             trainStationMapper.insert(trainStation);
-        }else {
+        } else {
             trainStation.setUpdateTime(now);
             trainStationMapper.updateByPrimaryKey(trainStation);
         }
 
+    }
+
+    private TrainStation selectByUnique(String trainCode, Integer index) {
+        TrainStationExample trainStationExample = new TrainStationExample();
+        TrainStationExample.Criteria criteria = trainStationExample.createCriteria();
+        criteria.andTrainCodeEqualTo(trainCode).andIndexEqualTo(index);
+        List<TrainStation> trainStations = trainStationMapper.selectByExample(trainStationExample);
+        if (CollUtil.isNotEmpty(trainStations)) {
+            return trainStations.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    private TrainStation selectByUnique(String trainCode, String name) {
+        TrainStationExample trainStationExample = new TrainStationExample();
+        TrainStationExample.Criteria criteria = trainStationExample.createCriteria();
+        criteria.andTrainCodeEqualTo(trainCode).andNameEqualTo(name);
+        List<TrainStation> trainStations = trainStationMapper.selectByExample(trainStationExample);
+        if (CollUtil.isNotEmpty(trainStations)) {
+            return trainStations.get(0);
+        } else {
+            return null;
+        }
     }
 
     public PageResp<TrainStationQueryResp> queryList(TrainStationQueryDTO trainStationQueryDTO) {
@@ -55,19 +86,18 @@ public class TrainStationService {
         PageInfo<TrainStation> pageInfo = new PageInfo<>(trainStations);
 
 
-
         LOG.info("总行数：{}", pageInfo.getTotal());
         LOG.info("总页数:{}", pageInfo.getPages());
 
         List<TrainStationQueryResp> trainStationQueryResps = BeanUtil.copyToList(trainStations, TrainStationQueryResp.class);
         PageResp<TrainStationQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(trainStationQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(trainStationQueryResps);
 
         return pageResp;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         trainStationMapper.deleteByPrimaryKey(id);
     }
 }

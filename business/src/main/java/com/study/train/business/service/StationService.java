@@ -1,6 +1,7 @@
 package com.study.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
@@ -11,6 +12,8 @@ import com.study.train.business.dto.StationQueryDTO;
 import com.study.train.business.dto.StationSaveDTO;
 import com.study.train.business.mapper.StationMapper;
 import com.study.train.business.resp.StationQueryResp;
+import com.study.train.common.exception.BusinessException;
+import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
@@ -32,15 +35,34 @@ public class StationService {
         DateTime now = new DateTime();
         Station station = BeanUtil.copyProperties(stationSaveDTO, Station.class);
         if (ObjectUtil.isNull(station.getId())) {
+            //校验唯一键是否存在
+            Station stationDB = selectByUnique(stationSaveDTO.getName());
+            if (ObjectUtil.isNotNull(stationDB)) {
+                throw new BusinessException(BusinessExceptionEnum.BUSINESS_STATION_NAME_UNIQUE_ERROR);
+            }
+
+
             station.setId(SnowUtil.getSnowflakeNextId());
             station.setCreateTime(now);
             station.setUpdateTime(now);
             stationMapper.insert(station);
-        }else {
+        } else {
             station.setUpdateTime(now);
             stationMapper.updateByPrimaryKey(station);
         }
 
+    }
+
+    private Station selectByUnique(String name) {
+        StationExample stationExample = new StationExample();
+        StationExample.Criteria criteria = stationExample.createCriteria();
+        criteria.andNameEqualTo(name);
+        List<Station> stations = stationMapper.selectByExample(stationExample);
+        if (CollUtil.isNotEmpty(stations)) {
+            return stations.get(0);
+        } else {
+            return null;
+        }
     }
 
     public PageResp<StationQueryResp> queryList(StationQueryDTO stationQueryDTO) {
@@ -56,8 +78,8 @@ public class StationService {
 
         List<StationQueryResp> stationQueryResps = BeanUtil.copyToList(stations, StationQueryResp.class);
         PageResp<StationQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(stationQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(stationQueryResps);
 
         return pageResp;
     }
@@ -65,10 +87,10 @@ public class StationService {
     public List<StationQueryResp> queryAll() {
         StationExample stationExample = new StationExample();
         List<Station> stations = stationMapper.selectByExample(stationExample);
-        return BeanUtil.copyToList(stations,StationQueryResp.class);
+        return BeanUtil.copyToList(stations, StationQueryResp.class);
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         stationMapper.deleteByPrimaryKey(id);
     }
 }
