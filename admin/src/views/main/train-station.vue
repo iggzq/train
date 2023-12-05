@@ -1,6 +1,7 @@
 <template>
   <a-space class="top_button">
-    <a-button type="primary" @click="handleQuery()">刷新</a-button>
+    <train-select-view v-model="params.trainCode" style="width: 200px"></train-select-view>
+    <a-button type="primary" @click="handleQuery()">查找</a-button>
     <a-button type="primary" @click="onAdd">新增</a-button>
   </a-space>
   <a-table :data-source="trainStations"
@@ -34,7 +35,7 @@
         <a-input v-model:value="trainStation.name"/>
       </a-form-item>
       <a-form-item label="站名拼音">
-        <a-input v-model:value="trainStation.namePinyin"/>
+        <a-input v-model:value="trainStation.namePinyin" disabled/>
       </a-form-item>
       <a-form-item label="进站时间">
         <a-time-picker v-model:value="trainStation.inTime" valueFormat="HH:mm:ss"
@@ -56,10 +57,11 @@
 </template>
 
 <script>
-import {defineComponent, ref, onMounted} from "vue";
+import {defineComponent, ref, onMounted, watch} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
 import TrainSelectView from "@/components/train-select.vue";
+import {pinyin} from "pinyin-pro";
 
 export default defineComponent({
   name: "train-station-view",
@@ -88,6 +90,9 @@ export default defineComponent({
       pageSize: 10,
     });
     let loading = ref(false);
+    let params = ref({
+      trainCode: "",
+    })
     const columns = [
       {
         title: '车次编号',
@@ -180,14 +185,15 @@ export default defineComponent({
       if (!param) {
         param = {
           page: 1,
-          size: pagination.value.pageSize
+          size: pagination.value.pageSize,
         };
       }
       loading.value = true;
       axios.get("/business/admin/train-station/query-list", {
         params: {
           page: param.page,
-          size: param.size
+          size: param.size,
+          trainCode: params.value.trainCode,
         }
       }).then((response) => {
         loading.value = false;
@@ -213,13 +219,21 @@ export default defineComponent({
     };
 
 
-
     onMounted(() => {
       handleQuery({
         page: 1,
         size: pagination.value.pageSize
       });
     });
+
+    watch(() => trainStation.value.name, () => {
+      if (Tool.isNotEmpty(trainStation.value.name)) {
+        trainStation.value.namePinyin = pinyin(trainStation.value.name, {toneType: 'none'}).replaceAll(" ", "");
+      } else {
+        trainStation.value.namePinyin = "";
+      }
+
+    }, {immediate: true});
 
     return {
       trainStation,
@@ -234,7 +248,8 @@ export default defineComponent({
       handleOk,
       onEdit,
       onDelete,
-      trains
+      trains,
+      params,
     };
   },
 });
@@ -243,5 +258,6 @@ export default defineComponent({
 .top_button {
   position: relative;
   display: flex;
+  flex-direction: row;
 }
 </style>

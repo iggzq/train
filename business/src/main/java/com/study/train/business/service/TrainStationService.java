@@ -46,10 +46,15 @@ public class TrainStationService {
     public PageResp<TrainStationQueryResp> queryList(TrainStationQueryDTO trainStationQueryDTO) {
         TrainStationExample trainStationExample = new TrainStationExample();
         TrainStationExample.Criteria criteria = trainStationExample.createCriteria();
+        if (ObjectUtil.isNotNull(trainStationQueryDTO.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(trainStationQueryDTO.getTrainCode());
+        }
         PageHelper.startPage(trainStationQueryDTO.getPage(), trainStationQueryDTO.getSize());
         List<TrainStation> trainStations = trainStationMapper.selectByExample(trainStationExample);
 
         PageInfo<TrainStation> pageInfo = new PageInfo<>(trainStations);
+
+
 
         LOG.info("总行数：{}", pageInfo.getTotal());
         LOG.info("总页数:{}", pageInfo.getPages());
