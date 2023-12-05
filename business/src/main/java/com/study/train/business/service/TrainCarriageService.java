@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.study.train.business.enums.SeatColEnum;
 import com.study.train.common.util.SnowUtil;
 import com.study.train.business.domain.TrainCarriage;
 import com.study.train.business.domain.TrainCarriageExample;
@@ -29,14 +30,17 @@ public class TrainCarriageService {
     TrainCarriageMapper trainCarriageMapper;
 
     public void save(TrainCarriageSaveDTO trainCarriageSaveDTO) {
-        DateTime now = new DateTime();
+        DateTime now = DateTime.now();
+        List<SeatColEnum> seatColEnums = SeatColEnum.getColsByType(trainCarriageSaveDTO.getSeatType());
+        trainCarriageSaveDTO.setColCount(seatColEnums.size());
+        trainCarriageSaveDTO.setSeatCount(trainCarriageSaveDTO.getColCount() * trainCarriageSaveDTO.getRowCount());
         TrainCarriage trainCarriage = BeanUtil.copyProperties(trainCarriageSaveDTO, TrainCarriage.class);
         if (ObjectUtil.isNull(trainCarriage.getId())) {
             trainCarriage.setId(SnowUtil.getSnowflakeNextId());
             trainCarriage.setCreateTime(now);
             trainCarriage.setUpdateTime(now);
             trainCarriageMapper.insert(trainCarriage);
-        }else {
+        } else {
             trainCarriage.setUpdateTime(now);
             trainCarriageMapper.updateByPrimaryKey(trainCarriage);
         }
@@ -59,17 +63,17 @@ public class TrainCarriageService {
 
         List<TrainCarriageQueryResp> trainCarriageQueryResps = BeanUtil.copyToList(trainCarriages, TrainCarriageQueryResp.class);
         PageResp<TrainCarriageQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(trainCarriageQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(trainCarriageQueryResps);
 
         return pageResp;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         trainCarriageMapper.deleteByPrimaryKey(id);
     }
 
-    public List<TrainCarriage> selectByTrainCode(String trainCode){
+    public List<TrainCarriage> selectByTrainCode(String trainCode) {
         TrainCarriageExample trainCarriageExample = new TrainCarriageExample();
         TrainCarriageExample.Criteria criteria = trainCarriageExample.createCriteria();
         criteria.andTrainCodeEqualTo(trainCode);

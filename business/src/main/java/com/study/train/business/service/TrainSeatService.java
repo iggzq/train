@@ -36,7 +36,7 @@ public class TrainSeatService {
     TrainCarriageService trainCarriageService;
 
     public void save(TrainSeatSaveDTO trainSeatSaveDTO) {
-        DateTime now = new DateTime();
+        DateTime now = DateTime.now();
         TrainSeat trainSeat = BeanUtil.copyProperties(trainSeatSaveDTO, TrainSeat.class);
         if (ObjectUtil.isNull(trainSeat.getId())) {
             trainSeat.setId(SnowUtil.getSnowflakeNextId());
@@ -79,7 +79,7 @@ public class TrainSeatService {
     //生成座位
     @Transactional
     public void genTrainSeat(String trainCode){
-        DateTime now = new DateTime();
+        DateTime now = DateTime.now();
         //清空座位
         TrainSeatExample trainSeatExample = new TrainSeatExample();
         TrainSeatExample.Criteria criteria = trainSeatExample.createCriteria();
