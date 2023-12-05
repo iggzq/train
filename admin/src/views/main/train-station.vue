@@ -47,7 +47,7 @@
       </a-form-item>
       <a-form-item label="停站时长">
         <a-time-picker v-model:value="trainStation.stopTime" valueFormat="HH:mm:ss"
-                       placeholder="请选择时间"/>
+                       placeholder="请选择时间" disabled/>
       </a-form-item>
       <a-form-item label="里程（公里）">
         <a-input v-model:value="trainStation.km"/>
@@ -62,6 +62,7 @@ import {notification} from "ant-design-vue";
 import axios from "axios";
 import TrainSelectView from "@/components/train-select.vue";
 import {pinyin} from "pinyin-pro";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "train-station-view",
@@ -234,6 +235,16 @@ export default defineComponent({
       }
 
     }, {immediate: true});
+
+    watch(() => trainStation.value.inTime, () => {
+      let diff = dayjs(trainStation.value.outTime, 'HH:mm:ss').diff(dayjs(trainStation.value.inTime,'HH:mm:ss'),'second');
+      trainStation.value.stopTime = dayjs('00:00：00','HH:mm:ss').second(diff).format('HH:mm:ss');
+    },{immediate: true});
+
+    watch(() => trainStation.value.outTime, () => {
+      let diff = dayjs(trainStation.value.outTime, 'HH:mm:ss').diff(dayjs(trainStation.value.inTime,'HH:mm:ss'),'second');
+      trainStation.value.stopTime = dayjs('00:00：00','HH:mm:ss').second(diff).format('HH:mm:ss');
+    },{immediate: true});
 
     return {
       trainStation,
