@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/${domain}")
+@RequestMapping("/${do_main}")
 public class ${Domain}Controller {
 
     @Resource

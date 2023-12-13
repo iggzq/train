@@ -15,18 +15,20 @@ import java.util.*;
 
 public class ServerGenerate {
 
-    static boolean readOnly = true;
+    static boolean readOnly = false;
     static String vuePath = "admin/src/views/main/";
 
 
     static String serviceToPath = "[module]/src/main/java/com/study/train/[module]/";
     static String pomPath = "generator/pom.xml";
 
+    static String moduleName = "";
+
     public static void main(String[] args) throws Exception {
 
         String generatorPath = getGeneratorPath();
 
-        String moduleName = generatorPath.replace("src/main/resources/generator-config-", "").replace(".xml", "");
+        moduleName = generatorPath.replace("src/main/resources/generator-config-", "").replace(".xml", "");
         System.out.println("moduleName:" + moduleName);
         serviceToPath = serviceToPath.replace("[module]", moduleName);
         new File(serviceToPath).mkdirs();
@@ -70,11 +72,11 @@ public class ServerGenerate {
         param.put("readOnly", readOnly);
         System.out.println("组装参数：" + param);
 
-//        generateCode(Domain, param, "service", "service");
-//        generateCode(Domain, param, "controller/admin", "adminController");
-//        generateCode(Domain, param, "dto", "saveDTO");
-//        generateCode(Domain, param, "dto", "queryDTO");
-//        generateCode(Domain, param, "resp", "queryResp");
+        generateCode(Domain, param, "service", "service");
+        generateCode(Domain, param, "controller/admin", "adminController");
+        generateCode(Domain, param, "dto", "saveDTO");
+        generateCode(Domain, param, "dto", "queryDTO");
+        generateCode(Domain, param, "resp", "queryResp");
 
         genVue(do_main, param);
 
@@ -93,7 +95,7 @@ public class ServerGenerate {
     private static void genVue(String do_main, Map<String, Object> param) throws IOException, TemplateException {
         FreeMarkerUtil.initConfig("vue.ftl");
         new File(vuePath).mkdirs();
-        String fileName = vuePath + do_main + ".vue";
+        String fileName = vuePath + moduleName + "/" + do_main + ".vue";
         System.out.println("开始生成：" + fileName);
         FreeMarkerUtil.generator(fileName, param);
     }
