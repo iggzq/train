@@ -36,7 +36,7 @@ public class DailyTrainService {
             dailyTrain.setCreateTime(now);
             dailyTrain.setUpdateTime(now);
             dailyTrainMapper.insert(dailyTrain);
-        }else {
+        } else {
             dailyTrain.setUpdateTime(now);
             dailyTrainMapper.updateByPrimaryKey(dailyTrain);
         }
@@ -45,9 +45,19 @@ public class DailyTrainService {
 
     public PageResp<DailyTrainQueryResp> queryList(DailyTrainQueryDTO dailyTrainQueryDTO) {
         DailyTrainExample dailyTrainExample = new DailyTrainExample();
+        dailyTrainExample.setOrderByClause("date desc");
         DailyTrainExample.Criteria criteria = dailyTrainExample.createCriteria();
+
+        if (ObjectUtil.isNotNull(dailyTrainQueryDTO.getDate())) {
+            criteria.andDateEqualTo(dailyTrainQueryDTO.getDate());
+        }
+
+        if (ObjectUtil.isNotEmpty(dailyTrainQueryDTO.getCode())) {
+            criteria.andCodeEqualTo(dailyTrainQueryDTO.getCode());
+        }
         PageHelper.startPage(dailyTrainQueryDTO.getPage(), dailyTrainQueryDTO.getSize());
         List<DailyTrain> dailyTrains = dailyTrainMapper.selectByExample(dailyTrainExample);
+
 
         PageInfo<DailyTrain> pageInfo = new PageInfo<>(dailyTrains);
 
@@ -56,13 +66,13 @@ public class DailyTrainService {
 
         List<DailyTrainQueryResp> dailyTrainQueryResps = BeanUtil.copyToList(dailyTrains, DailyTrainQueryResp.class);
         PageResp<DailyTrainQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(dailyTrainQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(dailyTrainQueryResps);
 
         return pageResp;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         dailyTrainMapper.deleteByPrimaryKey(id);
     }
 }
