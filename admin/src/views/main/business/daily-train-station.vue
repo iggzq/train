@@ -1,10 +1,12 @@
 <template>
   <a-space class="top_button">
-    <train-select-view v-model="params.trainCode" style="width: 200px"></train-select-view>
+    <train-select-view v-model="params.code" @change="onChangeCode" style="width: 150px"></train-select-view>
+    <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD"
+                   placeholder="请选择日期"/>
     <a-button type="primary" @click="handleQuery()">查找</a-button>
     <a-button type="primary" @click="onAdd">新增</a-button>
   </a-space>
-  <a-table :data-source="trainStations"
+  <a-table :data-source="dailyTrainStations"
            :columns="columns"
            :pagination="pagination"
            @change="handleTableChange"
@@ -23,34 +25,38 @@
       </template>
     </template>
   </a-table>
-  <a-modal v-model:visible="visible" title="火车车站" @ok="handleOk" ok-text="确认" cancel-text="取消">
-    <a-form :model="trainStation" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
+  <a-modal v-model:visible="visible" title="每日车站" @ok="handleOk" ok-text="确认" cancel-text="取消">
+    <a-form :model="dailyTrainStation" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
+      <a-form-item label="日期">
+        <a-date-picker v-model:value="dailyTrainStation.date" valueFormat="YYYY-MM-DD"
+                       placeholder="请选择日期"/>
+      </a-form-item>
       <a-form-item label="车次编号">
-        <train-select-view v-model="trainStation.trainCode"></train-select-view>
+        <train-select-view v-model="dailyTrainStation.trainCode"></train-select-view>
       </a-form-item>
       <a-form-item label="站序">
-        <a-input v-model:value="trainStation.index"/>
+        <a-input v-model:value="dailyTrainStation.index"/>
       </a-form-item>
       <a-form-item label="站名">
-        <a-input v-model:value="trainStation.name"/>
+        <a-input v-model:value="dailyTrainStation.name"/>
       </a-form-item>
       <a-form-item label="站名拼音">
-        <a-input v-model:value="trainStation.namePinyin" disabled/>
+        <a-input v-model:value="dailyTrainStation.namePinyin"/>
       </a-form-item>
       <a-form-item label="进站时间">
-        <a-time-picker v-model:value="trainStation.inTime" valueFormat="HH:mm:ss"
+        <a-time-picker v-model:value="dailyTrainStation.inTime" valueFormat="HH:mm:ss"
                        placeholder="请选择时间"/>
       </a-form-item>
       <a-form-item label="出站时间">
-        <a-time-picker v-model:value="trainStation.outTime" valueFormat="HH:mm:ss"
+        <a-time-picker v-model:value="dailyTrainStation.outTime" valueFormat="HH:mm:ss"
                        placeholder="请选择时间"/>
       </a-form-item>
       <a-form-item label="停站时长">
-        <a-time-picker v-model:value="trainStation.stopTime" valueFormat="HH:mm:ss"
-                       placeholder="请选择时间" disabled/>
+        <a-time-picker v-model:value="dailyTrainStation.stopTime" valueFormat="HH:mm:ss"
+                       placeholder="请选择时间"/>
       </a-form-item>
       <a-form-item label="里程（公里）">
-        <a-input v-model:value="trainStation.km"/>
+        <a-input v-model:value="dailyTrainStation.km"/>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -65,12 +71,13 @@ import {pinyin} from "pinyin-pro";
 import dayjs from "dayjs";
 
 export default defineComponent({
-  name: "train-station-view",
+  name: "daily-train-station-view",
   components: {TrainSelectView},
   setup() {
     const visible = ref(false);
-    let trainStation = ref({
+    let dailyTrainStation = ref({
       id: undefined,
+      date: undefined,
       trainCode: undefined,
       index: undefined,
       name: undefined,
@@ -82,8 +89,7 @@ export default defineComponent({
       createTime: undefined,
       updateTime: undefined,
     });
-    const trainStations = ref([]);
-    const trains = ref([]);
+    const dailyTrainStations = ref([]);
     // 分页的三个属性名是固定的
     const pagination = ref({
       total: 0,
@@ -92,9 +98,15 @@ export default defineComponent({
     });
     let loading = ref(false);
     let params = ref({
-      trainCode: null,
-    })
+      code: null,
+      date: null,
+    });
     const columns = [
+      {
+        title: '日期',
+        dataIndex: 'date',
+        key: 'date',
+      },
       {
         title: '车次编号',
         dataIndex: 'trainCode',
@@ -142,17 +154,17 @@ export default defineComponent({
     ];
 
     const onAdd = () => {
-      trainStation.value = {};
+      dailyTrainStation.value = {};
       visible.value = true;
     };
 
     const onEdit = (record) => {
-      trainStation.value = window.Tool.copy(record);
+      dailyTrainStation.value = window.Tool.copy(record);
       visible.value = true;
     };
 
     const onDelete = (record) => {
-      axios.delete("/business/admin/train-station/delete/" + record.id).then((response) => {
+      axios.delete("/business/admin/daily-train-station/delete/" + record.id).then((response) => {
         const data = response.data;
         if (data.success) {
           notification.success({description: "删除成功！"});
@@ -167,7 +179,7 @@ export default defineComponent({
     };
 
     const handleOk = () => {
-      axios.post("/business/admin/train-station/save", trainStation.value).then((response) => {
+      axios.post("/business/admin/daily-train-station/save", dailyTrainStation.value).then((response) => {
         let data = response.data;
         if (data.success) {
           notification.success({description: "保存成功！"});
@@ -186,21 +198,22 @@ export default defineComponent({
       if (!param) {
         param = {
           page: 1,
-          size: pagination.value.pageSize,
+          size: pagination.value.pageSize
         };
       }
       loading.value = true;
-      axios.get("/business/admin/train-station/query-list", {
+      axios.get("/business/admin/daily-train-station/query-list", {
         params: {
           page: param.page,
           size: param.size,
-          trainCode: params.value.trainCode,
+          code: params.value.code,
+          date: params.value.date,
         }
       }).then((response) => {
         loading.value = false;
         let data = response.data;
         if (data.success) {
-          trainStations.value = data.content.data;
+          dailyTrainStations.value = data.content.data;
           // 设置分页控件的值
           pagination.value.current = param.page;
           pagination.value.total = data.content.total;
@@ -219,7 +232,6 @@ export default defineComponent({
       });
     };
 
-
     onMounted(() => {
       handleQuery({
         page: 1,
@@ -227,29 +239,29 @@ export default defineComponent({
       });
     });
 
-    watch(() => trainStation.value.name, () => {
-      if (Tool.isNotEmpty(trainStation.value.name)) {
-        trainStation.value.namePinyin = pinyin(trainStation.value.name, {toneType: 'none'}).replaceAll(" ", "");
+    watch(() => dailyTrainStation.value.name, () => {
+      if (Tool.isNotEmpty(dailyTrainStation.value.name)) {
+        dailyTrainStation.value.namePinyin = pinyin(dailyTrainStation.value.name, {toneType: 'none'}).replaceAll(" ", "");
       } else {
-        trainStation.value.namePinyin = "";
+        dailyTrainStation.value.namePinyin = "";
       }
 
     }, {immediate: true});
 
-    watch(() => trainStation.value.inTime, () => {
-      let diff = dayjs(trainStation.value.outTime, 'HH:mm:ss').diff(dayjs(trainStation.value.inTime, 'HH:mm:ss'), 'second');
-      trainStation.value.stopTime = dayjs('00:00：00', 'HH:mm:ss').second(diff).format('HH:mm:ss');
+    watch(() => dailyTrainStation.value.inTime, () => {
+      let diff = dayjs(dailyTrainStation.value.outTime, 'HH:mm:ss').diff(dayjs(dailyTrainStation.value.inTime, 'HH:mm:ss'), 'second');
+      dailyTrainStation.value.stopTime = dayjs('00:00：00', 'HH:mm:ss').second(diff).format('HH:mm:ss');
     }, {immediate: true});
 
-    watch(() => trainStation.value.outTime, () => {
-      let diff = dayjs(trainStation.value.outTime, 'HH:mm:ss').diff(dayjs(trainStation.value.inTime, 'HH:mm:ss'), 'second');
-      trainStation.value.stopTime = dayjs('00:00：00', 'HH:mm:ss').second(diff).format('HH:mm:ss');
+    watch(() => dailyTrainStation.value.outTime, () => {
+      let diff = dayjs(dailyTrainStation.value.outTime, 'HH:mm:ss').diff(dayjs(dailyTrainStation.value.inTime, 'HH:mm:ss'), 'second');
+      dailyTrainStation.value.stopTime = dayjs('00:00：00', 'HH:mm:ss').second(diff).format('HH:mm:ss');
     }, {immediate: true});
 
     return {
-      trainStation,
+      dailyTrainStation,
       visible,
-      trainStations,
+      dailyTrainStations,
       pagination,
       columns,
       handleTableChange,
@@ -259,8 +271,7 @@ export default defineComponent({
       handleOk,
       onEdit,
       onDelete,
-      trains,
-      params,
+      params
     };
   },
 });
@@ -269,6 +280,5 @@ export default defineComponent({
 .top_button {
   position: relative;
   display: flex;
-  flex-direction: row;
 }
 </style>
