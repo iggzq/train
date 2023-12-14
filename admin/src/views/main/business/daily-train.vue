@@ -36,7 +36,7 @@
                        placeholder="请选择日期"/>
       </a-form-item>
       <a-form-item label="车次编号">
-        <a-input v-model:value="dailyTrain.code"/>
+        <train-select-view v-model="dailyTrain.code" @change="onChangeCode"></train-select-view>
       </a-form-item>
       <a-form-item label="车次类型">
         <a-select v-model:value="dailyTrain.type">
@@ -45,24 +45,24 @@
         </a-select>
       </a-form-item>
       <a-form-item label="始发站">
-        <a-input v-model:value="dailyTrain.start"/>
+        <a-input v-model:value="dailyTrain.start" disabled/>
       </a-form-item>
       <a-form-item label="始发站拼音">
-        <a-input v-model:value="dailyTrain.startPinyin"/>
+        <a-input v-model:value="dailyTrain.startPinyin" disabled/>
       </a-form-item>
       <a-form-item label="出发时间">
         <a-time-picker v-model:value="dailyTrain.startTime" valueFormat="HH:mm:ss"
-                       placeholder="请选择时间"/>
+                       placeholder="请选择时间" disabled/>
       </a-form-item>
       <a-form-item label="终点站">
-        <a-input v-model:value="dailyTrain.end"/>
+        <a-input v-model:value="dailyTrain.end" disabled/>
       </a-form-item>
       <a-form-item label="终点站拼音">
-        <a-input v-model:value="dailyTrain.endPinyin"/>
+        <a-input v-model:value="dailyTrain.endPinyin" disabled/>
       </a-form-item>
       <a-form-item label="到站时间">
         <a-time-picker v-model:value="dailyTrain.endTime" valueFormat="HH:mm:ss"
-                       placeholder="请选择时间"/>
+                       placeholder="请选择时间" disabled/>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -72,9 +72,11 @@
 import {defineComponent, ref, onMounted} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
+import TrainSelectView from "@/components/train-select.vue";
 
 export default defineComponent({
   name: "daily-train-view",
+  components: {TrainSelectView},
   setup() {
     const TRAIN_TYPE_ARRAY = window.TRAIN_TYPE_ARRAY;
     const visible = ref(false);
@@ -229,6 +231,24 @@ export default defineComponent({
       });
     };
 
+    const onChangeCode = (train) => {
+      console.log("train:" + JSON.stringify(train));
+      if (train) {
+        dailyTrain.value.code = train.code;
+        dailyTrain.value.type = train.type;
+        dailyTrain.value.start = train.start;
+        dailyTrain.value.startPinyin = train.startPinyin;
+        dailyTrain.value.end = train.end;
+        dailyTrain.value.endPinyin = train.endPinyin;
+        dailyTrain.value.startTime = train.startTime;
+        dailyTrain.value.endTime = train.endTime;
+      }
+      handleQuery({
+        page: pagination.value.current,
+        size: pagination.value.pageSize
+      })
+    };
+
     onMounted(() => {
       handleQuery({
         page: 1,
@@ -249,7 +269,8 @@ export default defineComponent({
       onAdd,
       handleOk,
       onEdit,
-      onDelete
+      onDelete,
+      onChangeCode
     };
   },
 });
