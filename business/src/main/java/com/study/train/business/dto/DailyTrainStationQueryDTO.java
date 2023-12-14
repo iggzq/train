@@ -10,13 +10,8 @@ public class DailyTrainStationQueryDTO extends PageReq {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
-    @Override
-    public String toString() {
-        return "DailyTrainStationQueryDTO{" +
-                "date=" + date +
-                ", trainCode='" + trainCode + '\'' +
-                "} " + super.toString();
-    }
+    private String trainCode;
+
 
     public String getTrainCode() {
         return trainCode;
@@ -26,7 +21,6 @@ public class DailyTrainStationQueryDTO extends PageReq {
         this.trainCode = trainCode;
     }
 
-    private String trainCode;
 
     public Date getDate() {
         return date;
@@ -36,6 +30,14 @@ public class DailyTrainStationQueryDTO extends PageReq {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "DailyTrainStationQueryDTO{" +
+                "date=" + date +
+                ", trainCode='" + trainCode + '\'' +
+                "} " + super.toString();
     }
 
 
