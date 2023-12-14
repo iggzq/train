@@ -45,7 +45,11 @@ public class DailyTrainStationSeatService {
 
     public PageResp<DailyTrainStationSeatQueryResp> queryList(DailyTrainStationSeatQueryDTO dailyTrainStationSeatQueryDTO) {
         DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
+        dailyTrainStationSeatExample.setOrderByClause("train_code asc,carriage_index asc,carriage_seat_index asc");
         DailyTrainStationSeatExample.Criteria criteria = dailyTrainStationSeatExample.createCriteria();
+        if (ObjectUtil.isNotEmpty(dailyTrainStationSeatQueryDTO.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(dailyTrainStationSeatQueryDTO.getTrainCode());
+        }
         PageHelper.startPage(dailyTrainStationSeatQueryDTO.getPage(), dailyTrainStationSeatQueryDTO.getSize());
         List<DailyTrainStationSeat> dailyTrainStationSeats = dailyTrainStationSeatMapper.selectByExample(dailyTrainStationSeatExample);
 
