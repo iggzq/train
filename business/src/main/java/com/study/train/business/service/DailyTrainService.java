@@ -3,20 +3,18 @@ package com.study.train.business.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.alibaba.fastjson2.util.DateUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.business.domain.Train;
-import com.study.train.common.util.SnowUtil;
 import com.study.train.business.domain.DailyTrain;
 import com.study.train.business.domain.DailyTrainExample;
-import com.study.train.common.resp.PageResp;
+import com.study.train.business.domain.Train;
 import com.study.train.business.dto.DailyTrainQueryDTO;
 import com.study.train.business.dto.DailyTrainSaveDTO;
 import com.study.train.business.mapper.DailyTrainMapper;
 import com.study.train.business.resp.DailyTrainQueryResp;
+import com.study.train.common.resp.PageResp;
+import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +33,9 @@ public class DailyTrainService {
 
     @Resource
     TrainService trainService;
+
+    @Resource
+    DailyTrainStationService dailyTrainStationService;
 
     public void save(DailyTrainSaveDTO dailyTrainSaveDTO) {
         DateTime now = new DateTime();
@@ -109,5 +110,7 @@ public class DailyTrainService {
         dailyTrain.setUpdateTime(now);
         dailyTrain.setDate(date);
         dailyTrainMapper.insert(dailyTrain);
+        //生成该车次车站信息
+        dailyTrainStationService.genDaily(date,train.getCode());
     }
 }
