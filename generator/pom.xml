@@ -18,9 +18,17 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.study</groupId>
             <artifactId>member</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.study.train</groupId>
+            <artifactId>business</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
@@ -53,12 +61,7 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.study.train</groupId>
-            <artifactId>business</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
+
 
 
     </dependencies>
