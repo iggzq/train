@@ -9,31 +9,43 @@ import com.study.train.business.resp.DailyTrainQueryResp;
 import com.study.train.business.service.DailyTrainService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/admin/daily-train")
 public class DailyTrainAdminController {
 
     @Resource
-    private DailyTrainService DailyTrainService;
+    private DailyTrainService dailyTrainService;
 
 
     @PostMapping("/save")
     public CommonResp<Object> register(@Valid @RequestBody DailyTrainSaveDTO DailyTrainSaveDTO) {
-        DailyTrainService.save(DailyTrainSaveDTO);
+        dailyTrainService.save(DailyTrainSaveDTO);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
     public CommonResp<PageResp<DailyTrainQueryResp>> queryList(@Valid DailyTrainQueryDTO DailyTrainQueryDTO) {
-        PageResp<DailyTrainQueryResp> list = DailyTrainService.queryList(DailyTrainQueryDTO);
+        PageResp<DailyTrainQueryResp> list = dailyTrainService.queryList(DailyTrainQueryDTO);
         return new CommonResp<>(list);
     }
 
     @DeleteMapping("/delete/{id}")
     public CommonResp<Object> delete(@PathVariable Long id) {
-        DailyTrainService.delete(id);
+        dailyTrainService.delete(id);
+        return new CommonResp<>();
+    }
+
+    @GetMapping("/gen-daily/{date}")
+    public CommonResp<Object> genDaily(
+            @PathVariable
+            @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+
+        dailyTrainService.genDaily(date);
         return new CommonResp<>();
     }
 

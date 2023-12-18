@@ -83,9 +83,13 @@ public class TrainService {
     }
 
     public List<TrainQueryResp> queryAll() {
-        TrainExample trainExample = new TrainExample();
-        List<Train> trains = trainMapper.selectByExample(trainExample);
+        List<Train> trains = selectAll();
         return BeanUtil.copyToList(trains,TrainQueryResp.class);
+    }
+
+    public List<Train> selectAll() {
+        TrainExample trainExample = new TrainExample();
+        return trainMapper.selectByExample(trainExample);
     }
 
     public void delete(Long id){
