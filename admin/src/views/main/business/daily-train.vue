@@ -279,9 +279,7 @@ export default defineComponent({
     const handleGenDailyOk = () => {
       loading.value = true;
       genDailyLoading.value = true;
-      console.log(genDaily.value.date);
       let date = dayjs(genDaily.value.date).format("YYYY-MM-DD");
-      console.log(date);
       axios.get("/business/admin/daily-train/gen-daily/" + date).then((resp) => {
         let data = resp.data;
         if (data.success) {
