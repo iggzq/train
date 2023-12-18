@@ -63,3 +63,9 @@ Content-Type: application/json
   "name": "com.jiawa.train.batch.job.DailyTrainJob",
   "jobGroupName": "default"
 }
+
+###
+
+GET http://localhost:8002/business/admin/admin/job/query
+
+###

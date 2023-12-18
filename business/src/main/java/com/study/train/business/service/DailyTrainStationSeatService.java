@@ -1,13 +1,14 @@
 package com.study.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.study.train.business.domain.*;
 import com.study.train.common.util.SnowUtil;
-import com.study.train.business.domain.DailyTrainStationSeat;
-import com.study.train.business.domain.DailyTrainStationSeatExample;
 import com.study.train.common.resp.PageResp;
 import com.study.train.business.dto.DailyTrainStationSeatQueryDTO;
 import com.study.train.business.dto.DailyTrainStationSeatSaveDTO;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -28,6 +30,12 @@ public class DailyTrainStationSeatService {
     @Resource
     DailyTrainStationSeatMapper dailyTrainStationSeatMapper;
 
+    @Resource
+    TrainSeatService trainSeatService;
+
+    @Resource
+    TrainStationService trainStationService;
+
     public void save(DailyTrainStationSeatSaveDTO dailyTrainStationSeatSaveDTO) {
         DateTime now = new DateTime();
         DailyTrainStationSeat dailyTrainStationSeat = BeanUtil.copyProperties(dailyTrainStationSeatSaveDTO, DailyTrainStationSeat.class);
@@ -36,7 +44,7 @@ public class DailyTrainStationSeatService {
             dailyTrainStationSeat.setCreateTime(now);
             dailyTrainStationSeat.setUpdateTime(now);
             dailyTrainStationSeatMapper.insert(dailyTrainStationSeat);
-        }else {
+        } else {
             dailyTrainStationSeat.setUpdateTime(now);
             dailyTrainStationSeatMapper.updateByPrimaryKey(dailyTrainStationSeat);
         }
@@ -60,13 +68,43 @@ public class DailyTrainStationSeatService {
 
         List<DailyTrainStationSeatQueryResp> dailyTrainStationSeatQueryResps = BeanUtil.copyToList(dailyTrainStationSeats, DailyTrainStationSeatQueryResp.class);
         PageResp<DailyTrainStationSeatQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(dailyTrainStationSeatQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(dailyTrainStationSeatQueryResps);
 
         return pageResp;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         dailyTrainStationSeatMapper.deleteByPrimaryKey(id);
+    }
+
+    public void genDaily(Date date, String trainCode) {
+        //删除该车次车站所有每日数据
+        DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
+        dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
+        dailyTrainStationSeatMapper.deleteByExample(dailyTrainStationSeatExample);
+
+        List<TrainStation> trainStations = trainStationService.selectByTrainCode(trainCode);
+        String sell = StrUtil.fillBefore("", '0', trainStations.size() - 1);
+        //查出某车次车站所有信息
+
+        List<TrainSeat> trainSeats = trainSeatService.selectByTrainCode(trainCode);
+
+        if (CollUtil.isEmpty(trainSeats)) {
+            LOG.info("该车次没有车站基础信息，生成该车站车站信息结束");
+            return;
+        }
+        for (TrainSeat trainStationSeat : trainSeats) {
+            //生成该车次每日数据
+            Date now = DateTime.now();
+            DailyTrainStationSeat dailyTrainStationSeat = BeanUtil.copyProperties(trainStationSeat, DailyTrainStationSeat.class);
+            dailyTrainStationSeat.setId(SnowUtil.getSnowflakeNextId());
+            dailyTrainStationSeat.setCreateTime(now);
+            dailyTrainStationSeat.setUpdateTime(now);
+            dailyTrainStationSeat.setDate(date);
+            dailyTrainStationSeat.setSell(sell);
+            dailyTrainStationSeatMapper.insert(dailyTrainStationSeat);
+        }
+
     }
 }

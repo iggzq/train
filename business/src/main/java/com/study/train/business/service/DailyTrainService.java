@@ -40,6 +40,9 @@ public class DailyTrainService {
     @Resource
     DailyTrainStationCarriageService dailyTrainStationCarriageService;
 
+    @Resource
+    DailyTrainStationSeatService dailyTrainStationSeatService;
+
     public void save(DailyTrainSaveDTO dailyTrainSaveDTO) {
         DateTime now = new DateTime();
         DailyTrain dailyTrain = BeanUtil.copyProperties(dailyTrainSaveDTO, DailyTrain.class);
@@ -91,16 +94,16 @@ public class DailyTrainService {
 
     public void genDaily(Date date) {
         List<Train> trains = trainService.selectAll();
-        if(CollUtil.isEmpty(trains)){
+        if (CollUtil.isEmpty(trains)) {
             LOG.info("没有车次基础数据，任务结束");
             return;
         }
         for (Train train : trains) {
-            genDailyTrain(date,train);
+            genDailyTrain(date, train);
         }
     }
 
-    public void genDailyTrain(Date date,Train train){
+    public void genDailyTrain(Date date, Train train) {
         //删除该车次每日数据
         DailyTrainExample dailyTrainExample = new DailyTrainExample();
         dailyTrainExample.createCriteria().andDateEqualTo(date).andCodeEqualTo(train.getCode());
@@ -114,8 +117,11 @@ public class DailyTrainService {
         dailyTrain.setDate(date);
         dailyTrainMapper.insert(dailyTrain);
         //生成该车次车站信息
-        dailyTrainStationService.genDaily(date,train.getCode());
+        dailyTrainStationService.genDaily(date, train.getCode());
         //生成该车次车厢数据
-        dailyTrainStationCarriageService.genDaily(date,train.getCode());
+        dailyTrainStationCarriageService.genDaily(date, train.getCode());
+        //生成每日车次座位信息
+        dailyTrainStationSeatService.genDaily(date, train.getCode());
+
     }
 }
