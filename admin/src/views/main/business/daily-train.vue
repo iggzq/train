@@ -5,6 +5,7 @@
                    placeholder="请选择日期"/>
     <a-button type="primary" @click="handleQuery()">查找</a-button>
     <a-button type="primary" @click="onAdd">新增</a-button>
+    <a-button type="danger" shape="round" @click="onClickGenDaily">手动生成车次信息</a-button>
   </a-space>
   <a-table :data-source="dailyTrains"
            :columns="columns"
@@ -69,6 +70,14 @@
       </a-form-item>
     </a-form>
   </a-modal>
+  <a-modal v-model:visible="genDailyVisible" title="生成车次" @ok="handleGenDailyOk"
+           :confirm-loading="genDailyLoading" ok-text="确认" cancel-text="取消">
+    <a-form :model="genDaily" :label-col="{span: 4}" :wrapper-col="{span: 20}">
+      <a-form-item label="日期">
+        <a-date-picker v-model:value="genDaily.date" placeholder="请选择日期"></a-date-picker>
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 
 <script>
@@ -76,6 +85,7 @@ import {defineComponent, ref, onMounted} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
 import TrainSelectView from "@/components/train-select.vue";
+import dayjs from "dayjs";
 
 export default defineComponent({
   name: "daily-train-view",
@@ -83,6 +93,11 @@ export default defineComponent({
   setup() {
     const TRAIN_TYPE_ARRAY = window.TRAIN_TYPE_ARRAY;
     const visible = ref(false);
+    const genDailyVisible = ref(false);
+    const genDaily = ref({
+      date: null,
+    });
+    const genDailyLoading = ref(false);
     let dailyTrain = ref({
       id: undefined,
       date: undefined,
@@ -257,6 +272,37 @@ export default defineComponent({
         size: pagination.value.pageSize
       })
     };
+    const onClickGenDaily = () => {
+      genDailyVisible.value = true;
+    }
+
+    const handleGenDailyOk = () => {
+      loading.value = true;
+      genDailyLoading.value = true;
+      console.log(genDaily.value.date);
+      let date = dayjs(genDaily.value.date).format("YYYY-MM-DD");
+      console.log(date);
+      axios.get("/business/admin/daily-train/gen-daily/" + date).then((resp) => {
+        let data = resp.data;
+        if (data.success) {
+          loading.value = false;
+          visible.value = false;
+          notification.success({description: "生成成功!"});
+          handleQuery({
+            page: pagination.value.current,
+            size: pagination.value.pageSize,
+          });
+          genDailyVisible.value = false;
+        } else {
+          loading.value = false;
+          notification.error({description: data.message});
+          genDailyVisible.value = false;
+
+        }
+      })
+      genDailyLoading.value = false;
+
+    }
 
     onMounted(() => {
       handleQuery({
@@ -280,7 +326,12 @@ export default defineComponent({
       onEdit,
       onDelete,
       onChangeCode,
-      params
+      params,
+      genDailyVisible,
+      onClickGenDaily,
+      genDaily,
+      handleGenDailyOk,
+      genDailyLoading
     };
   },
 });
