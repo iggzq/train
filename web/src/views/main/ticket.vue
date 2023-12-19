@@ -174,6 +174,14 @@ export default defineComponent({
 
 
     const handleQuery = (param) => {
+      if (Tool.isEmpty(params.value.start)) {
+        notification.error({description: '请选择上车站'});
+        return;
+      }
+      if (Tool.isEmpty(params.value.end)) {
+        notification.error({description: '请选择下车站'});
+        return;
+      }
       if (!param) {
         param = {
           page: 1,
@@ -181,6 +189,7 @@ export default defineComponent({
           date: dayjs().startOf('day'),
         };
       }
+      SessionStorage.set(SESSION_TICKET_PARAMS, params.value)
       loading.value = true;
       axios.get("/business/daily-train-ticket/query-list", {
         params: {
@@ -226,17 +235,21 @@ export default defineComponent({
     const toOrder = (param) => {
 
       dailyTrainTicket.value = Tool.copy(param);
-      SessionStorage.set("dailyTrainTicket",dailyTrainTicket.value);
+      SessionStorage.set(SESSION_ORDER, dailyTrainTicket.value);
       router.push("/order");
     }
 
     onMounted(() => {
-      handleQuery({
-        page: 1,
-        size: pagination.value.pageSize,
-        date: dayjs().startOf('day'),
-      });
+      params.value = SessionStorage.get(SESSION_TICKET_PARAMS) || {};
+      if (Tool.isNotEmpty(params.value)) {
+        handleQuery({
+          page: 1,
+          size: pagination.value.pageSize,
+          date: dayjs().startOf('day'),
+        });
+      }
     });
+
 
     return {
       dailyTrainTicket,
