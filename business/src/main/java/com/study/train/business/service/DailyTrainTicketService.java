@@ -58,6 +58,18 @@ public class DailyTrainTicketService {
     public PageResp<DailyTrainTicketQueryResp> queryList(DailyTrainTicketQueryDTO dailyTrainTicketQueryDTO) {
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         DailyTrainTicketExample.Criteria criteria = dailyTrainTicketExample.createCriteria();
+        if(ObjectUtil.isNotNull(dailyTrainTicketQueryDTO.getDate())){
+            criteria.andDateEqualTo(dailyTrainTicketQueryDTO.getDate());
+        }
+        if(ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getTrainCode())){
+            criteria.andTrainCodeEqualTo(dailyTrainTicketQueryDTO.getTrainCode());
+        }
+        if(ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getStart())){
+            criteria.andStartEqualTo(dailyTrainTicketQueryDTO.getStart());
+        }
+        if(ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getEnd())){
+            criteria.andEndEqualTo(dailyTrainTicketQueryDTO.getEnd());
+        }
         PageHelper.startPage(dailyTrainTicketQueryDTO.getPage(), dailyTrainTicketQueryDTO.getSize());
         List<DailyTrainTicket> dailyTrainTickets = dailyTrainTicketMapper.selectByExample(dailyTrainTicketExample);
 
