@@ -1,7 +1,8 @@
 <template>
   <a-space class="top_button">
     日期：
-    <a-date-picker :disabled-date="disabledDate" v-model:value="params.date" valueFormat="YYYY-MM-DD" placeholder="请选择出发日期"></a-date-picker>
+    <a-date-picker :disabled-date="disabledDate" v-model:value="params.date" valueFormat="YYYY-MM-DD"
+                   placeholder="请选择出发日期"></a-date-picker>
     始：
     <station-select-view v-model="params.start" style="width: 150px" placeholder="请选择上车站"></station-select-view>
     终：
@@ -13,9 +14,11 @@
            :columns="columns"
            :pagination="pagination"
            @change="handleTableChange"
-           :loading="loading">
+           :loading="loading"
+           :row-class-name="(_record, index) => (index % 2 === 1 ? 'table-striped' : null)">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
+        <a-button type="primary" @click="toOrder(record)">预定</a-button>
       </template>
       <template v-else-if="column.dataIndex === 'station'">
         {{ record.start }}<br/>
@@ -82,6 +85,7 @@ import {notification} from "ant-design-vue";
 import axios from "axios";
 import StationSelectView from "@/components/station-select.vue";
 import dayjs from 'dayjs';
+import router from "@/router";
 
 export default defineComponent({
   name: "ticket-view",
@@ -162,6 +166,10 @@ export default defineComponent({
         title: '硬卧',
         dataIndex: 'yw',
       },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+      }
     ];
 
 
@@ -213,8 +221,14 @@ export default defineComponent({
 
     const disabledDate = current => {
       //不能够选择今天之前的，还有从当天15天后的
-      return current < dayjs().startOf('day') || current > dayjs().startOf('day').add(15,'days');
+      return current < dayjs().startOf('day') || current > dayjs().startOf('day').add(15, 'days');
     };
+    const toOrder = (param) => {
+
+      dailyTrainTicket.value = Tool.copy(param);
+      SessionStorage.set("dailyTrainTicket",dailyTrainTicket.value);
+      router.push("/order");
+    }
 
     onMounted(() => {
       handleQuery({
@@ -236,6 +250,7 @@ export default defineComponent({
       params,
       calDuration,
       disabledDate,
+      toOrder
     };
   },
 });

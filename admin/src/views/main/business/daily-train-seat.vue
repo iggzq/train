@@ -1,13 +1,15 @@
 <template>
   <a-space class="top_button">
-    <train-select-view v-model="params.trainCode" style="width: 200px"></train-select-view>
+    <train-select-view v-model="params.trainCode" style="width: 150px"></train-select-view>
     <a-button type="primary" @click="handleQuery()">查找</a-button>
   </a-space>
-  <a-table :data-source="dailyTrainSeats"
-           :columns="columns"
-           :pagination="pagination"
-           @change="handleTableChange"
-           :loading="loading">
+  <a-table
+      :data-source="dailyTrainSeats"
+      :columns="columns"
+      :pagination="pagination"
+      @change="handleTableChange"
+      :loading="loading"
+  >
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
       </template>
@@ -170,4 +172,5 @@ export default defineComponent({
   position: relative;
   display: flex;
 }
+
 </style>
