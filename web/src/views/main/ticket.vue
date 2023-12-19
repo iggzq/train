@@ -1,9 +1,11 @@
 <template>
   <a-space class="top_button">
-    <train-select-view v-model:value="params.trainCode" style="width: 150px"></train-select-view>
-    <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD"></a-date-picker>
-    <station-select-view v-model="params.start" style="width: 150px"></station-select-view>
-    <station-select-view v-model="params.end" style="width: 150px"></station-select-view>
+    日期：
+    <a-date-picker :disabled-date="disabledDate" v-model:value="params.date" valueFormat="YYYY-MM-DD" placeholder="请选择出发日期"></a-date-picker>
+    始：
+    <station-select-view v-model="params.start" style="width: 150px" placeholder="请选择上车站"></station-select-view>
+    终：
+    <station-select-view v-model="params.end" style="width: 150px" placeholder="请选择下车站"></station-select-view>
     <a-button type="primary" @click="handleQuery()">刷新</a-button>
 
   </a-space>
@@ -24,7 +26,7 @@
         出站时间：{{ record.endTime }}
       </template>
       <template v-else-if="column.dataIndex === 'duration'">
-        {{calDuration(record.startTime,record.endTime)}}<br/>
+        {{ calDuration(record.startTime, record.endTime) }}<br/>
         <div v-if="record.startTime.replaceAll(':','') >= record.endTime.replaceAll(':','')">
           次日到达
         </div>
@@ -78,13 +80,12 @@
 import {defineComponent, ref, onMounted} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
-import TrainSelectView from "@/components/train-select.vue";
 import StationSelectView from "@/components/station-select.vue";
-import dayjs from "dayjs";
+import dayjs from 'dayjs';
 
 export default defineComponent({
   name: "ticket-view",
-  components: {StationSelectView, TrainSelectView},
+  components: {StationSelectView},
   setup() {
     const visible = ref(false);
     let dailyTrainTicket = ref({
@@ -168,7 +169,8 @@ export default defineComponent({
       if (!param) {
         param = {
           page: 1,
-          size: pagination.value.pageSize
+          size: pagination.value.pageSize,
+          date: dayjs().startOf('day'),
         };
       }
       loading.value = true;
@@ -177,7 +179,7 @@ export default defineComponent({
           page: param.page,
           size: param.size,
           trainCode: params.value.trainCode,
-          date: params.value.date,
+          date: params.value.date === null ? dayjs().startOf('day').format('YYYY-MM-DD') : params.value.date,
           start: params.value.start,
           end: params.value.end,
         }
@@ -204,15 +206,21 @@ export default defineComponent({
       });
     };
 
-    const calDuration = (startTime,endTime) => {
-      let diff = dayjs(endTime,'HH:mm:ss').diff(dayjs(startTime,'HH:mm:ss'),'second',true);
-      return dayjs('00:00:00','HH:mm:ss').second(diff).format( 'HH:mm:ss');
+    const calDuration = (startTime, endTime) => {
+      let diff = dayjs(endTime, 'HH:mm:ss').diff(dayjs(startTime, 'HH:mm:ss'), 'second', true);
+      return dayjs('00:00:00', 'HH:mm:ss').second(diff).format('HH:mm:ss');
     }
+
+    const disabledDate = current => {
+      //不能够选择今天之前的，还有从当天15天后的
+      return current < dayjs().startOf('day') || current > dayjs().startOf('day').add(15,'days');
+    };
 
     onMounted(() => {
       handleQuery({
         page: 1,
-        size: pagination.value.pageSize
+        size: pagination.value.pageSize,
+        date: dayjs().startOf('day'),
       });
     });
 
@@ -226,7 +234,8 @@ export default defineComponent({
       handleQuery,
       loading,
       params,
-      calDuration
+      calDuration,
+      disabledDate,
     };
   },
 });

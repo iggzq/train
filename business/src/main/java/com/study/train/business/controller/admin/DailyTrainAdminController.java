@@ -43,9 +43,6 @@ public class DailyTrainAdminController {
     public CommonResp<Object> genDaily(
             @PathVariable
             @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
-
-        System.out.println(date.toString());
-
         dailyTrainService.genDaily(date);
         return new CommonResp<>();
     }

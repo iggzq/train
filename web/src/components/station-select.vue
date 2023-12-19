@@ -4,7 +4,7 @@
             @change="onChange" placeholder="请选择车站">
     <a-select-option v-for="item in stations" :key="item.name" :value="item.name"
                      :label="item.name + item.namePinyin + item.namePy">
-      {{ item.name }} | {{ item.namePinyin }} ~ {{ item.namePy }}
+      {{ item.name }} | {{ item.namePinyin }}
     </a-select-option>
   </a-select>
 </template>

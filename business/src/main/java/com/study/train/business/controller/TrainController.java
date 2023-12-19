@@ -17,9 +17,6 @@ public class TrainController {
     @Resource
     private TrainService trainService;
 
-
-
-
     @GetMapping("/query-all")
     public CommonResp<List<TrainQueryResp>> queryAll() {
         List<TrainQueryResp> list = trainService.queryAll();
