@@ -105,6 +105,11 @@ public class DailyTrainStationSeatService {
             dailyTrainStationSeat.setSell(sell);
             dailyTrainStationSeatMapper.insert(dailyTrainStationSeat);
         }
+    }
 
+    public List<DailyTrainStationSeat> countSeat(Date date,String trainCode){
+        DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
+        dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
+        return dailyTrainStationSeatMapper.selectByExample(dailyTrainStationSeatExample);
     }
 }

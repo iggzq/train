@@ -6,13 +6,15 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.business.domain.*;
-import com.study.train.common.util.SnowUtil;
-import com.study.train.common.resp.PageResp;
+import com.study.train.business.domain.DailyTrainStation;
+import com.study.train.business.domain.DailyTrainStationExample;
+import com.study.train.business.domain.TrainStation;
 import com.study.train.business.dto.DailyTrainStationQueryDTO;
 import com.study.train.business.dto.DailyTrainStationSaveDTO;
 import com.study.train.business.mapper.DailyTrainStationMapper;
 import com.study.train.business.resp.DailyTrainStationQueryResp;
+import com.study.train.common.resp.PageResp;
+import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +80,7 @@ public class DailyTrainStationService {
         dailyTrainStationMapper.deleteByPrimaryKey(id);
     }
 
+
     public void genDaily(Date date,String trainCode){
         //删除该车次车站所有每日数据
         DailyTrainStationExample dailyTrainStationExample = new DailyTrainStationExample();
@@ -88,8 +91,7 @@ public class DailyTrainStationService {
         List<TrainStation> trainStations = trainStationService.selectByTrainCode(trainCode);
 
         if(CollUtil.isEmpty(trainStations)){
-            LOG.info("该车次没有车站基础信息，生成该车站车站信息结束");
-            return;
+            LOG.info("该车次没有车站基础信息");
         }
         for (TrainStation trainStation : trainStations) {
             //生成该车次每日数据
