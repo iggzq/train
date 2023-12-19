@@ -1,7 +1,7 @@
 package com.study.train.business.controller;
 
-import com.study.train.business.resp.StationQueryResp;
-import com.study.train.business.service.StationService;
+import com.study.train.business.resp.TrainQueryResp;
+import com.study.train.business.service.TrainService;
 import com.study.train.common.resp.CommonResp;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,18 +11,22 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/station")
-public class StationController {
+@RequestMapping("/train")
+public class TrainController {
 
     @Resource
-    private StationService stationService;
+    private TrainService trainService;
+
+
 
 
     @GetMapping("/query-all")
-    public CommonResp<List<StationQueryResp>> queryAll() {
-        List<StationQueryResp> list = stationService.queryAll();
+    public CommonResp<List<TrainQueryResp>> queryAll() {
+        List<TrainQueryResp> list = trainService.queryAll();
         return new CommonResp<>(list);
     }
+
+
 
 
 }

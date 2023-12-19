@@ -31,9 +31,6 @@
   </a-table>
   <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="确认" cancel-text="取消">
     <a-form :model="passenger" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
-      <a-form-item label="会员id">
-        <a-input v-model:value="passenger.memberId"/>
-      </a-form-item>
       <a-form-item label="姓名">
         <a-input v-model:value="passenger.name"/>
       </a-form-item>
@@ -42,7 +39,8 @@
       </a-form-item>
       <a-form-item label="旅客类型">
         <a-select v-model:value="passenger.type">
-          <a-select-option v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key" :value="item.key">{{ item.value }}
+          <a-select-option v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key" :value="item.key">
+            {{ item.value }}
           </a-select-option>
         </a-select>
       </a-form-item>
@@ -207,7 +205,7 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-.top_button{
+.top_button {
   position: relative;
   display: flex;
 }

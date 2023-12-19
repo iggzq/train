@@ -15,6 +15,11 @@
           <user-outlined/> &nbsp; 乘车人管理
         </router-link>
       </a-menu-item>
+      <a-menu-item key="/ticket">
+        <router-link to="/ticket">
+          <user-outlined/> &nbsp; 购票
+        </router-link>
+      </a-menu-item>
     </a-menu>
   </a-layout-sider>
 </template>

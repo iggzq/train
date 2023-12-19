@@ -1,10 +1,10 @@
 {
-  "name": "web",
+  "name": "client",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve-dev": "vue-cli-service serve --mode dev --port=9000",
-    "serve-prod": "vue-cli-service serve --mode prod --port=9000",
+    "client-dev": "vue-cli-service serve --mode dev --port=9000",
+    "client-prod": "vue-cli-service serve --mode prod --port=9000",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
