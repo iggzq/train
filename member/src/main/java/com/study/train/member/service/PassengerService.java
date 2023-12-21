@@ -38,7 +38,7 @@ public class PassengerService {
             passenger.setCreateTime(now);
             passenger.setUpdateTime(now);
             passengerMapper.insert(passenger);
-        }else {
+        } else {
             passenger.setUpdateTime(now);
             passengerMapper.updateByPrimaryKey(passenger);
         }
@@ -67,7 +67,16 @@ public class PassengerService {
         return pageDTO;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         passengerMapper.deleteByPrimaryKey(id);
+    }
+
+    //查询我的所有的乘客
+    public List<PassengerQueryResp> queryMyPassenger() {
+        PassengerExample passengerExample = new PassengerExample();
+        PassengerExample.Criteria criteria = passengerExample.createCriteria();
+        criteria.andMemberIdEqualTo(LoginMemberContext.getId());
+        List<Passenger> passengers = passengerMapper.selectByExample(passengerExample);
+        return BeanUtil.copyToList(passengers, PassengerQueryResp.class);
     }
 }
