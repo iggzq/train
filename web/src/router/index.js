@@ -25,6 +25,9 @@ const routes = [
         },{
             path: '/order',
             component: () => import('../views/main/order.vue')
+        },{
+            path: '/orderConfirm',
+            component: () => import('../views/main/orderConfirm.vue')
         }]
     },
     {

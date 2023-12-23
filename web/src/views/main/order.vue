@@ -24,7 +24,7 @@
 
 
   <div class="passengers">
-    <a-checkbox-group v-model:value="passengerChecked" :options="passengerOptions" class="tou"></a-checkbox-group>
+    <a-checkbox-group v-model:value="passengerChecked" :options="passengerOptions"></a-checkbox-group>
   </div>
 
 
@@ -45,6 +45,22 @@
           </a-select-option>
         </a-select>
       </template>
+
+      <template v-else-if="column.dataIndex === 'seatPosition' && record.seatTypeCode === '1'">
+        <a-select v-model:value="record.seatPosition" style="width: 100%">
+          <a-select-option v-for="item in seatColsYD" :key="item.key" :value="item.value">
+            {{ item.value }}
+          </a-select-option>
+        </a-select>
+      </template>
+
+      <template v-else-if="column.dataIndex === 'seatPosition' && record.seatTypeCode === '2'">
+        <a-select v-model:value="record.seatPosition" style="width: 100%">
+          <a-select-option v-for="item in seatColsED" :key="item.key" :value="item.value">
+            {{ item.value }}
+          </a-select-option>
+        </a-select>
+      </template>
     </template>
   </a-table>
 
@@ -58,12 +74,16 @@
 import {defineComponent, onMounted, ref, watch} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
+import router from "@/router";
 
 export default defineComponent({
   name: "order-view",
   setup() {
     const dailyTrainTicket = SessionStorage.get(SESSION_ORDER) || {};
     const SEAT_TYPE = window.SEAT_TYPE;
+    const SEAT_COL = window.SEAT_COL;
+    const seatColsYD = [];
+    const seatColsED = [];
     const seatTypes = [];
     const passengers = ref([]);
     const passengerOptions = ref([]);
@@ -78,13 +98,16 @@ export default defineComponent({
       dataIndex: 'passengerName',
     }, {
       title: '身份证',
-      dataIndex: 'passengerId',
+      dataIndex: 'passengerIdCard',
     }, {
       title: '票种',
       dataIndex: 'passengerType',
     }, {
       title: '座位类型',
       dataIndex: 'seatTypeCode'
+    }, {
+      title: '座位编号',
+      dataIndex: 'seatPosition'
     }];
     for (let KEY in SEAT_TYPE) {
       let key = KEY.toLowerCase();
@@ -98,6 +121,31 @@ export default defineComponent({
         })
       }
     }
+
+    for (let KEY in SEAT_COL) {
+      if (SEAT_COL[KEY] ["type"] === "1") {
+        seatColsYD.push({
+          num: SEAT_COL[KEY]["num"],
+          type: KEY,
+          key: SEAT_COL[KEY]["key"],
+          value: SEAT_COL[KEY]["value"],
+          ticketType: SEAT_COL[KEY]["type"]
+        })
+      }
+
+      if (SEAT_COL[KEY] ["type"] === "2") {
+        seatColsED.push({
+          num: SEAT_COL[KEY]["num"],
+          type: KEY,
+          key: SEAT_COL[KEY]["key"],
+          value: SEAT_COL[KEY]["value"],
+          ticketType: SEAT_COL[KEY]["type"]
+        })
+      }
+
+    }
+
+
     const handleQueryPassengers = () => {
       axios.get("/member/passenger/query-my-passenger").then((response) => {
         let data = response.data;
@@ -114,19 +162,30 @@ export default defineComponent({
     }
 
     const goPay = () => {
+      console.log(1)
+      console.log(tickets);
       let seatTypeTmp = Tool.copy(seatTypes);
+      if(tickets.value.length === 0){
+        notification.error({description: '请选择乘客！'});
+        return;
+      }
       for (let i = 0; i < tickets.value.length; i++) {
         let ticket = tickets.value[i];
         for (let j = 0; j < seatTypeTmp.length; j++) {
           if (ticket.seatTypeCode === seatTypeTmp[j].key) {
             seatTypeTmp[j].count--;
             if (seatTypeTmp[j].count < 0) {
-              notification.error({description: seatTypeTmp[j].value + '仅剩' + seatTypes[j].count + '张票'+'，票数不足！'});
+              notification.error({description: seatTypeTmp[j].value + '仅剩' + seatTypes[j].count + '张票' + '，票数不足！'});
               return;
             }
           }
         }
       }
+
+      SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES,seatTypes);
+      SessionStorage.set(SESSION_CONFIRM_COLUMNS,columns);
+      SessionStorage.set(SESSION_CONFIRM_TICKETS,tickets);
+      router.push("/orderConfirm");
     }
 
     onMounted(() => {
@@ -134,13 +193,20 @@ export default defineComponent({
     })
     watch(() => passengerChecked.value, () => {
       tickets.value = [];
-      passengerChecked.value.forEach((item) => tickets.value.push({
-        passengerId: item.id,
-        passengerType: item.type,
-        seatTypeCode: seatTypes[0].key,
-        passengerName: item.name,
-        passengerIdCard: item.idCard,
-      }))
+      passengerChecked.value.forEach((item) => {
+        tickets.value.push({
+          passengerId: item.id,
+          passengerType: item.type,
+          seatTypeCode: seatTypes[0].key,
+          passengerName: item.name,
+          passengerIdCard: item.idCard,
+          seatPosition: seatColsYD[0].value,
+        })
+      })
+
+      console.log(tickets);
+
+
     }, {immediate: true});
 
     return {
@@ -154,7 +220,10 @@ export default defineComponent({
       PASSENGER_TYPE_ARRAY,
       columns,
       goPay,
-      pagination
+      pagination,
+      SEAT_COL,
+      seatColsYD,
+      seatColsED
     }
   }
 });
