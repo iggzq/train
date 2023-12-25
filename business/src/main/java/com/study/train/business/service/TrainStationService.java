@@ -76,7 +76,7 @@ public class TrainStationService {
 
     public PageResp<TrainStationQueryResp> queryList(TrainStationQueryDTO trainStationQueryDTO) {
         TrainStationExample trainStationExample = new TrainStationExample();
-        trainStationExample.setOrderByClause("train_code desc");
+        trainStationExample.setOrderByClause("`train_code` desc,`index` asc");
         TrainStationExample.Criteria criteria = trainStationExample.createCriteria();
         if (ObjectUtil.isNotEmpty(trainStationQueryDTO.getTrainCode())) {
             criteria.andTrainCodeEqualTo(trainStationQueryDTO.getTrainCode());

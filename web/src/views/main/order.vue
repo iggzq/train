@@ -47,7 +47,8 @@
       </template>
 
       <template v-else-if="column.dataIndex === 'seatPosition' && record.seatTypeCode === '1'">
-        <a-select v-model:value="record.seatPosition" style="width: 100%">
+        <a-select v-model:value="record.seatPosition" style="width: 100%" :placeholder="seatTypes[0].count <= 20 ? '剩余座位数小于20,不可选座' : '可选择座位'"
+                  :disabled="seatTypes[0].count <= 20">
           <a-select-option v-for="item in seatColsYD" :key="item.key" :value="item.value">
             {{ item.value }}
           </a-select-option>
@@ -55,7 +56,8 @@
       </template>
 
       <template v-else-if="column.dataIndex === 'seatPosition' && record.seatTypeCode === '2'">
-        <a-select v-model:value="record.seatPosition" style="width: 100%">
+        <a-select v-model:value="record.seatPosition" style="width: 100%" :placeholder="seatTypes[1].count <= 20 ? '剩余座位数小于20,不可选座' : '可选择座位'"
+                  :disabled="seatTypes[1].count <= 20">
           <a-select-option v-for="item in seatColsED" :key="item.key" :value="item.value">
             {{ item.value }}
           </a-select-option>
@@ -121,6 +123,7 @@ export default defineComponent({
         })
       }
     }
+    console.log(seatTypes);
 
     for (let KEY in SEAT_COL) {
       if (SEAT_COL[KEY] ["type"] === "1") {
@@ -214,7 +217,7 @@ export default defineComponent({
           seatTypeCode: seatTypes[0].key,
           passengerName: item.name,
           passengerIdCard: item.idCard,
-          seatPosition: seatColsYD[0].value,
+          seatPosition: null,
         })
       })
 

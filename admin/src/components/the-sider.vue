@@ -42,12 +42,12 @@
         </a-menu-item>
         <a-menu-item key="/base/train">
           <router-link to="/base/train">
-            <user-outlined/> &nbsp; 火车管理
+            <user-outlined/> &nbsp; 车次管理
           </router-link>
         </a-menu-item>
         <a-menu-item key="/base/train-station">
           <router-link to="/base/train-station">
-            <user-outlined/> &nbsp; 车站管理
+            <user-outlined/> &nbsp; 车次车站管理
           </router-link>
         </a-menu-item>
         <a-menu-item key="/base/train-carriage">
