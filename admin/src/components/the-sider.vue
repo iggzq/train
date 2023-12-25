@@ -3,7 +3,7 @@
     <a-menu
         mode="inline"
         :style="{ height: '100%' , borderRight: 0 }"
-        :open-keys="['batch','base','business']"
+        :open-keys="['batch','base','business','member']"
         v-model:selected-keys="selectedKey"
     >
       <a-menu-item key="/welcome">
@@ -11,6 +11,16 @@
           <coffee-outlined/> &nbsp; 欢迎
         </router-link>
       </a-menu-item>
+      <a-sub-menu key="batch">
+        <template #title>
+          <coffee-outlined/> &nbsp; 用户管理
+        </template>
+        <a-menu-item key="/member/ticket">
+          <router-link to="/member/ticket">
+            <MenuUnfoldOutlined/> &nbsp; 购票信息
+          </router-link>
+        </a-menu-item>
+      </a-sub-menu>
       <a-sub-menu key="batch">
         <template #title>
           <coffee-outlined/> &nbsp; 跑批处理
