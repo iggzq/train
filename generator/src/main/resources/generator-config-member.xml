@@ -36,11 +36,12 @@
         <sqlMapGenerator targetProject="../member/src/main/resources"
                          targetPackage="mapper"/>
 
-        <!-- mapper类的位置 tart="../member/src/main/java"
+        <!-- mapper类的位置 tart="../business/src/main/java" -->
+        <javaClientGenerator targetProject="../member/src/main/java"
                              targetPackage="com.study.train.member.mapper"
                              type="XMLMAPPER"/>
 
-        <!- <table tableName="member" domainObjectName="Member"/>-->
+        <!-- <table tableName="member" domainObjectName="Member"/>-->
 <!--        <table tableName="passenger" domainObjectName="Passenger"/>-->
 <!--        <table tableName="member" domainObjectName="Member"/>-->
 

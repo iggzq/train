@@ -2,15 +2,14 @@ package com.study.train.member.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.study.train.common.req.MemberTicketReq;
+import com.study.train.common.resp.PageResp;
 import com.study.train.common.util.SnowUtil;
 import com.study.train.member.domain.Ticket;
 import com.study.train.member.domain.TicketExample;
-import com.study.train.common.resp.PageResp;
 import com.study.train.member.dto.TicketQueryDTO;
-import com.study.train.member.dto.TicketSaveDTO;
 import com.study.train.member.mapper.TicketMapper;
 import com.study.train.member.resp.TicketQueryResp;
 import jakarta.annotation.Resource;
@@ -28,18 +27,13 @@ public class TicketService {
     @Resource
     TicketMapper ticketMapper;
 
-    public void save(TicketSaveDTO ticketSaveDTO) {
+    public void save(MemberTicketReq memberTicketReq) {
         DateTime now = new DateTime();
-        Ticket ticket = BeanUtil.copyProperties(ticketSaveDTO, Ticket.class);
-        if (ObjectUtil.isNull(ticket.getId())) {
-            ticket.setId(SnowUtil.getSnowflakeNextId());
-            ticket.setCreateTime(now);
-            ticket.setUpdateTime(now);
-            ticketMapper.insert(ticket);
-        }else {
-            ticket.setUpdateTime(now);
-            ticketMapper.updateByPrimaryKey(ticket);
-        }
+        Ticket ticket = BeanUtil.copyProperties(memberTicketReq, Ticket.class);
+        ticket.setId(SnowUtil.getSnowflakeNextId());
+        ticket.setCreateTime(now);
+        ticket.setUpdateTime(now);
+        ticketMapper.insert(ticket);
 
     }
 
@@ -56,13 +50,13 @@ public class TicketService {
 
         List<TicketQueryResp> ticketQueryResps = BeanUtil.copyToList(tickets, TicketQueryResp.class);
         PageResp<TicketQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(ticketQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(ticketQueryResps);
 
         return pageResp;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         ticketMapper.deleteByPrimaryKey(id);
     }
 }

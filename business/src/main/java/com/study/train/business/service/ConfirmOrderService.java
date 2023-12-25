@@ -152,7 +152,7 @@ public class ConfirmOrderService {
             getSeat(finalSeatList,date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
                     confirmOrderTicketDTO.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
         }
-            afterConfirmOrderService.afterDoConfirm(dailyTrainTicket,finalSeatList);
+            afterConfirmOrderService.afterDoConfirm(dailyTrainTicket,finalSeatList,tickets);
 
 
     }
