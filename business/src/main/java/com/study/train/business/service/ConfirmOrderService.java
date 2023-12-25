@@ -2,6 +2,7 @@ package com.study.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
@@ -12,10 +13,14 @@ import com.study.train.business.domain.DailyTrainTicket;
 import com.study.train.business.dto.ConfirmOrderDTO;
 import com.study.train.business.dto.ConfirmOrderQueryDTO;
 import com.study.train.business.dto.ConfirmOrderSaveDTO;
+import com.study.train.business.dto.ConfirmOrderTicketDTO;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
+import com.study.train.business.enums.SeatTypeEnum;
 import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.resp.ConfirmOrderQueryResp;
 import com.study.train.common.context.LoginMemberContext;
+import com.study.train.common.exception.BusinessException;
+import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
@@ -45,7 +50,7 @@ public class ConfirmOrderService {
             confirmOrder.setCreateTime(now);
             confirmOrder.setUpdateTime(now);
             confirmOrderMapper.insert(confirmOrder);
-        }else {
+        } else {
             confirmOrder.setUpdateTime(now);
             confirmOrderMapper.updateByPrimaryKey(confirmOrder);
         }
@@ -65,13 +70,13 @@ public class ConfirmOrderService {
 
         List<ConfirmOrderQueryResp> confirmOrderQueryResps = BeanUtil.copyToList(confirmOrders, ConfirmOrderQueryResp.class);
         PageResp<ConfirmOrderQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(confirmOrderQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(confirmOrderQueryResps);
 
         return pageResp;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         confirmOrderMapper.deleteByPrimaryKey(id);
     }
 
@@ -97,8 +102,45 @@ public class ConfirmOrderService {
         confirmOrder.setTickets(JSON.toJSONString(confirmOrderDTO.getTickets()));
         confirmOrderMapper.insert(confirmOrder);
 
-        //查询票余量，判断是否可以购买
+        //查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
         DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
+        reduceTicketNum(confirmOrderDTO, dailyTrainTicket);
+    }
 
+    private static void reduceTicketNum(ConfirmOrderDTO confirmOrderDTO, DailyTrainTicket dailyTrainTicket) {
+        for (ConfirmOrderTicketDTO ticketReq : confirmOrderDTO.getTickets()) {
+            String seatTypeCode = ticketReq.getSeatTypeCode();
+            SeatTypeEnum seatTypeEnum = EnumUtil.getBy(SeatTypeEnum::getKey, seatTypeCode);
+            switch (seatTypeEnum) {
+                case YDZ -> {
+                    int countLeft = dailyTrainTicket.getYdz() - 1;
+                    if (countLeft < 0) {
+                        throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_TICKET_COUNT_ERROR);
+                    }
+                    dailyTrainTicket.setYdz(countLeft);
+                }
+                case EDZ -> {
+                    int countLeft = dailyTrainTicket.getEdz() - 1;
+                    if (countLeft < 0) {
+                        throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_TICKET_COUNT_ERROR);
+                    }
+                    dailyTrainTicket.setYdz(countLeft);
+                }
+                case RW -> {
+                    int countLeft = dailyTrainTicket.getRw() - 1;
+                    if (countLeft < 0) {
+                        throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_TICKET_COUNT_ERROR);
+                    }
+                    dailyTrainTicket.setYdz(countLeft);
+                }
+                case YW -> {
+                    int countLeft = dailyTrainTicket.getYw() - 1;
+                    if (countLeft < 0) {
+                        throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_TICKET_COUNT_ERROR);
+                    }
+                    dailyTrainTicket.setYdz(countLeft);
+                }
+            }
+        }
     }
 }
