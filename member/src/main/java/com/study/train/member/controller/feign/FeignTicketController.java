@@ -17,8 +17,9 @@ public class FeignTicketController {
     @Resource
     private TicketService ticketService;
 
-    @PostMapping("save")
+    @PostMapping("/save")
     public CommonResp<Object> save(@Valid @RequestBody MemberTicketReq memberTicketReq){
+        ticketService.save(memberTicketReq);
         return new CommonResp<>();
     }
 }

@@ -2,6 +2,7 @@ package com.study.train.business.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
@@ -12,7 +13,6 @@ public class ConfirmOrderDTO {
     /**
      * 会员id
      */
-    @NotNull(message = "【会员id】不能为空")
     private Long memberId;
 
     /**
@@ -49,14 +49,9 @@ public class ConfirmOrderDTO {
     /**
      * 车票
      */
-    @NotBlank(message = "【车票】不能为空")
+    @NotEmpty(message = "【车票】不能为空")
     private List<ConfirmOrderTicketDTO> tickets;
 
-    /**
-     * 订单状态|枚举[ConfirmOrderStatusEnum]
-     */
-    @NotBlank(message = "【订单状态】不能为空")
-    private String status;
 
 
 
@@ -117,13 +112,6 @@ public class ConfirmOrderDTO {
         this.tickets = tickets;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
 
     @Override
@@ -139,7 +127,6 @@ public class ConfirmOrderDTO {
         sb.append(", end=").append(end);
         sb.append(", dailyTrainTicketId=").append(dailyTrainTicketId);
         sb.append(", tickets=").append(tickets);
-        sb.append(", status=").append(status);
         sb.append("]");
         return sb.toString();
     }

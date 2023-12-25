@@ -162,10 +162,24 @@ export default defineComponent({
     }
 
     const goPay = () => {
-      console.log(1)
-      console.log(tickets);
+
+      axios.post("/business/confirm-order/save-order", {
+        dailyTrainTicketId: dailyTrainTicket.id,
+        date: dailyTrainTicket.date,
+        trainCode: dailyTrainTicket.trainCode,
+        start: dailyTrainTicket.start,
+        end: dailyTrainTicket.end,
+        tickets: tickets.value,
+      }).then((response) => {
+        let data = response.data;
+        if (data.success) {
+          notification.success({description: "下单成功！"});
+        } else {
+          notification.error({description: data.message});
+        }
+      });
       let seatTypeTmp = Tool.copy(seatTypes);
-      if(tickets.value.length === 0){
+      if (tickets.value.length === 0) {
         notification.error({description: '请选择乘客！'});
         return;
       }
@@ -182,9 +196,9 @@ export default defineComponent({
         }
       }
 
-      SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES,seatTypes);
-      SessionStorage.set(SESSION_CONFIRM_COLUMNS,columns);
-      SessionStorage.set(SESSION_CONFIRM_TICKETS,tickets);
+      SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
+      SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
+      SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
       router.push("/orderConfirm");
     }
 

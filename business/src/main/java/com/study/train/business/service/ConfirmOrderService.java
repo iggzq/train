@@ -26,6 +26,7 @@ import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -125,39 +126,45 @@ public class ConfirmOrderService {
         if (StrUtil.isBlank(confirmOrderTicketDTO.getSeat())) {
             LOG.info("本次购票没有选座");
             for (ConfirmOrderTicketDTO ticket : tickets) {
-                getSeat(finalSeatList,date, trainCode, ticket.getSeatTypeCode(), null, null, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
+                getSeat(finalSeatList, date, trainCode, ticket.getSeatTypeCode(), null, null, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
             }
         } else {
             LOG.info("本次购票有选座");
             List<SeatColEnum> seatColEnumList = SeatColEnum.getColsByType(confirmOrderTicketDTO.getSeatTypeCode());
-            List<String> refreshSeatList = new ArrayList<>();
-            for (int i = 1; i <= 2; i++) {
-                for (SeatColEnum seatColEnum : seatColEnumList) {
-                    refreshSeatList.add(seatColEnum.getKey() + i);
-                }
-            }
-            //绝对偏移值，即：在参照座位列表中，找到当前座位的索引
-            List<Integer> absoluteOffsetList = new ArrayList<>();
-            List<Integer> offsetList = new ArrayList<>();
-            for (ConfirmOrderTicketDTO ticket : tickets) {
-                int index = refreshSeatList.indexOf(ticket.getSeat());
-                absoluteOffsetList.add(index);
-            }
-            //相对偏移值，即：当前座位在参照座位列表中的索引
-            for (Integer index : absoluteOffsetList) {
-                int offset = index - absoluteOffsetList.get(0);
-                offsetList.add(offset);
-            }
+            List<Integer> offsetList = getOffsetList(seatColEnumList, tickets);
 
-            getSeat(finalSeatList,date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
+            getSeat(finalSeatList, date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
                     confirmOrderTicketDTO.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
         }
-            afterConfirmOrderService.afterDoConfirm(dailyTrainTicket,finalSeatList,tickets,confirmOrder);
+        afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder);
 
 
     }
 
-    private void getSeat(List<DailyTrainStationSeat> finalSeatList,Date date, String trainCode, String seatType, String column, List<Integer> offsetList, Integer startIndex, Integer endIndex) {
+    @NotNull
+    private static List<Integer> getOffsetList(List<SeatColEnum> seatColEnumList, List<ConfirmOrderTicketDTO> tickets) {
+        List<String> refreshSeatList = new ArrayList<>();
+        for (int i = 1; i <= 2; i++) {
+            for (SeatColEnum seatColEnum : seatColEnumList) {
+                refreshSeatList.add(seatColEnum.getKey() + i);
+            }
+        }
+        //绝对偏移值，即：在参照座位列表中，找到当前座位的索引
+        List<Integer> absoluteOffsetList = new ArrayList<>();
+        List<Integer> offsetList = new ArrayList<>();
+        for (ConfirmOrderTicketDTO ticket : tickets) {
+            int index = refreshSeatList.indexOf(ticket.getSeat());
+            absoluteOffsetList.add(index);
+        }
+        //相对偏移值，即：当前座位在参照座位列表中的索引
+        for (Integer index : absoluteOffsetList) {
+            int offset = index - absoluteOffsetList.get(0);
+            offsetList.add(offset);
+        }
+        return offsetList;
+    }
+
+    private void getSeat(List<DailyTrainStationSeat> finalSeatList, Date date, String trainCode, String seatType, String column, List<Integer> offsetList, Integer startIndex, Integer endIndex) {
         List<DailyTrainStationSeat> getSeatList = new ArrayList<>();
         List<DailyTrainStationCarriage> dailyTrainStationCarriages = dailyTrainStationCarriageService.selectBySeatType(date, trainCode, seatType);
         LOG.info("共查询{}个符合条件的车厢", dailyTrainStationCarriages.size());
@@ -171,12 +178,12 @@ public class ConfirmOrderService {
                 String col = dailyTrainSeat.getCol();
                 boolean alreadySellFlag = false;
                 for (DailyTrainStationSeat finalSeat : finalSeatList) {
-                    if (finalSeat.getId().equals(dailyTrainSeat.getId())){
+                    if (finalSeat.getId().equals(dailyTrainSeat.getId())) {
                         alreadySellFlag = true;
                         break;
                     }
                 }
-                if(alreadySellFlag){
+                if (alreadySellFlag) {
                     continue;
                 }
                 if (StrUtil.isBlank(column)) {
@@ -186,8 +193,8 @@ public class ConfirmOrderService {
                         continue;
                     }
                 }
-                boolean canSell = canSell(dailyTrainSeat, startIndex, endIndex);
-                if (canSell) {
+                boolean canSellFlag = canSell(dailyTrainSeat, startIndex, endIndex);
+                if (canSellFlag) {
                     LOG.info("可以选座");
                     getSeatList.add(dailyTrainSeat);
                 } else {
@@ -208,7 +215,7 @@ public class ConfirmOrderService {
                         if (!canSellNext) {
                             isGetAllOffsetSeat = false;
                             break;
-                        }else {
+                        } else {
                             getSeatList.add(nextSeat);
                         }
                     }
@@ -225,19 +232,25 @@ public class ConfirmOrderService {
 
     private boolean canSell(DailyTrainStationSeat dailyTrainStationSeat, Integer startIndex, Integer endIndex) {
         String sell = dailyTrainStationSeat.getSell();
-        String sellPart = sell.substring(startIndex, endIndex);
+        System.out.println(startIndex + "   " + endIndex);
+        System.out.println(sell);
+        String sellPart = sell.substring(startIndex - 1, endIndex - 1);
+        System.out.println(sellPart);
         if (Integer.parseInt(sellPart) > 0) {
+            LOG.info("座位{}在本次车站区间{}~{}已售过票，不可选中该座位", dailyTrainStationSeat.getCarriageSeatIndex(), startIndex, endIndex);
             return false;
         } else {
             String sellPosition = sellPart.replaceAll("0", "1");
-            sellPosition = StrUtil.fillBefore(sellPosition, '0', endIndex);
+            sellPosition = StrUtil.fillBefore(sellPosition, '0', endIndex - 1);
             sellPosition = StrUtil.fillAfter(sellPosition, '0', sell.length());
-
+            System.out.println("sellPosition:"+sellPosition);
             int newSell = NumberUtil.binaryToInt(sellPosition) | NumberUtil.binaryToInt(sell);
             String newSellStr = NumberUtil.getBinaryStr(newSell);
             newSellStr = StrUtil.fillBefore(newSellStr, '0', sell.length());
+            System.out.println("新字符串：" + newSellStr);
             dailyTrainStationSeat.setSell(newSellStr);
-
+            LOG.info("座位{}被选中，原售票信息：{}，车站区间：{}~{}，即：{}，最终售票信息：{}"
+                    , dailyTrainStationSeat.getCarriageSeatIndex(), sell, startIndex, endIndex, sellPosition, newSell);
             return true;
         }
 

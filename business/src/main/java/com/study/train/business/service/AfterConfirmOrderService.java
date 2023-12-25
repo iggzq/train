@@ -35,8 +35,8 @@ public class AfterConfirmOrderService {
     private ConfirmOrderMapper confirmOrderMapper;
 
     @Transactional
-    public void afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketDTO> tickets,ConfirmOrder confirmOrder) {
-        for(int j = 0; j < finalSeats.size(); j++){
+    public void afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketDTO> tickets, ConfirmOrder confirmOrder) {
+        for (int j = 0; j < finalSeats.size(); j++) {
             DailyTrainStationSeat dailyTrainSeat = finalSeats.get(j);
             DailyTrainStationSeat updateSeat = new DailyTrainStationSeat();
             updateSeat.setId(dailyTrainSeat.getId());
@@ -47,23 +47,29 @@ public class AfterConfirmOrderService {
             Integer endIndex = dailyTrainTicket.getEndIndex();
             char[] charArray = updateSeat.getSell().toCharArray();
             Integer maxStartIndex = endIndex - 1;
-            Integer minEndIndex = startIndex - 1;
+            Integer minEndIndex = startIndex + 1;
             int minStartIndex = 0;
             for (int i = startIndex - 1; i >= 0; i--) {
                 char aChar = charArray[i];
+                System.out.println(i);
+                System.out.println(aChar);
                 if (aChar == '1') {
-                    minStartIndex = i + 1;
+                    minStartIndex = i + 1;//1
                     break;
                 }
             }
-            int maxEndIndex = updateSeat.getSell().length() ;
-            for(int i = endIndex; i < updateSeat.getSell().length(); i++){
+            int maxEndIndex = updateSeat.getSell().length() + 1;
+            for (int i = endIndex; i < updateSeat.getSell().length(); i++) {
                 char aChar = charArray[i];
-                if(aChar == '1'){
+                if (aChar == '1') {
                     maxEndIndex = i;
                     break;
                 }
             }
+            System.out.println(minStartIndex);
+            System.out.println(maxStartIndex);
+            System.out.println(minEndIndex);
+            System.out.println(maxEndIndex);
             dailyTrainTicketMapperCust.updateCountBySell(
                     dailyTrainSeat.getDate(),
                     dailyTrainSeat.getTrainCode(),
@@ -97,7 +103,6 @@ public class AfterConfirmOrderService {
             confirmOrderForUpdate.setUpdateTime(new Date());
             confirmOrderForUpdate.setStatus(ConfirmOrderStatusEnum.SUCCESS.getCode());
             confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
-
 
 
         }
