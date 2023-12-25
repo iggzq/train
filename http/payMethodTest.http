@@ -1,0 +1,11 @@
+POST http://localhost:8002/business/ticket-pay/pay
+Content-Type: application/json
+
+{
+"tradeNum" : "1",
+"tradeName" : "1",
+"amount" : "1",
+"subject" : "subject"
+}
+###
+
