@@ -5,14 +5,15 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.common.util.SnowUtil;
 import com.study.train.business.domain.ConfirmOrder;
 import com.study.train.business.domain.ConfirmOrderExample;
-import com.study.train.common.resp.PageResp;
+import com.study.train.business.dto.ConfirmOrderDTO;
 import com.study.train.business.dto.ConfirmOrderQueryDTO;
 import com.study.train.business.dto.ConfirmOrderSaveDTO;
 import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.resp.ConfirmOrderQueryResp;
+import com.study.train.common.resp.PageResp;
+import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,5 +65,10 @@ public class ConfirmOrderService {
 
     public void delete(Long id){
         confirmOrderMapper.deleteByPrimaryKey(id);
+    }
+
+
+    public void saveConfirm(ConfirmOrderDTO confirmOrderDTO) {
+
     }
 }
