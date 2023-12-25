@@ -51,6 +51,9 @@ public class ConfirmOrderService {
     @Resource
     private DailyTrainStationSeatService dailyTrainStationSeatService;
 
+    @Resource
+    private AfterConfirmOrderService afterConfirmOrderService;
+
     public void save(ConfirmOrderSaveDTO confirmOrderSaveDTO) {
         DateTime now = new DateTime();
         ConfirmOrder confirmOrder = BeanUtil.copyProperties(confirmOrderSaveDTO, ConfirmOrder.class);
@@ -115,13 +118,15 @@ public class ConfirmOrderService {
         //查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
         DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
         reduceTicketNum(confirmOrderDTO, dailyTrainTicket);
+        //最终选座结果
+        List<DailyTrainStationSeat> finalSeatList = new ArrayList<>();
+
         ConfirmOrderTicketDTO confirmOrderTicketDTO = tickets.get(0);
         if (StrUtil.isBlank(confirmOrderTicketDTO.getSeat())) {
             LOG.info("本次购票没有选座");
             for (ConfirmOrderTicketDTO ticket : tickets) {
-                getSeat(date, trainCode, ticket.getSeatTypeCode(), null, null, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
+                getSeat(finalSeatList,date, trainCode, ticket.getSeatTypeCode(), null, null, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
             }
-
         } else {
             LOG.info("本次购票有选座");
             List<SeatColEnum> seatColEnumList = SeatColEnum.getColsByType(confirmOrderTicketDTO.getSeatTypeCode());
@@ -144,22 +149,36 @@ public class ConfirmOrderService {
                 offsetList.add(offset);
             }
 
-            getSeat(date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
+            getSeat(finalSeatList,date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
                     confirmOrderTicketDTO.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
         }
+            afterConfirmOrderService.afterDoConfirm(dailyTrainTicket,finalSeatList);
+
 
     }
 
-    private void getSeat(Date date, String trainCode, String seatType, String column, List<Integer> offsetList, Integer startIndex, Integer endIndex) {
+    private void getSeat(List<DailyTrainStationSeat> finalSeatList,Date date, String trainCode, String seatType, String column, List<Integer> offsetList, Integer startIndex, Integer endIndex) {
+        List<DailyTrainStationSeat> getSeatList = new ArrayList<>();
         List<DailyTrainStationCarriage> dailyTrainStationCarriages = dailyTrainStationCarriageService.selectBySeatType(date, trainCode, seatType);
         LOG.info("共查询{}个符合条件的车厢", dailyTrainStationCarriages.size());
         for (DailyTrainStationCarriage dailyTrainStationCarriage : dailyTrainStationCarriages) {
+            getSeatList.clear();
             LOG.info("开始从车厢{}选座", dailyTrainStationCarriage.getIndex());
             List<DailyTrainStationSeat> dailyTrainStationSeats = dailyTrainStationSeatService.selectByCarriage(date, trainCode, dailyTrainStationCarriage.getIndex());
             for (int i = 0; i < dailyTrainStationSeats.size(); i++) {
                 DailyTrainStationSeat dailyTrainSeat = dailyTrainStationSeats.get(i);
                 Integer seatIndex = dailyTrainSeat.getCarriageSeatIndex();
                 String col = dailyTrainSeat.getCol();
+                boolean alreadySellFlag = false;
+                for (DailyTrainStationSeat finalSeat : finalSeatList) {
+                    if (finalSeat.getId().equals(dailyTrainSeat.getId())){
+                        alreadySellFlag = true;
+                        break;
+                    }
+                }
+                if(alreadySellFlag){
+                    continue;
+                }
                 if (StrUtil.isBlank(column)) {
                     LOG.info("有选座");
                 } else {
@@ -170,6 +189,7 @@ public class ConfirmOrderService {
                 boolean canSell = canSell(dailyTrainSeat, startIndex, endIndex);
                 if (canSell) {
                     LOG.info("可以选座");
+                    getSeatList.add(dailyTrainSeat);
                 } else {
                     continue;
                 }
@@ -183,18 +203,21 @@ public class ConfirmOrderService {
                             isGetAllOffsetSeat = false;
                             break;
                         }
-                        DailyTrainStationSeat nextDailyTrainStationSeat1 = dailyTrainStationSeats.get(nextIndex);
-                        boolean canSellNext = canSell(dailyTrainSeat, startIndex, endIndex);
+                        DailyTrainStationSeat nextSeat = dailyTrainStationSeats.get(nextIndex);
+                        boolean canSellNext = canSell(nextSeat, startIndex, endIndex);
                         if (!canSellNext) {
                             isGetAllOffsetSeat = false;
                             break;
+                        }else {
+                            getSeatList.add(nextSeat);
                         }
                     }
                 }
-                if(!isGetAllOffsetSeat){
+                if (!isGetAllOffsetSeat) {
+                    getSeatList.clear();
                     continue;
                 }
-
+                finalSeatList.addAll(getSeatList);
                 return;
             }
         }
@@ -214,6 +237,8 @@ public class ConfirmOrderService {
             String newSellStr = NumberUtil.getBinaryStr(newSell);
             newSellStr = StrUtil.fillBefore(newSellStr, '0', sell.length());
             dailyTrainStationSeat.setSell(newSellStr);
+
+            return true;
         }
 
     }
