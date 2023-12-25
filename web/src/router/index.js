@@ -28,6 +28,9 @@ const routes = [
         },{
             path: '/orderConfirm',
             component: () => import('../views/main/orderConfirm.vue')
+        },{
+            path: '/my-ticket',
+            component: () => import('../views/main/my-ticket.vue')
         }]
     },
     {

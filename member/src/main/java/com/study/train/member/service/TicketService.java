@@ -2,6 +2,7 @@ package com.study.train.member.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.common.req.MemberTicketReq;
@@ -40,6 +41,9 @@ public class TicketService {
     public PageResp<TicketQueryResp> queryList(TicketQueryDTO ticketQueryDTO) {
         TicketExample ticketExample = new TicketExample();
         TicketExample.Criteria criteria = ticketExample.createCriteria();
+        if(ObjectUtil.isNotNull(ticketQueryDTO.getMemberId())){
+            criteria.andMemberIdEqualTo(ticketQueryDTO.getMemberId());
+        }
         PageHelper.startPage(ticketQueryDTO.getPage(), ticketQueryDTO.getSize());
         List<Ticket> tickets = ticketMapper.selectByExample(ticketExample);
 
