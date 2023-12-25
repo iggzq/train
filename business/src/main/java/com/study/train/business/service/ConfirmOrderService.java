@@ -1,6 +1,7 @@
 package com.study.train.business.service;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.NumberUtil;
@@ -118,7 +119,7 @@ public class ConfirmOrderService {
         if (StrUtil.isBlank(confirmOrderTicketDTO.getSeat())) {
             LOG.info("本次购票没有选座");
             for (ConfirmOrderTicketDTO ticket : tickets) {
-                getSeat(date, trainCode, ticket.getSeatTypeCode(), null, null,dailyTrainTicket.getStartIndex(),dailyTrainTicket.getEndIndex());
+                getSeat(date, trainCode, ticket.getSeatTypeCode(), null, null, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
             }
 
         } else {
@@ -144,7 +145,7 @@ public class ConfirmOrderService {
             }
 
             getSeat(date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
-                    confirmOrderTicketDTO.getSeat().split("")[0], offsetList,dailyTrainTicket.getStartIndex(),dailyTrainTicket.getEndIndex());
+                    confirmOrderTicketDTO.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
         }
 
     }
@@ -155,13 +156,46 @@ public class ConfirmOrderService {
         for (DailyTrainStationCarriage dailyTrainStationCarriage : dailyTrainStationCarriages) {
             LOG.info("开始从车厢{}选座", dailyTrainStationCarriage.getIndex());
             List<DailyTrainStationSeat> dailyTrainStationSeats = dailyTrainStationSeatService.selectByCarriage(date, trainCode, dailyTrainStationCarriage.getIndex());
-            for (DailyTrainStationSeat dailyTrainStationSeat : dailyTrainStationSeats) {
-                boolean canSell = canSell(dailyTrainStationSeat, startIndex, endIndex);
+            for (int i = 0; i < dailyTrainStationSeats.size(); i++) {
+                DailyTrainStationSeat dailyTrainSeat = dailyTrainStationSeats.get(i);
+                Integer seatIndex = dailyTrainSeat.getCarriageSeatIndex();
+                String col = dailyTrainSeat.getCol();
+                if (StrUtil.isBlank(column)) {
+                    LOG.info("有选座");
+                } else {
+                    if (!column.equals(col)) {
+                        continue;
+                    }
+                }
+                boolean canSell = canSell(dailyTrainSeat, startIndex, endIndex);
                 if (canSell) {
-                    return;
-                }else {
+                    LOG.info("可以选座");
+                } else {
                     continue;
                 }
+
+                boolean isGetAllOffsetSeat = true;
+                if (CollUtil.isNotEmpty(offsetList)) {
+                    for (int j = 1; j < offsetList.size(); j++) {
+                        Integer offset = offsetList.get(i);
+                        int nextIndex = seatIndex + offset;
+                        if (nextIndex >= dailyTrainStationSeats.size()) {
+                            isGetAllOffsetSeat = false;
+                            break;
+                        }
+                        DailyTrainStationSeat nextDailyTrainStationSeat1 = dailyTrainStationSeats.get(nextIndex);
+                        boolean canSellNext = canSell(dailyTrainSeat, startIndex, endIndex);
+                        if (!canSellNext) {
+                            isGetAllOffsetSeat = false;
+                            break;
+                        }
+                    }
+                }
+                if(!isGetAllOffsetSeat){
+                    continue;
+                }
+
+                return;
             }
         }
     }
