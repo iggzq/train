@@ -2,7 +2,7 @@ package com.study.train.business.enums;
 
 public enum ConfirmOrderStatusEnum {
     INIT("I", "初始"),
-    PENDING("P", "处理中"),
+    PENDING("P", "待支付"),
     SUCCESS("S", "成功"),
     FAILURE("F", "失败"),
     EMPTY("E", "无票"),

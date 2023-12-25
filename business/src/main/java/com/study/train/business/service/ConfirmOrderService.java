@@ -109,7 +109,7 @@ public class ConfirmOrderService {
         confirmOrder.setStart(start);
         confirmOrder.setEnd(end);
         confirmOrder.setDailyTrainTicketId(confirmOrderDTO.getDailyTrainTicketId());
-        confirmOrder.setStatus(ConfirmOrderStatusEnum.INIT.getCode());
+        confirmOrder.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
         confirmOrder.setCreateTime(now);
         confirmOrder.setUpdateTime(now);
         confirmOrder.setTickets(JSON.toJSONString(tickets));
@@ -152,7 +152,7 @@ public class ConfirmOrderService {
             getSeat(finalSeatList,date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
                     confirmOrderTicketDTO.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
         }
-            afterConfirmOrderService.afterDoConfirm(dailyTrainTicket,finalSeatList,tickets);
+            afterConfirmOrderService.afterDoConfirm(dailyTrainTicket,finalSeatList,tickets,confirmOrder);
 
 
     }
