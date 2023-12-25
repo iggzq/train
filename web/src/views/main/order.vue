@@ -47,7 +47,8 @@
       </template>
 
       <template v-else-if="column.dataIndex === 'seatPosition' && record.seatTypeCode === '1'">
-        <a-select v-model:value="record.seatPosition" style="width: 100%" :placeholder="seatTypes[0].count <= 20 ? '剩余座位数小于20,不可选座' : '可选择座位'"
+        <a-select v-model:value="record.seatPosition" style="width: 100%"
+                  :placeholder="seatTypes[0].count <= 20 ? '剩余座位数小于20,不可选座' : '可选择座位'"
                   :disabled="seatTypes[0].count <= 20">
           <a-select-option v-for="item in seatColsYD" :key="item.key" :value="item.value">
             {{ item.value }}
@@ -56,7 +57,8 @@
       </template>
 
       <template v-else-if="column.dataIndex === 'seatPosition' && record.seatTypeCode === '2'">
-        <a-select v-model:value="record.seatPosition" style="width: 100%" :placeholder="seatTypes[1].count <= 20 ? '剩余座位数小于20,不可选座' : '可选择座位'"
+        <a-select v-model:value="record.seatPosition" style="width: 100%"
+                  :placeholder="seatTypes[1].count <= 20 ? '剩余座位数小于20,不可选座' : '可选择座位'"
                   :disabled="seatTypes[1].count <= 20">
           <a-select-option v-for="item in seatColsED" :key="item.key" :value="item.value">
             {{ item.value }}
@@ -91,6 +93,7 @@ export default defineComponent({
     const passengerOptions = ref([]);
     const passengerChecked = ref([]);
     const tickets = ref([]);
+    let totalMoney = 0;
     const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
     const pagination = ref({
       position: ['bottomLeft'],
@@ -164,23 +167,28 @@ export default defineComponent({
       })
     }
 
-    const goPay = () => {
-
-      axios.post("/business/confirm-order/save-order", {
-        dailyTrainTicketId: dailyTrainTicket.id,
-        date: dailyTrainTicket.date,
-        trainCode: dailyTrainTicket.trainCode,
-        start: dailyTrainTicket.start,
-        end: dailyTrainTicket.end,
-        tickets: tickets.value,
-      }).then((response) => {
+    const goPay = async () => {
+      try {
+        const response = await axios.post("/business/confirm-order/save-order", {
+          dailyTrainTicketId: dailyTrainTicket.id,
+          date: dailyTrainTicket.date,
+          trainCode: dailyTrainTicket.trainCode,
+          start: dailyTrainTicket.start,
+          end: dailyTrainTicket.end,
+          tickets: tickets.value,
+        });
         let data = response.data;
+        console.log(data);
+        totalMoney = data.content;
         if (data.success) {
           notification.success({description: "下单成功！"});
         } else {
           notification.error({description: data.message});
         }
-      });
+      } catch (error) {
+        console.log(error);
+        notification.error({description: "下单失败！"});
+      }
       let seatTypeTmp = Tool.copy(seatTypes);
       if (tickets.value.length === 0) {
         notification.error({description: '请选择乘客！'});
@@ -192,13 +200,13 @@ export default defineComponent({
           if (ticket.seatTypeCode === seatTypeTmp[j].key) {
             seatTypeTmp[j].count--;
             if (seatTypeTmp[j].count < 0) {
-              notification.error({description: seatTypeTmp[j].value + '仅剩' + seatTypes[j].count + '张票' + '，票数不足！'});
+              notification.error({description: seatTypeTmp[j].value + '仅剩' + seatTypes[j].count + '张票' + '，票数不足！',});
               return;
             }
           }
         }
       }
-
+      SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
       SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
       SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
       SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
@@ -220,8 +228,6 @@ export default defineComponent({
           seatPosition: null,
         })
       })
-
-      console.log(tickets);
 
 
     }, {immediate: true});

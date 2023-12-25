@@ -9,13 +9,6 @@
     <span class="order-train-main">{{ dailyTrainTicket.end }}</span>站
     <span class="order-train-main">({{ dailyTrainTicket.endTime }})</span>&nbsp;
   </div>
-  <div class="order-train-ticket">
-    <span v-for="item in seatTypes" :key="item.key">
-      <span>{{ item.value }}：</span>
-      <span class="order-train-ticket-main">{{ item.price }}￥</span>&nbsp;
-      <span class="order-train-ticket-main">{{ item.count }}</span>&nbsp;张票&nbsp;&nbsp;
-    </span>
-  </div>
   <a-divider></a-divider>
   <div class="secondTitle">
     乘车人信息
@@ -33,7 +26,7 @@
     </template>
   </a-table>
   <div class="button-line">
-    <span class="totalMoney">总价：￥</span>
+    <span class="totalMoney">总价：{{totalMoney}}￥</span>
     <a-button type="primary" @click="goBack" size="large" class="goBackButton">上一步</a-button>
     <a-button type="primary" @click="ensureGoPay" size="large">去支付</a-button>
   </div>
@@ -52,8 +45,11 @@ export default defineComponent({
     const seatTypes = SessionStorage.get(SESSION_CONFIRM_SEAT_TYPES) || [];
     const columns = SessionStorage.get(SESSION_CONFIRM_COLUMNS) || [];
     const sessionTickets = SessionStorage.get(SESSION_CONFIRM_TICKETS) || [];
+    const totalMoney = SessionStorage.get(SESSION_TOTAL_MONEY) || 0;
     const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
     const tickets = [];
+    console.log(1);
+    console.log(totalMoney);
     //将sessionTickets数组的内容复制到tickets数组中
     for (let i = 0; i < sessionTickets._rawValue.length; i++) {
       tickets.push(sessionTickets._rawValue[i]);
@@ -75,7 +71,8 @@ export default defineComponent({
       seatTypes,
       tickets,
       columns,
-      PASSENGER_TYPE_ARRAY
+      PASSENGER_TYPE_ARRAY,
+      totalMoney
     }
 
   }
@@ -94,15 +91,6 @@ export default defineComponent({
   display: flex;
 }
 
-.order-train-ticket {
-  display: flex;
-}
-
-.order-train-ticket .order-train-ticket-main {
-  font-size: 25px;
-  font-weight: bold;
-  color: chartreuse;
-}
 
 .order-train .order-train-main {
   font-size: 30px;

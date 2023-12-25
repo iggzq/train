@@ -1,7 +1,6 @@
 package com.study.train.business.controller;
 
 import com.study.train.business.dto.ConfirmOrderDTO;
-import com.study.train.business.dto.ConfirmOrderTicketDTO;
 import com.study.train.business.service.ConfirmOrderService;
 import com.study.train.common.resp.CommonResp;
 import jakarta.annotation.Resource;
@@ -10,8 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/confirm-order")
@@ -22,9 +19,9 @@ public class ConfirmOrderController {
 
 
     @PostMapping("/save-order")
-    public CommonResp<Object> saveOrder(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) {
-        ConfirmOrderService.saveConfirm(confirmOrderDTO);
-        return new CommonResp<>();
+    public CommonResp<Float> saveOrder(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) {
+        Float totalMoney = ConfirmOrderService.saveConfirm(confirmOrderDTO);
+        return new CommonResp<>(totalMoney);
     }
 
 

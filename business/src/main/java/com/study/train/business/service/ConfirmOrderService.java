@@ -94,7 +94,7 @@ public class ConfirmOrderService {
     }
 
 
-    public void saveConfirm(ConfirmOrderDTO confirmOrderDTO) {
+    public Float saveConfirm(ConfirmOrderDTO confirmOrderDTO) {
         //保存订单到订单信息表
         Date date = confirmOrderDTO.getDate();
         String trainCode = confirmOrderDTO.getTrainCode();
@@ -118,7 +118,7 @@ public class ConfirmOrderService {
 
         //查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
         DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
-        reduceTicketNum(confirmOrderDTO, dailyTrainTicket);
+        Float totalMoney = reduceTicketNum(confirmOrderDTO, dailyTrainTicket);
         //最终选座结果
         List<DailyTrainStationSeat> finalSeatList = new ArrayList<>();
 
@@ -137,8 +137,7 @@ public class ConfirmOrderService {
                     confirmOrderTicketDTO.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
         }
         afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder);
-
-
+        return totalMoney;
     }
 
     @NotNull
@@ -256,7 +255,8 @@ public class ConfirmOrderService {
 
     }
 
-    private static void reduceTicketNum(ConfirmOrderDTO confirmOrderDTO, DailyTrainTicket dailyTrainTicket) {
+    private Float reduceTicketNum(ConfirmOrderDTO confirmOrderDTO, DailyTrainTicket dailyTrainTicket) {
+        Float totalMoney = 0f;
         for (ConfirmOrderTicketDTO ticketReq : confirmOrderDTO.getTickets()) {
             String seatTypeCode = ticketReq.getSeatTypeCode();
             SeatTypeEnum seatTypeEnum = EnumUtil.getBy(SeatTypeEnum::getKey, seatTypeCode);
@@ -266,6 +266,7 @@ public class ConfirmOrderService {
                     if (countLeft < 0) {
                         throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_TICKET_COUNT_ERROR);
                     }
+                    totalMoney += dailyTrainTicket.getYdzPrice().floatValue();
                     dailyTrainTicket.setYdz(countLeft);
                 }
                 case EDZ -> {
@@ -273,6 +274,7 @@ public class ConfirmOrderService {
                     if (countLeft < 0) {
                         throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_TICKET_COUNT_ERROR);
                     }
+                    totalMoney += dailyTrainTicket.getEdzPrice().floatValue();
                     dailyTrainTicket.setYdz(countLeft);
                 }
                 case RW -> {
@@ -280,6 +282,7 @@ public class ConfirmOrderService {
                     if (countLeft < 0) {
                         throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_TICKET_COUNT_ERROR);
                     }
+                    totalMoney += dailyTrainTicket.getRwPrice().floatValue();
                     dailyTrainTicket.setYdz(countLeft);
                 }
                 case YW -> {
@@ -287,9 +290,12 @@ public class ConfirmOrderService {
                     if (countLeft < 0) {
                         throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_TICKET_COUNT_ERROR);
                     }
+                    totalMoney += dailyTrainTicket.getYwPrice().floatValue();
                     dailyTrainTicket.setYdz(countLeft);
                 }
             }
         }
+
+        return totalMoney;
     }
 }
