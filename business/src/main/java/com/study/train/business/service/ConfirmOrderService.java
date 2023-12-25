@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -15,6 +16,7 @@ import com.study.train.business.dto.ConfirmOrderQueryDTO;
 import com.study.train.business.dto.ConfirmOrderSaveDTO;
 import com.study.train.business.dto.ConfirmOrderTicketDTO;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
+import com.study.train.business.enums.SeatColEnum;
 import com.study.train.business.enums.SeatTypeEnum;
 import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.resp.ConfirmOrderQueryResp;
@@ -28,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -88,6 +91,7 @@ public class ConfirmOrderService {
         String start = confirmOrderDTO.getStart();
         String end = confirmOrderDTO.getEnd();
         DateTime now = DateTime.now();
+        List<ConfirmOrderTicketDTO> tickets = confirmOrderDTO.getTickets();
         ConfirmOrder confirmOrder = new ConfirmOrder();
         confirmOrder.setId(SnowUtil.getSnowflakeNextId());
         confirmOrder.setMemberId(LoginMemberContext.getId());
@@ -99,12 +103,38 @@ public class ConfirmOrderService {
         confirmOrder.setStatus(ConfirmOrderStatusEnum.INIT.getCode());
         confirmOrder.setCreateTime(now);
         confirmOrder.setUpdateTime(now);
-        confirmOrder.setTickets(JSON.toJSONString(confirmOrderDTO.getTickets()));
+        confirmOrder.setTickets(JSON.toJSONString(tickets));
         confirmOrderMapper.insert(confirmOrder);
 
         //查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
         DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
         reduceTicketNum(confirmOrderDTO, dailyTrainTicket);
+        ConfirmOrderTicketDTO confirmOrderTicketDTO = tickets.get(0);
+        if (StrUtil.isBlank(confirmOrderTicketDTO.getSeat())) {
+            LOG.info("本次购票没有选座");
+        } else {
+            LOG.info("本次购票有选座");
+            List<SeatColEnum> seatColEnumList = SeatColEnum.getColsByType(confirmOrderTicketDTO.getSeatTypeCode());
+            List<String> refreshSeatList = new ArrayList<>();
+            for (int i = 1; i <= 2; i++) {
+                for (SeatColEnum seatColEnum : seatColEnumList) {
+                    refreshSeatList.add(seatColEnum.getKey() + i);
+                }
+            }
+            //绝对偏移值，即：在参照座位列表中，找到当前座位的索引
+            List<Integer> absoluteOffsetList = new ArrayList<>();
+            List<Integer> offsetList = new ArrayList<>();
+            for (ConfirmOrderTicketDTO ticket : tickets) {
+                int index = refreshSeatList.indexOf(ticket.getSeat());
+                absoluteOffsetList.add(index);
+            }
+            //相对偏移值，即：当前座位在参照座位列表中的索引
+            for (Integer index : absoluteOffsetList) {
+                int offset = index - absoluteOffsetList.get(0);
+                offsetList.add(offset);
+            }
+        }
+
     }
 
     private static void reduceTicketNum(ConfirmOrderDTO confirmOrderDTO, DailyTrainTicket dailyTrainTicket) {
