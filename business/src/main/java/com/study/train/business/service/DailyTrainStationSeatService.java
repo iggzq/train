@@ -112,4 +112,10 @@ public class DailyTrainStationSeatService {
         dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
         return dailyTrainStationSeatMapper.selectByExample(dailyTrainStationSeatExample);
     }
+
+    public List<DailyTrainStationSeat> selectByCarriage(Date date,String trainCode,Integer carriageIndex){
+        DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
+        dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode).andCarriageIndexEqualTo(carriageIndex);
+        return dailyTrainStationSeatMapper.selectByExample(dailyTrainStationSeatExample);
+    }
 }

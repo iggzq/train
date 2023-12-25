@@ -3,14 +3,13 @@ package com.study.train.business.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.EnumUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.business.domain.ConfirmOrder;
-import com.study.train.business.domain.ConfirmOrderExample;
-import com.study.train.business.domain.DailyTrainTicket;
+import com.study.train.business.domain.*;
 import com.study.train.business.dto.ConfirmOrderDTO;
 import com.study.train.business.dto.ConfirmOrderQueryDTO;
 import com.study.train.business.dto.ConfirmOrderSaveDTO;
@@ -44,6 +43,12 @@ public class ConfirmOrderService {
 
     @Resource
     DailyTrainTicketService dailyTrainTicketService;
+
+    @Resource
+    DailyTrainStationCarriageService dailyTrainStationCarriageService;
+
+    @Resource
+    private DailyTrainStationSeatService dailyTrainStationSeatService;
 
     public void save(ConfirmOrderSaveDTO confirmOrderSaveDTO) {
         DateTime now = new DateTime();
@@ -112,6 +117,10 @@ public class ConfirmOrderService {
         ConfirmOrderTicketDTO confirmOrderTicketDTO = tickets.get(0);
         if (StrUtil.isBlank(confirmOrderTicketDTO.getSeat())) {
             LOG.info("本次购票没有选座");
+            for (ConfirmOrderTicketDTO ticket : tickets) {
+                getSeat(date, trainCode, ticket.getSeatTypeCode(), null, null,dailyTrainTicket.getStartIndex(),dailyTrainTicket.getEndIndex());
+            }
+
         } else {
             LOG.info("本次购票有选座");
             List<SeatColEnum> seatColEnumList = SeatColEnum.getColsByType(confirmOrderTicketDTO.getSeatTypeCode());
@@ -133,6 +142,44 @@ public class ConfirmOrderService {
                 int offset = index - absoluteOffsetList.get(0);
                 offsetList.add(offset);
             }
+
+            getSeat(date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
+                    confirmOrderTicketDTO.getSeat().split("")[0], offsetList,dailyTrainTicket.getStartIndex(),dailyTrainTicket.getEndIndex());
+        }
+
+    }
+
+    private void getSeat(Date date, String trainCode, String seatType, String column, List<Integer> offsetList, Integer startIndex, Integer endIndex) {
+        List<DailyTrainStationCarriage> dailyTrainStationCarriages = dailyTrainStationCarriageService.selectBySeatType(date, trainCode, seatType);
+        LOG.info("共查询{}个符合条件的车厢", dailyTrainStationCarriages.size());
+        for (DailyTrainStationCarriage dailyTrainStationCarriage : dailyTrainStationCarriages) {
+            LOG.info("开始从车厢{}选座", dailyTrainStationCarriage.getIndex());
+            List<DailyTrainStationSeat> dailyTrainStationSeats = dailyTrainStationSeatService.selectByCarriage(date, trainCode, dailyTrainStationCarriage.getIndex());
+            for (DailyTrainStationSeat dailyTrainStationSeat : dailyTrainStationSeats) {
+                boolean canSell = canSell(dailyTrainStationSeat, startIndex, endIndex);
+                if (canSell) {
+                    return;
+                }else {
+                    continue;
+                }
+            }
+        }
+    }
+
+    private boolean canSell(DailyTrainStationSeat dailyTrainStationSeat, Integer startIndex, Integer endIndex) {
+        String sell = dailyTrainStationSeat.getSell();
+        String sellPart = sell.substring(startIndex, endIndex);
+        if (Integer.parseInt(sellPart) > 0) {
+            return false;
+        } else {
+            String sellPosition = sellPart.replaceAll("0", "1");
+            sellPosition = StrUtil.fillBefore(sellPosition, '0', endIndex);
+            sellPosition = StrUtil.fillAfter(sellPosition, '0', sell.length());
+
+            int newSell = NumberUtil.binaryToInt(sellPosition) | NumberUtil.binaryToInt(sell);
+            String newSellStr = NumberUtil.getBinaryStr(newSell);
+            newSellStr = StrUtil.fillBefore(newSellStr, '0', sell.length());
+            dailyTrainStationSeat.setSell(newSellStr);
         }
 
     }

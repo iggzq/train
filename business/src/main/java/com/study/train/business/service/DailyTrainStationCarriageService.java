@@ -46,7 +46,7 @@ public class DailyTrainStationCarriageService {
             dailyTrainStationCarriage.setCreateTime(now);
             dailyTrainStationCarriage.setUpdateTime(now);
             dailyTrainStationCarriageMapper.insert(dailyTrainStationCarriage);
-        }else {
+        } else {
             dailyTrainStationCarriage.setUpdateTime(now);
             dailyTrainStationCarriageMapper.updateByPrimaryKey(dailyTrainStationCarriage);
         }
@@ -74,17 +74,17 @@ public class DailyTrainStationCarriageService {
 
         List<DailyTrainStationCarriageQueryResp> dailyTrainStationCarriageQueryResps = BeanUtil.copyToList(dailyTrainStationCarriages, DailyTrainStationCarriageQueryResp.class);
         PageResp<DailyTrainStationCarriageQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(dailyTrainStationCarriageQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(dailyTrainStationCarriageQueryResps);
 
         return pageResp;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         dailyTrainStationCarriageMapper.deleteByPrimaryKey(id);
     }
 
-    public void genDaily(Date date, String trainCode){
+    public void genDaily(Date date, String trainCode) {
         //删除该车次车站所有每日数据
         DailyTrainStationCarriageExample dailyTrainStationCarriageExample = new DailyTrainStationCarriageExample();
         dailyTrainStationCarriageExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
@@ -93,7 +93,7 @@ public class DailyTrainStationCarriageService {
 
         List<TrainCarriage> trainCarriages = trainCarriageService.selectByTrainCode(trainCode);
 
-        if(CollUtil.isEmpty(trainCarriages)){
+        if (CollUtil.isEmpty(trainCarriages)) {
             LOG.info("该车次没有车站基础信息，生成该车站车站信息结束");
             return;
         }
@@ -107,6 +107,11 @@ public class DailyTrainStationCarriageService {
             dailyTrainStationCarriage.setDate(date);
             dailyTrainStationCarriageMapper.insert(dailyTrainStationCarriage);
         }
+    }
 
+    public List<DailyTrainStationCarriage> selectBySeatType(Date date, String trainCode, String seatType) {
+        DailyTrainStationCarriageExample dailyTrainStationCarriageExample = new DailyTrainStationCarriageExample();
+        dailyTrainStationCarriageExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode).andSeatTypeEqualTo(seatType);
+        return dailyTrainStationCarriageMapper.selectByExample(dailyTrainStationCarriageExample);
     }
 }
