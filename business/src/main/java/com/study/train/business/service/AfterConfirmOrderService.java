@@ -1,23 +1,23 @@
 package com.study.train.business.service;
 
-import com.study.train.business.domain.ConfirmOrder;
 import com.study.train.business.domain.DailyTrainStationSeat;
 import com.study.train.business.domain.DailyTrainTicket;
 import com.study.train.business.dto.ConfirmOrderTicketDTO;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.feign.MemberFeign;
-import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.mapper.DailyTrainStationSeatMapper;
 import com.study.train.business.mapper.customer.DailyTrainTicketMapperCust;
 import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.CommonResp;
+import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,11 +31,10 @@ public class AfterConfirmOrderService {
     private DailyTrainTicketMapperCust dailyTrainTicketMapperCust;
     @Resource
     private MemberFeign memberFeign;
-    @Resource
-    private ConfirmOrderMapper confirmOrderMapper;
 
     @Transactional
-    public void afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketDTO> tickets, ConfirmOrder confirmOrder) {
+    public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketDTO> tickets) {
+        List<MemberTicketReq> memberTicketReqs = new ArrayList<>();
         for (int j = 0; j < finalSeats.size(); j++) {
             DailyTrainStationSeat dailyTrainSeat = finalSeats.get(j);
             DailyTrainStationSeat updateSeat = new DailyTrainStationSeat();
@@ -82,6 +81,7 @@ public class AfterConfirmOrderService {
 
             // 调用会员服务接口，为会员增加一张车票
             MemberTicketReq memberTicketReq = new MemberTicketReq();
+            memberTicketReq.setId(SnowUtil.getSnowflakeNextId());
             memberTicketReq.setMemberId(LoginMemberContext.getId());
             memberTicketReq.setPassengerId(tickets.get(j).getPassengerId());
             memberTicketReq.setPassengerName(tickets.get(j).getPassengerName());
@@ -95,16 +95,17 @@ public class AfterConfirmOrderService {
             memberTicketReq.setEndStation(dailyTrainTicket.getEnd());
             memberTicketReq.setEndTime(dailyTrainTicket.getEndTime());
             memberTicketReq.setSeatType(dailyTrainSeat.getSeatType());
+            memberTicketReq.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
             CommonResp<Object> commonResp = memberFeign.save(memberTicketReq);
+            memberTicketReqs.add(memberTicketReq);
             LOG.info("调用member接口，返回：{}", commonResp);
 
-            ConfirmOrder confirmOrderForUpdate = new ConfirmOrder();
-            confirmOrderForUpdate.setId(confirmOrder.getId());
-            confirmOrderForUpdate.setUpdateTime(new Date());
-            confirmOrderForUpdate.setStatus(ConfirmOrderStatusEnum.SUCCESS.getCode());
-            confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
-
-
+//            ConfirmOrder confirmOrderForUpdate = new ConfirmOrder();
+//            confirmOrderForUpdate.setId(confirmOrder.getId());
+//            confirmOrderForUpdate.setUpdateTime(new Date());
+//            confirmOrderForUpdate.setStatus(ConfirmOrderStatusEnum.SUCCESS.getCode());
+//            confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
         }
+        return memberTicketReqs;
     }
 }

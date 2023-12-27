@@ -1,5 +1,6 @@
 package com.study.train.business.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.study.train.business.dto.ConfirmOrderDTO;
 import com.study.train.business.service.ConfirmOrderService;
 import com.study.train.common.resp.CommonResp;
@@ -19,10 +20,12 @@ public class ConfirmOrderController {
 
 
     @PostMapping("/save-order")
-    public CommonResp<Float> saveOrder(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) {
+    public CommonResp<Float> saveOrder(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) throws JsonProcessingException {
         Float totalMoney = ConfirmOrderService.saveConfirm(confirmOrderDTO);
         return new CommonResp<>(totalMoney);
     }
+
+
 
 
 }

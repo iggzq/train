@@ -7,6 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 public class MemberTicketReq {
+    /**
+     * Id
+     */
+    private Long id;
+
 
     /**
      * 乘客id
@@ -89,12 +94,32 @@ public class MemberTicketReq {
     @NotBlank(message = "【座位类型】不能为空")
     private String seatType;
 
+    /**
+     * 用户座位状态
+     */
+    private String status;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
     public Long getMemberId() {
         return memberId;
     }
 
     public void setMemberId(Long memberId) {
         this.memberId = memberId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Long getPassengerId() {
@@ -193,22 +218,25 @@ public class MemberTicketReq {
         this.seatType = seatType;
     }
 
+
     @Override
     public String toString() {
         return "MemberTicketReq{" +
-                "memberId=" + memberId +
+                "id=" + id +
+                ", memberId=" + memberId +
                 ", passengerId=" + passengerId +
-                ", passengerName=" + passengerName +
-                ", date=" + trainDate +
+                ", passengerName='" + passengerName + '\'' +
+                ", trainDate=" + trainDate +
                 ", trainCode='" + trainCode + '\'' +
                 ", carriageIndex=" + carriageIndex +
-                ", row='" + seatRow + '\'' +
-                ", col='" + seatCol + '\'' +
-                ", start='" + startStation + '\'' +
+                ", seatRow='" + seatRow + '\'' +
+                ", seatCol='" + seatCol + '\'' +
+                ", startStation='" + startStation + '\'' +
                 ", startTime=" + startTime +
-                ", end='" + endStation + '\'' +
+                ", endStation='" + endStation + '\'' +
                 ", endTime=" + endTime +
                 ", seatType='" + seatType + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

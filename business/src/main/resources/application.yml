@@ -12,6 +12,11 @@ spring:
     password: root
   application:
     name: business
+  data:
+    redis:
+      database: 0
+      host: localhost
+      port: 6379
 #mybatis xml路径
 mybatis:
   mapper-locations: classpath:/mapper/**/*xml

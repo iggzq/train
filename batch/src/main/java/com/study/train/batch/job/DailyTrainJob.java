@@ -1,7 +1,5 @@
 package com.study.train.batch.job;
 
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.study.train.batch.feign.BussinessFeign;
 import jakarta.annotation.Resource;

@@ -8,6 +8,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
@@ -23,6 +24,7 @@ import com.study.train.business.resp.ConfirmOrderQueryResp;
 import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
+import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.util.SnowUtil;
 import jakarta.annotation.Resource;
@@ -54,6 +56,10 @@ public class ConfirmOrderService {
 
     @Resource
     private AfterConfirmOrderService afterConfirmOrderService;
+
+    @Resource
+    private PaymentService paymentService;
+
 
     public void save(ConfirmOrderSaveDTO confirmOrderSaveDTO) {
         DateTime now = new DateTime();
@@ -94,7 +100,7 @@ public class ConfirmOrderService {
     }
 
 
-    public Float saveConfirm(ConfirmOrderDTO confirmOrderDTO) {
+    public Float saveConfirm(ConfirmOrderDTO confirmOrderDTO) throws JsonProcessingException {
         //保存订单到订单信息表
         Date date = confirmOrderDTO.getDate();
         String trainCode = confirmOrderDTO.getTrainCode();
@@ -136,7 +142,9 @@ public class ConfirmOrderService {
             getSeat(finalSeatList, date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
                     confirmOrderTicketDTO.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
         }
-        afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder);
+        List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets);
+
+        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 60, finalSeatList, dailyTrainTicket, confirmOrderDTO, memberTicketReqs);
         return totalMoney;
     }
 
@@ -231,10 +239,7 @@ public class ConfirmOrderService {
 
     private boolean canSell(DailyTrainStationSeat dailyTrainStationSeat, Integer startIndex, Integer endIndex) {
         String sell = dailyTrainStationSeat.getSell();
-        System.out.println(startIndex + "   " + endIndex);
-        System.out.println(sell);
         String sellPart = sell.substring(startIndex - 1, endIndex - 1);
-        System.out.println(sellPart);
         if (Integer.parseInt(sellPart) > 0) {
             LOG.info("座位{}在本次车站区间{}~{}已售过票，不可选中该座位", dailyTrainStationSeat.getCarriageSeatIndex(), startIndex, endIndex);
             return false;
@@ -242,11 +247,9 @@ public class ConfirmOrderService {
             String sellPosition = sellPart.replaceAll("0", "1");
             sellPosition = StrUtil.fillBefore(sellPosition, '0', endIndex - 1);
             sellPosition = StrUtil.fillAfter(sellPosition, '0', sell.length());
-            System.out.println("sellPosition:"+sellPosition);
             int newSell = NumberUtil.binaryToInt(sellPosition) | NumberUtil.binaryToInt(sell);
             String newSellStr = NumberUtil.getBinaryStr(newSell);
             newSellStr = StrUtil.fillBefore(newSellStr, '0', sell.length());
-            System.out.println("新字符串：" + newSellStr);
             dailyTrainStationSeat.setSell(newSellStr);
             LOG.info("座位{}被选中，原售票信息：{}，车站区间：{}~{}，即：{}，最终售票信息：{}"
                     , dailyTrainStationSeat.getCarriageSeatIndex(), sell, startIndex, endIndex, sellPosition, newSell);
@@ -298,4 +301,6 @@ public class ConfirmOrderService {
 
         return totalMoney;
     }
+
+
 }

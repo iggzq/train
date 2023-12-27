@@ -31,6 +31,16 @@ public class Ticket {
 
     private String seatType;
 
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     private Date createTime;
 
     private Date updateTime;
@@ -165,27 +175,24 @@ public class Ticket {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", memberId=").append(memberId);
-        sb.append(", passengerId=").append(passengerId);
-        sb.append(", passengerName=").append(passengerName);
-        sb.append(", trainDate=").append(trainDate);
-        sb.append(", trainCode=").append(trainCode);
-        sb.append(", carriageIndex=").append(carriageIndex);
-        sb.append(", seatRow=").append(seatRow);
-        sb.append(", seatCol=").append(seatCol);
-        sb.append(", startStation=").append(startStation);
-        sb.append(", startTime=").append(startTime);
-        sb.append(", endStation=").append(endStation);
-        sb.append(", endTime=").append(endTime);
-        sb.append(", seatType=").append(seatType);
-        sb.append(", createTime=").append(createTime);
-        sb.append(", updateTime=").append(updateTime);
-        sb.append("]");
-        return sb.toString();
+        return "Ticket{" +
+                "id=" + id +
+                ", memberId=" + memberId +
+                ", passengerId=" + passengerId +
+                ", passengerName='" + passengerName + '\'' +
+                ", trainDate=" + trainDate +
+                ", trainCode='" + trainCode + '\'' +
+                ", carriageIndex=" + carriageIndex +
+                ", seatRow='" + seatRow + '\'' +
+                ", seatCol='" + seatCol + '\'' +
+                ", startStation='" + startStation + '\'' +
+                ", startTime=" + startTime +
+                ", endStation='" + endStation + '\'' +
+                ", endTime=" + endTime +
+                ", seatType='" + seatType + '\'' +
+                ", status='" + status + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                '}';
     }
 }

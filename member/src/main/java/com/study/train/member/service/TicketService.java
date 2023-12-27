@@ -7,7 +7,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.PageResp;
-import com.study.train.common.util.SnowUtil;
 import com.study.train.member.domain.Ticket;
 import com.study.train.member.domain.TicketExample;
 import com.study.train.member.dto.TicketQueryDTO;
@@ -31,15 +30,23 @@ public class TicketService {
     public void save(MemberTicketReq memberTicketReq) {
         DateTime now = new DateTime();
         Ticket ticket = BeanUtil.copyProperties(memberTicketReq, Ticket.class);
-        ticket.setId(SnowUtil.getSnowflakeNextId());
         ticket.setCreateTime(now);
         ticket.setUpdateTime(now);
+        ticket.setStatus(memberTicketReq.getStatus());
         ticketMapper.insert(ticket);
+    }
 
+    public void update(MemberTicketReq memberTicketReq) {
+        DateTime now = new DateTime();
+        Ticket ticket = BeanUtil.copyProperties(memberTicketReq, Ticket.class);
+        ticket.setUpdateTime(now);
+        ticket.setStatus(memberTicketReq.getStatus());
+        ticketMapper.updateByPrimaryKey(ticket);
     }
 
     public PageResp<TicketQueryResp> queryList(TicketQueryDTO ticketQueryDTO) {
         TicketExample ticketExample = new TicketExample();
+        ticketExample.setOrderByClause("`create_time` desc");
         TicketExample.Criteria criteria = ticketExample.createCriteria();
         if(ObjectUtil.isNotNull(ticketQueryDTO.getMemberId())){
             criteria.andMemberIdEqualTo(ticketQueryDTO.getMemberId());

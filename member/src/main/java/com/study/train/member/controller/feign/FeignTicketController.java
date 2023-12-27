@@ -22,4 +22,10 @@ public class FeignTicketController {
         ticketService.save(memberTicketReq);
         return new CommonResp<>();
     }
+
+    @PostMapping("/update")
+    public CommonResp<Object> update(@Valid @RequestBody MemberTicketReq memberTicketReq){
+        ticketService.update(memberTicketReq);
+        return new CommonResp<>();
+    }
 }

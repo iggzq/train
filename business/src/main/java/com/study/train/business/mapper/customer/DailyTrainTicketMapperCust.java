@@ -11,4 +11,12 @@ public interface DailyTrainTicketMapperCust {
                            Integer maxStartIndex,
                            Integer minEndIndex,
                            Integer maxEndIndex);
+
+    void recoveryCountBySell(Date date,
+                           String trainCode,
+                           String seatTypeCode,
+                           Integer minStartIndex,
+                           Integer maxStartIndex,
+                           Integer minEndIndex,
+                           Integer maxEndIndex);
 }
