@@ -182,8 +182,14 @@ export default defineComponent({
         totalMoney = data.content;
         if (data.success) {
           notification.success({description: "下单成功！"});
+          SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
+          SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
+          SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
+          SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
+          await router.push("/orderConfirm");
         } else {
           notification.error({description: data.message});
+          await router.push("/ticket");
         }
       } catch (error) {
         console.log(error);
@@ -206,11 +212,7 @@ export default defineComponent({
           }
         }
       }
-      SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
-      SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
-      SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
-      SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
-      await router.push("/orderConfirm");
+
     }
 
     onMounted(() => {

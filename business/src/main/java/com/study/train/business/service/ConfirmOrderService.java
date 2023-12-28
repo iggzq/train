@@ -124,6 +124,17 @@ public class ConfirmOrderService {
 
 
     public Float saveConfirm(ConfirmOrderDTO confirmOrderDTO) throws JsonProcessingException {
+        //检查该乘客是否已经下过单
+        List<ConfirmOrderTicketDTO> tickets = confirmOrderDTO.getTickets();
+        ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
+        confirmOrderExample.createCriteria()
+                .andDateEqualTo(confirmOrderDTO.getDate())
+                .andMemberIdEqualTo(LoginMemberContext.getId())
+                .andTrainCodeEqualTo(confirmOrderDTO.getTrainCode());
+        List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
+        if (!confirmOrders.isEmpty()) {
+            throw new BusinessException(BusinessExceptionEnum.ORDER_ALREADY_EXIST);
+        }
         //保存订单到订单信息表
         Date date = confirmOrderDTO.getDate();
         String trainCode = confirmOrderDTO.getTrainCode();
@@ -131,7 +142,6 @@ public class ConfirmOrderService {
         String end = confirmOrderDTO.getEnd();
         DateTime now = DateTime.now();
         System.out.println(now);
-        List<ConfirmOrderTicketDTO> tickets = confirmOrderDTO.getTickets();
         ConfirmOrder confirmOrder = new ConfirmOrder();
         confirmOrder.setId(SnowUtil.getSnowflakeNextId());
         confirmOrder.setMemberId(LoginMemberContext.getId());
