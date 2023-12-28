@@ -80,7 +80,7 @@
   <sql id="Base_Column_List">
     id, member_id, passenger_id, passenger_name, train_date, train_code, carriage_index, 
     seat_row, seat_col, start_station, start_time, end_station, end_time, seat_type, 
-    create_time, update_time
+    create_time, update_time, status
   </sql>
   <select id="selectByExample" parameterType="com.study.train.member.domain.TicketExample" resultMap="BaseResultMap">
     select
@@ -118,13 +118,13 @@
       carriage_index, seat_row, seat_col, 
       start_station, start_time, end_station, 
       end_time, seat_type, create_time, 
-      update_time)
+      update_time,status)
     values (#{id,jdbcType=BIGINT}, #{memberId,jdbcType=BIGINT}, #{passengerId,jdbcType=BIGINT}, 
       #{passengerName,jdbcType=VARCHAR}, #{trainDate,jdbcType=DATE}, #{trainCode,jdbcType=VARCHAR}, 
       #{carriageIndex,jdbcType=INTEGER}, #{seatRow,jdbcType=CHAR}, #{seatCol,jdbcType=CHAR}, 
       #{startStation,jdbcType=VARCHAR}, #{startTime,jdbcType=TIME}, #{endStation,jdbcType=VARCHAR}, 
       #{endTime,jdbcType=TIME}, #{seatType,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP})
+      #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=CHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.study.train.member.domain.Ticket">
     insert into ticket

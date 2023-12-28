@@ -6,6 +6,16 @@ public class TicketQueryDTO extends PageReq {
 
     private Long memberId;
 
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Long getMemberId() {
         return memberId;
     }
@@ -18,6 +28,7 @@ public class TicketQueryDTO extends PageReq {
     public String toString() {
         return "TicketQueryDTO{" +
                 "memberId=" + memberId +
+                ", status='" + status + '\'' +
                 "} " + super.toString();
     }
 }

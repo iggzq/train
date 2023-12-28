@@ -121,17 +121,17 @@ public class ConfirmOrderService {
 
 
     public TicketPayDTO saveConfirm(ConfirmOrderDTO confirmOrderDTO) throws JsonProcessingException {
-        //检查该乘客是否已经下过单
+        //检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
         List<ConfirmOrderTicketDTO> tickets = confirmOrderDTO.getTickets();
-//        ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
-//        confirmOrderExample.createCriteria()
-//                .andDateEqualTo(confirmOrderDTO.getDate())
-//                .andMemberIdEqualTo(LoginMemberContext.getId())
-//                .andTrainCodeEqualTo(confirmOrderDTO.getTrainCode());
-//        List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
-//        if (!confirmOrders.isEmpty()) {
-//            throw new BusinessException(BusinessExceptionEnum.ORDER_ALREADY_EXIST);
-//        }
+        ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
+        confirmOrderExample.createCriteria()
+                .andDateEqualTo(confirmOrderDTO.getDate())
+                .andMemberIdEqualTo(LoginMemberContext.getId())
+                .andTrainCodeEqualTo(confirmOrderDTO.getTrainCode());
+        List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
+        if (!confirmOrders.isEmpty()) {
+            throw new BusinessException(BusinessExceptionEnum.ORDER_ALREADY_EXIST);
+        }
         //保存订单到订单信息表
         Date date = confirmOrderDTO.getDate();
         String trainCode = confirmOrderDTO.getTrainCode();

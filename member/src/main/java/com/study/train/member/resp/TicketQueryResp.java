@@ -1,251 +1,259 @@
 package com.study.train.member.resp;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-        import java.util.Date;
-        import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.util.Date;
 
 public class TicketQueryResp {
 
     /**
-    * id
-    */
-        @JsonSerialize(using= ToStringSerializer.class)
+     * id
+     */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
-    * 会员id
-    */
-        @JsonSerialize(using= ToStringSerializer.class)
+     * 会员id
+     */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long memberId;
 
     /**
-    * 乘客id
-    */
-        @JsonSerialize(using= ToStringSerializer.class)
+     * 乘客id
+     */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long passengerId;
 
     /**
-    * 乘客姓名
-    */
+     * 乘客姓名
+     */
     private String passengerName;
 
     /**
-    * 日期
-    */
-            @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
+     * 日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date trainDate;
 
     /**
-    * 车次编号
-    */
+     * 车次编号
+     */
     private String trainCode;
 
     /**
-    * 箱序
-    */
+     * 箱序
+     */
     private Integer carriageIndex;
 
     /**
-    * 排号|01, 02
-    */
+     * 排号|01, 02
+     */
     private String seatRow;
 
     /**
-    * 列号|枚举[SeatColEnum]
-    */
+     * 列号|枚举[SeatColEnum]
+     */
     private String seatCol;
 
     /**
-    * 出发站
-    */
+     * 出发站
+     */
     private String startStation;
 
     /**
-    * 出发时间
-    */
-            @JsonFormat(pattern = "HH:mm:ss",timezone = "GMT+8")
+     * 出发时间
+     */
+    @JsonFormat(pattern = "HH:mm:ss", timezone = "GMT+8")
     private Date startTime;
 
     /**
-    * 到达站
-    */
+     * 到达站
+     */
     private String endStation;
 
     /**
-    * 到站时间
-    */
-            @JsonFormat(pattern = "HH:mm:ss",timezone = "GMT+8")
+     * 到站时间
+     */
+    @JsonFormat(pattern = "HH:mm:ss", timezone = "GMT+8")
     private Date endTime;
 
     /**
-    * 座位类型|枚举[SeatTypeEnum]
-    */
+     * 座位类型|枚举[SeatTypeEnum]
+     */
     private String seatType;
 
     /**
-    * 新增时间
-    */
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+     * 新增时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
     /**
-    * 修改时间
-    */
-            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+     * 修改时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateTime;
 
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Long getId() {
-    return id;
+        return id;
     }
 
     public void setId(Long id) {
-    this.id = id;
+        this.id = id;
     }
 
     public Long getMemberId() {
-    return memberId;
+        return memberId;
     }
 
     public void setMemberId(Long memberId) {
-    this.memberId = memberId;
+        this.memberId = memberId;
     }
 
     public Long getPassengerId() {
-    return passengerId;
+        return passengerId;
     }
 
     public void setPassengerId(Long passengerId) {
-    this.passengerId = passengerId;
+        this.passengerId = passengerId;
     }
 
     public String getPassengerName() {
-    return passengerName;
+        return passengerName;
     }
 
     public void setPassengerName(String passengerName) {
-    this.passengerName = passengerName;
+        this.passengerName = passengerName;
     }
 
     public Date getTrainDate() {
-    return trainDate;
+        return trainDate;
     }
 
     public void setTrainDate(Date trainDate) {
-    this.trainDate = trainDate;
+        this.trainDate = trainDate;
     }
 
     public String getTrainCode() {
-    return trainCode;
+        return trainCode;
     }
 
     public void setTrainCode(String trainCode) {
-    this.trainCode = trainCode;
+        this.trainCode = trainCode;
     }
 
     public Integer getCarriageIndex() {
-    return carriageIndex;
+        return carriageIndex;
     }
 
     public void setCarriageIndex(Integer carriageIndex) {
-    this.carriageIndex = carriageIndex;
+        this.carriageIndex = carriageIndex;
     }
 
     public String getSeatRow() {
-    return seatRow;
+        return seatRow;
     }
 
     public void setSeatRow(String seatRow) {
-    this.seatRow = seatRow;
+        this.seatRow = seatRow;
     }
 
     public String getSeatCol() {
-    return seatCol;
+        return seatCol;
     }
 
     public void setSeatCol(String seatCol) {
-    this.seatCol = seatCol;
+        this.seatCol = seatCol;
     }
 
     public String getStartStation() {
-    return startStation;
+        return startStation;
     }
 
     public void setStartStation(String startStation) {
-    this.startStation = startStation;
+        this.startStation = startStation;
     }
 
     public Date getStartTime() {
-    return startTime;
+        return startTime;
     }
 
     public void setStartTime(Date startTime) {
-    this.startTime = startTime;
+        this.startTime = startTime;
     }
 
     public String getEndStation() {
-    return endStation;
+        return endStation;
     }
 
     public void setEndStation(String endStation) {
-    this.endStation = endStation;
+        this.endStation = endStation;
     }
 
     public Date getEndTime() {
-    return endTime;
+        return endTime;
     }
 
     public void setEndTime(Date endTime) {
-    this.endTime = endTime;
+        this.endTime = endTime;
     }
 
     public String getSeatType() {
-    return seatType;
+        return seatType;
     }
 
     public void setSeatType(String seatType) {
-    this.seatType = seatType;
+        this.seatType = seatType;
     }
 
     public Date getCreateTime() {
-    return createTime;
+        return createTime;
     }
 
     public void setCreateTime(Date createTime) {
-    this.createTime = createTime;
+        this.createTime = createTime;
     }
 
     public Date getUpdateTime() {
-    return updateTime;
+        return updateTime;
     }
 
     public void setUpdateTime(Date updateTime) {
-    this.updateTime = updateTime;
+        this.updateTime = updateTime;
     }
 
-@Override
-public String toString() {
-StringBuilder sb = new StringBuilder();
-sb.append(getClass().getSimpleName());
-sb.append(" [");
-sb.append("Hash = ").append(hashCode());
-    sb.append(", id=").append(id);
-    sb.append(", memberId=").append(memberId);
-    sb.append(", passengerId=").append(passengerId);
-    sb.append(", passengerName=").append(passengerName);
-    sb.append(", trainDate=").append(trainDate);
-    sb.append(", trainCode=").append(trainCode);
-    sb.append(", carriageIndex=").append(carriageIndex);
-    sb.append(", seatRow=").append(seatRow);
-    sb.append(", seatCol=").append(seatCol);
-    sb.append(", startStation=").append(startStation);
-    sb.append(", startTime=").append(startTime);
-    sb.append(", endStation=").append(endStation);
-    sb.append(", endTime=").append(endTime);
-    sb.append(", seatType=").append(seatType);
-    sb.append(", createTime=").append(createTime);
-    sb.append(", updateTime=").append(updateTime);
-sb.append("]");
-return sb.toString();
-}
+    @Override
+    public String toString() {
+        return "TicketQueryResp{" +
+                "id=" + id +
+                ", memberId=" + memberId +
+                ", passengerId=" + passengerId +
+                ", passengerName='" + passengerName + '\'' +
+                ", trainDate=" + trainDate +
+                ", trainCode='" + trainCode + '\'' +
+                ", carriageIndex=" + carriageIndex +
+                ", seatRow='" + seatRow + '\'' +
+                ", seatCol='" + seatCol + '\'' +
+                ", startStation='" + startStation + '\'' +
+                ", startTime=" + startTime +
+                ", endStation='" + endStation + '\'' +
+                ", endTime=" + endTime +
+                ", seatType='" + seatType + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", status='" + status + '\'' +
+                '}';
+    }
 }

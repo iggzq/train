@@ -25,6 +25,13 @@
           </span>
         </span>
       </template>
+      <template v-else-if="column.dataIndex === 'status'">
+        <span v-for="item in ORDER_STATUS" :key="item.code">
+          <span v-if="item.code === record.status">
+            {{ item.desc }}
+          </span>
+        </span>
+      </template>
     </template>
   </a-table>
 </template>
@@ -39,6 +46,7 @@ export default defineComponent({
   setup() {
     const SEAT_COL_ARRAY = window.SEAT_COL_ARRAY;
     const SEAT_TYPE_ARRAY = window.SEAT_TYPE_ARRAY;
+    const ORDER_STATUS = window.CONFIRM_ORDER_STATUS_ARRAY;
     const visible = ref(false);
     let ticket = ref({
       id: undefined,
@@ -121,7 +129,12 @@ export default defineComponent({
         title: '座位类型',
         dataIndex: 'seatType',
         key: 'seatType',
+      }, {
+        title: '订单状态',
+        dataIndex: 'status',
+        key: 'status',
       },
+
     ];
 
 
@@ -178,6 +191,7 @@ export default defineComponent({
       columns,
       handleTableChange,
       handleQuery,
+      ORDER_STATUS,
       loading,
     };
   },
