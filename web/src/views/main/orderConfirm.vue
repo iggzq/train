@@ -1,15 +1,17 @@
 <template>
   <div class="title">订单确认界面</div>
   <div class="order-train">
-    <span class="order-train-main">{{ dailyTrainTicket.data }}</span>&nbsp;
-    <span class="order-train-main">{{ dailyTrainTicket.trainCode }}</span>次&nbsp;
-    <span class="order-train-main">{{ dailyTrainTicket.start }}</span>站
-    <span class="order-train-main">({{ dailyTrainTicket.startTime }})</span>&nbsp;
-    <span class="order-train-main">——</span>&nbsp;
-    <span class="order-train-main">{{ dailyTrainTicket.end }}</span>站
-    <span class="order-train-main">({{ dailyTrainTicket.endTime }})</span>&nbsp;
-    <div>
-      <span class="deadlineTime"> 支付倒计时：{{ deadlineTimeText }}</span>
+    <div class="trainInfo">
+      <span class="order-train-main">{{ dailyTrainTicket.data }}</span>&nbsp;
+      <span class="order-train-main">{{ dailyTrainTicket.trainCode }}</span>次&nbsp;
+      <span class="order-train-main">{{ dailyTrainTicket.start }}</span>站
+      <span class="order-train-main">({{ dailyTrainTicket.startTime }})</span>&nbsp;
+      <span class="order-train-main">——</span>&nbsp;
+      <span class="order-train-main">{{ dailyTrainTicket.end }}</span>站
+      <span class="order-train-main">({{ dailyTrainTicket.endTime }})</span>&nbsp;
+    </div>
+    <div class="deadlineTime">
+      <span> 支付倒计时：{{ deadlineTimeText }}</span>
     </div>
   </div>
   <a-divider></a-divider>
@@ -135,13 +137,18 @@ export default defineComponent({
 
 .order-train {
   display: flex;
+  justify-content: space-between;
 }
 
 
-.order-train .order-train-main {
+.order-train .trainInfo .order-train-main {
   font-size: 30px;
   font-weight: bold;
   color: #333;
+}
+.order-train .deadlineTime{
+  font-size: 30px;
+  color: red;
 }
 
 .secondTitle {
