@@ -1,10 +1,12 @@
 package com.study.train.business.service;
 
+import com.study.train.business.domain.ConfirmOrder;
 import com.study.train.business.domain.DailyTrainStationSeat;
 import com.study.train.business.domain.DailyTrainTicket;
 import com.study.train.business.dto.ConfirmOrderTicketDTO;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.feign.MemberFeign;
+import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.mapper.DailyTrainStationSeatMapper;
 import com.study.train.business.mapper.customer.DailyTrainTicketMapperCust;
 import com.study.train.common.context.LoginMemberContext;
@@ -31,9 +33,11 @@ public class AfterConfirmOrderService {
     private DailyTrainTicketMapperCust dailyTrainTicketMapperCust;
     @Resource
     private MemberFeign memberFeign;
+    @Resource
+    private ConfirmOrderMapper confirmOrderMapper;
 
     @Transactional
-    public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketDTO> tickets) {
+    public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketDTO> tickets,ConfirmOrder confirmOrder,float amount) {
         List<MemberTicketReq> memberTicketReqs = new ArrayList<>();
         for (int j = 0; j < finalSeats.size(); j++) {
             DailyTrainStationSeat dailyTrainSeat = finalSeats.get(j);
@@ -100,11 +104,10 @@ public class AfterConfirmOrderService {
             memberTicketReqs.add(memberTicketReq);
             LOG.info("调用member接口，返回：{}", commonResp);
 
-//            ConfirmOrder confirmOrderForUpdate = new ConfirmOrder();
-//            confirmOrderForUpdate.setId(confirmOrder.getId());
-//            confirmOrderForUpdate.setUpdateTime(new Date());
-//            confirmOrderForUpdate.setStatus(ConfirmOrderStatusEnum.SUCCESS.getCode());
-//            confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
+            ConfirmOrder confirmOrderForUpdate = new ConfirmOrder();
+            confirmOrderForUpdate.setId(confirmOrder.getId());
+            confirmOrderForUpdate.setAmount(amount);
+            confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
         }
         return memberTicketReqs;
     }

@@ -76,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, member_id, `date`, train_code, `start`, `end`, daily_train_ticket_id, `status`, 
-    create_time, update_time
+    create_time, update_time, amount
   </sql>
   <sql id="Blob_Column_List">
     tickets
@@ -324,6 +324,9 @@
       </if>
       <if test="tickets != null">
         tickets = #{tickets,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="amount!= null">
+        amount = #{amount,jdbcType=FLOAT},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}

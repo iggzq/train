@@ -25,6 +25,15 @@ public class ConfirmOrder {
 
     private String tickets;
 
+    private Float amount;
+
+    public Float getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Float amount) {
+        this.amount = amount;
+    }
 
     public Long getId() {
         return id;
@@ -128,6 +137,7 @@ public class ConfirmOrder {
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 ", tickets='" + tickets + '\'' +
+                ", amount=" + amount +
                 '}';
     }
 }

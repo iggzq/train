@@ -53,6 +53,9 @@ export default defineComponent({
     const sessionTickets = SessionStorage.get(SESSION_CONFIRM_TICKETS) || [];
     const totalMoney = SessionStorage.get(SESSION_TOTAL_MONEY) || 0;
     const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
+    const orderInfo = SessionStorage.get(SESSION_PAY_INFO);
+    console.log("123")
+    console.log(orderInfo);
     const deadlineTime = ref(0);
     let countdown = null;
     const tickets = [];
@@ -92,6 +95,15 @@ export default defineComponent({
     }
 
     const ensureGoPay = () => {
+      axios.post("/business/ticket-pay/pay",{
+        tradeNum: orderInfo.content.tradeNum,
+        tradeName: orderInfo.content.tradeName,
+        subject: orderInfo.content.subject,
+      }).then((resp) => {
+        const htmlCode = resp.data;
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write(htmlCode);
+      })
     }
 
     const getExpireTime = () => {

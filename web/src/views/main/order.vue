@@ -95,6 +95,7 @@ export default defineComponent({
     const tickets = ref([]);
     let totalMoney = 0;
     const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
+    const orderInfo = ref({});
     const pagination = ref({
       position: ['bottomLeft'],
     })
@@ -178,14 +179,17 @@ export default defineComponent({
           tickets: tickets.value,
         });
         let data = response.data;
-        console.log(data);
-        totalMoney = data.content;
+        orderInfo.value = response.data;
+        console.log("world")
+        console.log(orderInfo.value);
+        totalMoney = data.content.amount;
         if (data.success) {
           notification.success({description: "下单成功！"});
           SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
           SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
           SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
           SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
+          SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
           await router.push("/orderConfirm");
         } else {
           notification.error({description: data.message});
