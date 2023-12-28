@@ -6,23 +6,31 @@ import com.study.train.business.service.ConfirmOrderService;
 import com.study.train.common.resp.CommonResp;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/confirm-order")
 public class ConfirmOrderController {
 
     @Resource
-    private ConfirmOrderService ConfirmOrderService;
+    private ConfirmOrderService confirmOrderService;
 
 
     @PostMapping("/save-order")
     public CommonResp<Float> saveOrder(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) throws JsonProcessingException {
-        Float totalMoney = ConfirmOrderService.saveConfirm(confirmOrderDTO);
+        Float totalMoney = confirmOrderService.saveConfirm(confirmOrderDTO);
         return new CommonResp<>(totalMoney);
+    }
+
+    /**
+     *
+     * @return 秒为单位
+     */
+    @PostMapping("/get-expire-time")
+    public CommonResp<Long> getExpireTime(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) {
+        Long expireTime = confirmOrderService.getExpireTime(confirmOrderDTO);
+        System.out.println(expireTime);
+        return new CommonResp<>(expireTime);
     }
 
 

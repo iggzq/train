@@ -3,6 +3,7 @@ package com.study.train.business.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -33,9 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 @Service
 public class ConfirmOrderService {
@@ -99,6 +103,25 @@ public class ConfirmOrderService {
         confirmOrderMapper.deleteByPrimaryKey(id);
     }
 
+    public Long getExpireTime(ConfirmOrderDTO confirmOrderDTO) {
+        ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
+        confirmOrderExample.createCriteria()
+                .andMemberIdEqualTo(LoginMemberContext.getId())
+                .andTrainCodeEqualTo(confirmOrderDTO.getTrainCode())
+                .andDateEqualTo(confirmOrderDTO.getDate());
+        Date createTime = confirmOrderMapper.selectByExample(confirmOrderExample).get(0).getCreateTime();
+        System.out.println(createTime);
+        LocalDateTime now = LocalDateTimeUtil.now();
+        System.out.println(now);
+        Instant instant = createTime.toInstant();
+        LocalDateTime localCreateTime = LocalDateTime.ofInstant(instant, TimeZone.getTimeZone("GMT+8").toZoneId());
+        System.out.println(localCreateTime);
+        localCreateTime = localCreateTime.plusMinutes(15);
+        System.out.println(localCreateTime);
+
+        return LocalDateTimeUtil.between(now, localCreateTime).getSeconds();
+    }
+
 
     public Float saveConfirm(ConfirmOrderDTO confirmOrderDTO) throws JsonProcessingException {
         //保存订单到订单信息表
@@ -107,6 +130,7 @@ public class ConfirmOrderService {
         String start = confirmOrderDTO.getStart();
         String end = confirmOrderDTO.getEnd();
         DateTime now = DateTime.now();
+        System.out.println(now);
         List<ConfirmOrderTicketDTO> tickets = confirmOrderDTO.getTickets();
         ConfirmOrder confirmOrder = new ConfirmOrder();
         confirmOrder.setId(SnowUtil.getSnowflakeNextId());

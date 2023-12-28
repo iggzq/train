@@ -60,26 +60,22 @@ public class PaymentService {
         // 等待一段时间
         try {
 //            Thread.sleep(900);
-            Thread.sleep(20000);
+            //等待15分钟，即超时
+            Thread.sleep(900000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return;
         }
-        System.out.println(1);
         // 查询MySQL中该订单的支付状态
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
         confirmOrderExample.createCriteria().andIdEqualTo(Long.valueOf(orderId));
         ConfirmOrder confirmOrder = confirmOrderMapper.selectByExample(confirmOrderExample).get(0);
-        System.out.println(2);
-        System.out.println(confirmOrder.toString());
         if (confirmOrder.getStatus().equals("P")) {
             //到时间还未支付
             //修改回票数
             increaseTicketNum(confirmOrderDTO, dailyTrainTicket);
             Object delete = redisTemplate.opsForValue().get(orderId);
-            System.out.println(3);
             if (delete != null) {
-                System.out.println(4);
                 //修改订单状态
                 confirmOrder.setStatus("C");
                 confirmOrder.setUpdateTime(new Date());
@@ -125,14 +121,11 @@ public class PaymentService {
 
 
                 }
-                // 调用会员服务接口，修改会员票为取消
+                // 调用会员服务接口，修改会员票状态为取消
                 for (MemberTicketReq memberTicketReq : memberTicketReqs) {
                     memberTicketReq.setStatus(ConfirmOrderStatusEnum.CANCEL.getCode());
                     memberFeign.update(memberTicketReq);
                 }
-            }else {
-                System.out.println(4);
-                return;
             }
         } else {
             //到时已支付，则删去redis中的键值对

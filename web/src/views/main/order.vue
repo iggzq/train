@@ -210,7 +210,7 @@ export default defineComponent({
       SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
       SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
       SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
-      router.push("/orderConfirm");
+      await router.push("/orderConfirm");
     }
 
     onMounted(() => {
@@ -246,7 +246,7 @@ export default defineComponent({
       pagination,
       SEAT_COL,
       seatColsYD,
-      seatColsED
+      seatColsED,
     }
   }
 });

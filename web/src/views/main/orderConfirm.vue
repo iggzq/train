@@ -8,6 +8,9 @@
     <span class="order-train-main">——</span>&nbsp;
     <span class="order-train-main">{{ dailyTrainTicket.end }}</span>站
     <span class="order-train-main">({{ dailyTrainTicket.endTime }})</span>&nbsp;
+    <div>
+      <span class="deadlineTime"> 支付倒计时：{{ deadlineTimeText }}</span>
+    </div>
   </div>
   <a-divider></a-divider>
   <div class="secondTitle">
@@ -26,7 +29,7 @@
     </template>
   </a-table>
   <div class="button-line">
-    <span class="totalMoney">总价：{{totalMoney}}￥</span>
+    <span class="totalMoney">总价：{{ totalMoney }}￥</span>
     <a-button type="primary" @click="goBack" size="large" class="goBackButton">上一步</a-button>
     <a-button type="primary" @click="ensureGoPay" size="large">去支付</a-button>
   </div>
@@ -34,8 +37,9 @@
 
 </template>
 <script>
-import {defineComponent} from "vue";
+import {computed, defineComponent, onMounted, ref} from "vue";
 import router from "@/router";
+import axios from "axios";
 
 export default defineComponent({
   name: "order-confirm",
@@ -47,15 +51,39 @@ export default defineComponent({
     const sessionTickets = SessionStorage.get(SESSION_CONFIRM_TICKETS) || [];
     const totalMoney = SessionStorage.get(SESSION_TOTAL_MONEY) || 0;
     const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
+    const deadlineTime = ref(0);
+    let countdown = null;
     const tickets = [];
-    console.log(1);
-    console.log(totalMoney);
-    //将sessionTickets数组的内容复制到tickets数组中
     for (let i = 0; i < sessionTickets._rawValue.length; i++) {
       tickets.push(sessionTickets._rawValue[i]);
     }
-    console.log(tickets);
-    console.log(PASSENGER_TYPE_ARRAY);
+    const initCountdown = () => {
+      countdown = setInterval(() => {
+        if (deadlineTime.value <= 0) {
+          clearInterval(countdown);
+          deadlineTime.value = 0;
+        } else {
+          deadlineTime.value -= 1;
+        }
+      }, 1000);
+    };
+    // 开始倒计时
+    const startCountdown = () => {
+      // deadlineTime.value = 15 * 60; // 设置为15分钟
+      initCountdown();
+    };
+    // 组件挂载后开始倒计时
+    onMounted(() => {
+      getExpireTime();
+      startCountdown();
+    });
+    // 渲染倒计时文本
+    const deadlineTimeText = computed(() => {
+      let minutes = Math.floor(deadlineTime.value / 60);
+      let seconds = deadlineTime.value % 60;
+      return `${minutes}分${seconds}秒`;
+    });
+
 
     const goBack = () => {
       router.push("/order");
@@ -63,6 +91,22 @@ export default defineComponent({
 
     const ensureGoPay = () => {
     }
+
+    const getExpireTime = () => {
+      axios.post("/business/confirm-order/get-expire-time",{
+        dailyTrainTicketId: dailyTrainTicket.id,
+        date: dailyTrainTicket.date,
+        trainCode: dailyTrainTicket.trainCode,
+        start: dailyTrainTicket.start,
+        end: dailyTrainTicket.end,
+        tickets: tickets,
+      }).then((resp) => {
+        deadlineTime.value = resp.data.content;
+        console.log(3);
+        console.log(deadlineTime.value);
+      })
+    }
+
 
     return {
       goBack,
@@ -72,7 +116,9 @@ export default defineComponent({
       tickets,
       columns,
       PASSENGER_TYPE_ARRAY,
-      totalMoney
+      totalMoney,
+      deadlineTime,
+      deadlineTimeText
     }
 
   }
