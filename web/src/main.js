@@ -18,7 +18,6 @@ for (const i in icons) {
 }
 
 axios.interceptors.request.use(function (config) {
-    console.log("请求参数：", config);
     const token = store.state.member.token;
     if (token) {
         config.headers.token = token;
@@ -30,7 +29,6 @@ axios.interceptors.request.use(function (config) {
 })
 
 axios.interceptors.response.use(function (response) {
-    console.log("返回结果：", response);
     return response;
 }, error => {
     const resp = error.response;
@@ -41,7 +39,6 @@ axios.interceptors.response.use(function (response) {
         notification.error({description: "未登录或登陆超时"});
         router.push('/login');
     }
-    console.log("返回错误:", error);
     return Promise.reject(error);
 })
 axios.defaults.baseURL = process.env.VUE_APP_SERVER

@@ -30,6 +30,7 @@
           <span v-if="item.code === record.status">
             {{ item.desc }}
           </span>
+<!--          <a-button type="primary" shape="round"  v-if="item.code === 'P'" @click="ensureGoPay">去支付</a-button>-->
         </span>
       </template>
     </template>
@@ -181,6 +182,18 @@ export default defineComponent({
       });
     });
 
+    // const ensureGoPay = () => {
+    //   axios.post("/business/ticket-pay/pay",{
+    //     tradeNum: orderInfo.content.tradeNum,
+    //     tradeName: orderInfo.content.tradeName,
+    //     subject: orderInfo.content.subject,
+    //   }).then((resp) => {
+    //     const htmlCode = resp.data;
+    //     const newWindow = window.open('', '_blank');
+    //     newWindow.document.write(htmlCode);
+    //   })
+    // }
+
     return {
       SEAT_COL_ARRAY,
       SEAT_TYPE_ARRAY,
@@ -193,6 +206,7 @@ export default defineComponent({
       handleQuery,
       ORDER_STATUS,
       loading,
+      // ensureGoPay
     };
   },
 });

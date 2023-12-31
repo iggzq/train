@@ -72,10 +72,10 @@ public class PaymentService {
         ConfirmOrder confirmOrder = confirmOrderMapper.selectByExample(confirmOrderExample).get(0);
         if (confirmOrder.getStatus().equals("P")) {
             //到时间还未支付
-            //修改回票数
-            increaseTicketNum(confirmOrderDTO, dailyTrainTicket);
             Object delete = redisTemplate.opsForValue().get(orderId);
             if (delete != null) {
+                //修改回票数
+                increaseTicketNum(confirmOrderDTO, dailyTrainTicket);
                 //修改订单状态
                 confirmOrder.setStatus("C");
                 confirmOrder.setUpdateTime(new Date());

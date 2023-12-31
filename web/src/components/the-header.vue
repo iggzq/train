@@ -38,7 +38,6 @@ export default defineComponent({
     let member = store.state.member;
     const selectedKeys = ref([]);
     watch(() => router.currentRoute.value.path, (newValue) => {
-      console.log('watch ',newValue);
       selectedKeys.value = [];
       selectedKeys.value.push(newValue);
     },{immediate: true});
