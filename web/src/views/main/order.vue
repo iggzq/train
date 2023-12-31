@@ -169,36 +169,35 @@ export default defineComponent({
     }
 
     const goPay = async () => {
-      try {
-        const response = await axios.post("/business/confirm-order/save-order", {
-          dailyTrainTicketId: dailyTrainTicket.id,
-          date: dailyTrainTicket.date,
-          trainCode: dailyTrainTicket.trainCode,
-          start: dailyTrainTicket.start,
-          end: dailyTrainTicket.end,
-          tickets: tickets.value,
-        });
-        let data = response.data;
-        orderInfo.value = response.data;
-        console.log("world")
-        console.log(orderInfo.value);
+
+      const response = await axios.post("/business/confirm-order/save-order", {
+        dailyTrainTicketId: dailyTrainTicket.id,
+        date: dailyTrainTicket.date,
+        trainCode: dailyTrainTicket.trainCode,
+        start: dailyTrainTicket.start,
+        end: dailyTrainTicket.end,
+        tickets: tickets.value,
+      });
+      let data = response.data;
+      orderInfo.value = response.data;
+      console.log("world")
+      console.log(orderInfo.value);
+      console.log(data);
+
+      if (data.success) {
         totalMoney = data.content.amount;
-        if (data.success) {
-          notification.success({description: "下单成功！"});
-          SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
-          SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
-          SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
-          SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
-          SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
-          await router.push("/orderConfirm");
-        } else {
-          notification.error({description: data.message});
-          await router.push("/ticket");
-        }
-      } catch (error) {
-        console.log(error);
-        notification.error({description: "下单失败！"});
+        notification.success({description: "下单成功！"});
+        SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
+        SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
+        SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
+        SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
+        SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
+        await router.push("/orderConfirm");
+      } else {
+        notification.error({description: data.message});
+        await router.push("/ticket");
       }
+
       let seatTypeTmp = Tool.copy(seatTypes);
       if (tickets.value.length === 0) {
         notification.error({description: '请选择乘客！'});
