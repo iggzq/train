@@ -73,6 +73,7 @@ const sendCode = () => {
 };
 
 const login = () => {
+  loading.value = true;
   axios.post("member/member/login", loginForm)
       .then(resp => {
         let data = resp.data;
@@ -85,6 +86,7 @@ const login = () => {
         } else {
           notification.error({description: data.message})
         }
+        loading.value = false;
       })
 };
 </script>

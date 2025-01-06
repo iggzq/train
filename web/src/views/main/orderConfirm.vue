@@ -38,105 +38,85 @@
 
 
 </template>
-<script>
-import {computed, defineComponent, onMounted, ref} from "vue";
+<script setup>
+import {computed, onMounted, ref} from "vue";
 import router from "@/router";
 import axios from "axios";
 
-export default defineComponent({
-  name: "order-confirm",
-  setup() {
 
-    const dailyTrainTicket = SessionStorage.get(SESSION_ORDER) || {};
-    const seatTypes = SessionStorage.get(SESSION_CONFIRM_SEAT_TYPES) || [];
-    const columns = SessionStorage.get(SESSION_CONFIRM_COLUMNS) || [];
-    const sessionTickets = SessionStorage.get(SESSION_CONFIRM_TICKETS) || [];
-    const totalMoney = SessionStorage.get(SESSION_TOTAL_MONEY) || 0;
-    const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
-    const orderInfo = SessionStorage.get(SESSION_PAY_INFO);
-    console.log("123")
-    console.log(orderInfo);
-    const deadlineTime = ref(0);
-    let countdown = null;
-    const tickets = [];
-    for (let i = 0; i < sessionTickets._rawValue.length; i++) {
-      tickets.push(sessionTickets._rawValue[i]);
+const dailyTrainTicket = SessionStorage.get(SESSION_ORDER) || {};
+const seatTypes = SessionStorage.get(SESSION_CONFIRM_SEAT_TYPES) || [];
+const columns = SessionStorage.get(SESSION_CONFIRM_COLUMNS) || [];
+const sessionTickets = SessionStorage.get(SESSION_CONFIRM_TICKETS) || [];
+const totalMoney = SessionStorage.get(SESSION_TOTAL_MONEY) || 0;
+const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
+const orderInfo = SessionStorage.get(SESSION_PAY_INFO);
+console.log("123")
+console.log(orderInfo);
+const deadlineTime = ref(0);
+let countdown = null;
+const tickets = [];
+for (let i = 0; i < sessionTickets._rawValue.length; i++) {
+  tickets.push(sessionTickets._rawValue[i]);
+}
+const initCountdown = () => {
+  countdown = setInterval(() => {
+    if (deadlineTime.value <= 0) {
+      clearInterval(countdown);
+      deadlineTime.value = 0;
+    } else {
+      deadlineTime.value -= 1;
     }
-    const initCountdown = () => {
-      countdown = setInterval(() => {
-        if (deadlineTime.value <= 0) {
-          clearInterval(countdown);
-          deadlineTime.value = 0;
-        } else {
-          deadlineTime.value -= 1;
-        }
-      }, 1000);
-    };
-    // 开始倒计时
-    const startCountdown = () => {
-      // deadlineTime.value = 15 * 60; // 设置为15分钟
-      initCountdown();
-    };
-    // 组件挂载后开始倒计时
-    onMounted(() => {
-      getExpireTime();
-      startCountdown();
-    });
-    // 渲染倒计时文本
-    const deadlineTimeText = computed(() => {
-      let minutes = Math.floor(deadlineTime.value / 60);
-      let seconds = deadlineTime.value % 60;
-      return `${minutes}分${seconds}秒`;
-    });
-
-
-    const goBack = () => {
-      router.push("/order");
-    }
-
-    const ensureGoPay = () => {
-      axios.post("/business/ticket-pay/pay",{
-        tradeNum: orderInfo.content.tradeNum,
-        tradeName: orderInfo.content.tradeName,
-        subject: orderInfo.content.subject,
-      }).then((resp) => {
-        const htmlCode = resp.data;
-        const newWindow = window.open('', '_blank');
-        newWindow.document.write(htmlCode);
-      })
-    }
-
-    const getExpireTime = () => {
-      axios.post("/business/confirm-order/get-expire-time",{
-        dailyTrainTicketId: dailyTrainTicket.id,
-        date: dailyTrainTicket.date,
-        trainCode: dailyTrainTicket.trainCode,
-        start: dailyTrainTicket.start,
-        end: dailyTrainTicket.end,
-        tickets: tickets,
-      }).then((resp) => {
-        deadlineTime.value = resp.data.content;
-        console.log(3);
-        console.log(deadlineTime.value);
-      })
-    }
-
-
-    return {
-      goBack,
-      ensureGoPay,
-      dailyTrainTicket,
-      seatTypes,
-      tickets,
-      columns,
-      PASSENGER_TYPE_ARRAY,
-      totalMoney,
-      deadlineTime,
-      deadlineTimeText
-    }
-
-  }
+  }, 1000);
+};
+// 开始倒计时
+const startCountdown = () => {
+  // deadlineTime.value = 15 * 60; // 设置为15分钟
+  initCountdown();
+};
+// 组件挂载后开始倒计时
+onMounted(() => {
+  getExpireTime();
+  startCountdown();
 });
+// 渲染倒计时文本
+const deadlineTimeText = computed(() => {
+  let minutes = Math.floor(deadlineTime.value / 60);
+  let seconds = deadlineTime.value % 60;
+  return `${minutes}分${seconds}秒`;
+});
+
+
+const goBack = () => {
+  router.push("/order");
+}
+
+const ensureGoPay = () => {
+  axios.post("/business/ticket-pay/pay", {
+    tradeNum: orderInfo.content.tradeNum,
+    tradeName: orderInfo.content.tradeName,
+    subject: orderInfo.content.subject,
+  }).then((resp) => {
+    const htmlCode = resp.data;
+    const newWindow = window.open('', '_blank');
+    newWindow.document.write(htmlCode);
+  })
+}
+
+const getExpireTime = () => {
+  axios.post("/business/confirm-order/get-expire-time", {
+    dailyTrainTicketId: dailyTrainTicket.id,
+    date: dailyTrainTicket.date,
+    trainCode: dailyTrainTicket.trainCode,
+    start: dailyTrainTicket.start,
+    end: dailyTrainTicket.end,
+    tickets: tickets,
+  }).then((resp) => {
+    deadlineTime.value = resp.data.content;
+    console.log(3);
+    console.log(deadlineTime.value);
+  })
+}
 
 </script>
 <style scoped>
@@ -158,7 +138,8 @@ export default defineComponent({
   font-weight: bold;
   color: #333;
 }
-.order-train .deadlineTime{
+
+.order-train .deadlineTime {
   font-size: 30px;
   color: red;
 }

@@ -14,20 +14,17 @@
     </a-layout-footer>
   </a-layout>
 </template>
-<script>
+<script setup>
 import {defineComponent} from 'vue';
 import TheHeader from "@/components/the-header.vue";
 import TheSider from "@/components/the-sider.vue";
 
-export default defineComponent({
+defineComponent({
   components: {
-    TheSider,
     TheHeader,
-  },
-  setup() {
-    return {};
-  },
-});
+    TheSider
+  }
+})
 </script>
 <style>
 #components-layout-demo-top-side .logo {

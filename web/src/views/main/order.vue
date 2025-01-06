@@ -74,187 +74,165 @@
     <a-button type="primary" @click="goPay" shape="round">去支付</a-button>
   </div>
 </template>
-<script>
-import {defineComponent, onMounted, ref, watch} from "vue";
+<script setup>
+import {onMounted, ref, watch} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
 import router from "@/router";
 
-export default defineComponent({
-  name: "order-view",
-  setup() {
-    const dailyTrainTicket = SessionStorage.get(SESSION_ORDER) || {};
-    const SEAT_TYPE = window.SEAT_TYPE;
-    const SEAT_COL = window.SEAT_COL;
-    const seatColsYD = [];
-    const seatColsED = [];
-    const seatTypes = [];
-    const passengers = ref([]);
-    const passengerOptions = ref([]);
-    const passengerChecked = ref([]);
-    const tickets = ref([]);
-    let totalMoney = 0;
-    const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
-    const orderInfo = ref({});
-    const pagination = ref({
-      position: ['bottomLeft'],
+const dailyTrainTicket = SessionStorage.get(SESSION_ORDER) || {};
+const SEAT_TYPE = window.SEAT_TYPE;
+const SEAT_COL = window.SEAT_COL;
+const seatColsYD = [];
+const seatColsED = [];
+const seatTypes = [];
+const passengers = ref([]);
+const passengerOptions = ref([]);
+const passengerChecked = ref([]);
+const tickets = ref([]);
+let totalMoney = 0;
+const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
+const orderInfo = ref({});
+const pagination = ref({
+  position: ['bottomLeft'],
+})
+const columns = [{
+  title: '乘客',
+  dataIndex: 'passengerName',
+}, {
+  title: '身份证',
+  dataIndex: 'passengerIdCard',
+}, {
+  title: '票种',
+  dataIndex: 'passengerType',
+}, {
+  title: '座位类型',
+  dataIndex: 'seatTypeCode'
+}, {
+  title: '座位编号',
+  dataIndex: 'seatPosition'
+}];
+for (let KEY in SEAT_TYPE) {
+  let key = KEY.toLowerCase();
+  if (dailyTrainTicket[key] >= 0) {
+    seatTypes.push({
+      type: KEY,
+      key: SEAT_TYPE[KEY]["key"],
+      value: SEAT_TYPE[KEY]["value"],
+      count: dailyTrainTicket[key],
+      price: dailyTrainTicket[key + 'Price'],
     })
-    const columns = [{
-      title: '乘客',
-      dataIndex: 'passengerName',
-    }, {
-      title: '身份证',
-      dataIndex: 'passengerIdCard',
-    }, {
-      title: '票种',
-      dataIndex: 'passengerType',
-    }, {
-      title: '座位类型',
-      dataIndex: 'seatTypeCode'
-    }, {
-      title: '座位编号',
-      dataIndex: 'seatPosition'
-    }];
-    for (let KEY in SEAT_TYPE) {
-      let key = KEY.toLowerCase();
-      if (dailyTrainTicket[key] >= 0) {
-        seatTypes.push({
-          type: KEY,
-          key: SEAT_TYPE[KEY]["key"],
-          value: SEAT_TYPE[KEY]["value"],
-          count: dailyTrainTicket[key],
-          price: dailyTrainTicket[key + 'Price'],
-        })
-      }
+  }
+}
+console.log(seatTypes);
+
+for (let KEY in SEAT_COL) {
+  if (SEAT_COL[KEY] ["type"] === "1") {
+    seatColsYD.push({
+      num: SEAT_COL[KEY]["num"],
+      type: KEY,
+      key: SEAT_COL[KEY]["key"],
+      value: SEAT_COL[KEY]["value"],
+      ticketType: SEAT_COL[KEY]["type"]
+    })
+  }
+
+  if (SEAT_COL[KEY] ["type"] === "2") {
+    seatColsED.push({
+      num: SEAT_COL[KEY]["num"],
+      type: KEY,
+      key: SEAT_COL[KEY]["key"],
+      value: SEAT_COL[KEY]["value"],
+      ticketType: SEAT_COL[KEY]["type"]
+    })
+  }
+
+}
+
+
+const handleQueryPassengers = () => {
+  axios.get("/member/passenger/query-my-passenger").then((response) => {
+    let data = response.data;
+    if (data.success) {
+      passengers.value = data.content;
+      passengers.value.forEach((item) => passengerOptions.value.push({
+        label: item.name,
+        value: item
+      }))
+    } else {
+      notification.error({description: data.message});
     }
-    console.log(seatTypes);
+  })
+}
 
-    for (let KEY in SEAT_COL) {
-      if (SEAT_COL[KEY] ["type"] === "1") {
-        seatColsYD.push({
-          num: SEAT_COL[KEY]["num"],
-          type: KEY,
-          key: SEAT_COL[KEY]["key"],
-          value: SEAT_COL[KEY]["value"],
-          ticketType: SEAT_COL[KEY]["type"]
-        })
-      }
+const goPay = async () => {
 
-      if (SEAT_COL[KEY] ["type"] === "2") {
-        seatColsED.push({
-          num: SEAT_COL[KEY]["num"],
-          type: KEY,
-          key: SEAT_COL[KEY]["key"],
-          value: SEAT_COL[KEY]["value"],
-          ticketType: SEAT_COL[KEY]["type"]
-        })
-      }
+  const response = await axios.post("/business/confirm-order/save-order", {
+    dailyTrainTicketId: dailyTrainTicket.id,
+    date: dailyTrainTicket.date,
+    trainCode: dailyTrainTicket.trainCode,
+    start: dailyTrainTicket.start,
+    end: dailyTrainTicket.end,
+    tickets: tickets.value,
+  });
+  let data = response.data;
+  orderInfo.value = response.data;
+  console.log("world")
+  console.log(orderInfo.value);
+  console.log(data);
 
-    }
+  if (data.success) {
+    totalMoney = data.content.amount;
+    notification.success({description: "下单成功！"});
+    SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
+    SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
+    SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
+    SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
+    SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
+    await router.push("/orderConfirm");
+  } else {
+    notification.error({description: data.message});
+    await router.push("/ticket");
+  }
 
-
-    const handleQueryPassengers = () => {
-      axios.get("/member/passenger/query-my-passenger").then((response) => {
-        let data = response.data;
-        if (data.success) {
-          passengers.value = data.content;
-          passengers.value.forEach((item) => passengerOptions.value.push({
-            label: item.name,
-            value: item
-          }))
-        } else {
-          notification.error({description: data.message});
-        }
-      })
-    }
-
-    const goPay = async () => {
-
-      const response = await axios.post("/business/confirm-order/save-order", {
-        dailyTrainTicketId: dailyTrainTicket.id,
-        date: dailyTrainTicket.date,
-        trainCode: dailyTrainTicket.trainCode,
-        start: dailyTrainTicket.start,
-        end: dailyTrainTicket.end,
-        tickets: tickets.value,
-      });
-      let data = response.data;
-      orderInfo.value = response.data;
-      console.log("world")
-      console.log(orderInfo.value);
-      console.log(data);
-
-      if (data.success) {
-        totalMoney = data.content.amount;
-        notification.success({description: "下单成功！"});
-        SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
-        SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
-        SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
-        SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
-        SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
-        await router.push("/orderConfirm");
-      } else {
-        notification.error({description: data.message});
-        await router.push("/ticket");
-      }
-
-      let seatTypeTmp = Tool.copy(seatTypes);
-      if (tickets.value.length === 0) {
-        notification.error({description: '请选择乘客！'});
-        return;
-      }
-      for (let i = 0; i < tickets.value.length; i++) {
-        let ticket = tickets.value[i];
-        for (let j = 0; j < seatTypeTmp.length; j++) {
-          if (ticket.seatTypeCode === seatTypeTmp[j].key) {
-            seatTypeTmp[j].count--;
-            if (seatTypeTmp[j].count < 0) {
-              notification.error({description: seatTypeTmp[j].value + '仅剩' + seatTypes[j].count + '张票' + '，票数不足！',});
-              return;
-            }
-          }
+  let seatTypeTmp = Tool.copy(seatTypes);
+  if (tickets.value.length === 0) {
+    notification.error({description: '请选择乘客！'});
+    return;
+  }
+  for (let i = 0; i < tickets.value.length; i++) {
+    let ticket = tickets.value[i];
+    for (let j = 0; j < seatTypeTmp.length; j++) {
+      if (ticket.seatTypeCode === seatTypeTmp[j].key) {
+        seatTypeTmp[j].count--;
+        if (seatTypeTmp[j].count < 0) {
+          notification.error({description: seatTypeTmp[j].value + '仅剩' + seatTypes[j].count + '张票' + '，票数不足！',});
+          return;
         }
       }
-
-    }
-
-    onMounted(() => {
-      handleQueryPassengers();
-    })
-    watch(() => passengerChecked.value, () => {
-      tickets.value = [];
-      passengerChecked.value.forEach((item) => {
-        tickets.value.push({
-          passengerId: item.id,
-          passengerType: item.type,
-          seatTypeCode: seatTypes[0].key,
-          passengerName: item.name,
-          passengerIdCard: item.idCard,
-          seatPosition: null,
-        })
-      })
-
-
-    }, {immediate: true});
-
-    return {
-      dailyTrainTicket,
-      seatTypes,
-      handleQueryPassengers,
-      passengers,
-      passengerOptions,
-      passengerChecked,
-      tickets,
-      PASSENGER_TYPE_ARRAY,
-      columns,
-      goPay,
-      pagination,
-      SEAT_COL,
-      seatColsYD,
-      seatColsED,
     }
   }
-});
+
+}
+
+onMounted(() => {
+  handleQueryPassengers();
+})
+watch(() => passengerChecked.value, () => {
+  tickets.value = [];
+  passengerChecked.value.forEach((item) => {
+    tickets.value.push({
+      passengerId: item.id,
+      passengerType: item.type,
+      seatTypeCode: seatTypes[0].key,
+      passengerName: item.name,
+      passengerIdCard: item.idCard,
+      seatPosition: null,
+    })
+  })
+
+
+}, {immediate: true});
 </script>
 <style scoped>
 .main {
