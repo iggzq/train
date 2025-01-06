@@ -11,7 +11,7 @@ public class BusinessException extends RuntimeException {
 
     @Override
     public String toString() {
-        return "BussinessException{" +
+        return "BusinessException{" +
                 "businessExceptionEnum=" + businessExceptionEnum +
                 '}';
     }

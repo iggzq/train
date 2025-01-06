@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE generatorConfiguration
-        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
-        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
-
 <generatorConfiguration>
+
     <context id="Mysql" targetRuntime="MyBatis3" defaultModelType="flat">
 
         <!-- 自动检查关键字，为关键字增加反引号 -->
@@ -42,8 +39,8 @@
                              type="XMLMAPPER"/>
 
         <!-- <table tableName="member" domainObjectName="Member"/>-->
-<!--        <table tableName="passenger" domainObjectName="Passenger"/>-->
-<!--        <table tableName="member" domainObjectName="Member"/>-->
+        <!--        <table tableName="passenger" domainObjectName="Passenger"/>-->
+        <!--        <table tableName="member" domainObjectName="Member"/>-->
 
         <table tableName="ticket" domainObjectName="Ticket"/>
     </context>

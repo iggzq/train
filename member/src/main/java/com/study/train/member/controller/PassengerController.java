@@ -46,5 +46,9 @@ public class PassengerController {
         return new CommonResp<>(passengerQueryResps);
     }
 
+    @GetMapping("/hello")
+    public String hello() {
+        return ("hello world  " );
+    }
 
 }

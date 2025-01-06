@@ -13,6 +13,7 @@ import com.study.train.member.dto.MemberLoginDTO;
 import com.study.train.member.dto.MemberRegisterDTO;
 import com.study.train.member.dto.MemberSendCodeDTO;
 import com.study.train.member.mapper.MemberMapper;
+import com.study.train.member.req.MemberRegisterReq;
 import com.study.train.member.resp.MemberLoginResp;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -35,11 +36,13 @@ public class MemberService {
         return Math.toIntExact(memberMapper.countByExample(null));
     }
 
-    public Long register(MemberRegisterDTO memberRegisterDTO) {
-        String mobile = memberRegisterDTO.getMobile();
-        Member members = selectByMobile(mobile);
+    public Long register(MemberRegisterReq memberRegisterReq) {
+        String mobile = memberRegisterReq.getMobile();
+        MemberExample memberExample = new MemberExample();
+        memberExample.createCriteria().andMobileEqualTo(mobile);
+        List<Member> memberList = memberMapper.selectByExample(memberExample);
 
-        if (!ObjectUtil.isNull(members)) {
+        if (!CollectionUtils.isEmpty(memberList)) {
             throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_EXIST);
         }
 

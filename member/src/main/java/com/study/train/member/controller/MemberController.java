@@ -4,6 +4,7 @@ import com.study.train.common.resp.CommonResp;
 import com.study.train.member.dto.MemberLoginDTO;
 import com.study.train.member.dto.MemberRegisterDTO;
 import com.study.train.member.dto.MemberSendCodeDTO;
+import com.study.train.member.req.MemberRegisterReq;
 import com.study.train.member.resp.MemberLoginResp;
 import com.study.train.member.service.MemberService;
 import jakarta.annotation.Resource;
@@ -23,8 +24,8 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public CommonResp<Long> register(@Valid @RequestBody MemberRegisterDTO memberRegisterDTO) {
-        Long registered = memberService.register(memberRegisterDTO);
+    public CommonResp<Long> register(@Valid @RequestBody MemberRegisterReq memberRegisterReq) {
+        Long registered = memberService.register(memberRegisterReq);
         return new CommonResp<>(registered);
     }
 

@@ -56,11 +56,11 @@ public class CommonResp<T> {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("CommonResp{");
-        sb.append("success=").append(success);
-        sb.append(", message='").append(message).append('\'');
-        sb.append(", content=").append(content);
-        sb.append('}');
-        return sb.toString();
+        final StringBuffer stringBuffer = new StringBuffer("CommonResp{");
+        stringBuffer.append("success=").append(success);
+        stringBuffer.append(", message='").append(message).append('\'');
+        stringBuffer.append(", content=").append(content);
+        stringBuffer.append('}');
+        return stringBuffer.toString();
     }
 }

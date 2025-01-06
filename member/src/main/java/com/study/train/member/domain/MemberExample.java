@@ -46,7 +46,7 @@ public class MemberExample {
 
     public Criteria createCriteria() {
         Criteria criteria = createCriteriaInternal();
-        if (oredCriteria.size() == 0) {
+        if (oredCriteria.isEmpty()) {
             oredCriteria.add(criteria);
         }
         return criteria;
@@ -72,7 +72,7 @@ public class MemberExample {
         }
 
         public boolean isValid() {
-            return criteria.size() > 0;
+            return !criteria.isEmpty();
         }
 
         public List<Criterion> getAllCriteria() {
