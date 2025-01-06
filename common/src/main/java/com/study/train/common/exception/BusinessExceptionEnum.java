@@ -19,7 +19,6 @@ public enum BusinessExceptionEnum {
 
 
     USER_SELECT_DATE_BEFORE_NOW("选择的日期不能在当日之前"),
-
     ;
 
     private String desc;

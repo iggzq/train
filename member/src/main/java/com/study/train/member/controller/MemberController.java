@@ -2,7 +2,6 @@ package com.study.train.member.controller;
 
 import com.study.train.common.resp.CommonResp;
 import com.study.train.member.dto.MemberLoginDTO;
-import com.study.train.member.dto.MemberRegisterDTO;
 import com.study.train.member.dto.MemberSendCodeDTO;
 import com.study.train.member.req.MemberRegisterReq;
 import com.study.train.member.resp.MemberLoginResp;
