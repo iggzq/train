@@ -2,7 +2,6 @@ package com.study.train.member.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.RandomUtil;
 import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.util.JWTutil;
@@ -10,7 +9,6 @@ import com.study.train.common.util.SnowUtil;
 import com.study.train.member.domain.Member;
 import com.study.train.member.domain.MemberExample;
 import com.study.train.member.dto.MemberLoginDTO;
-import com.study.train.member.dto.MemberRegisterDTO;
 import com.study.train.member.dto.MemberSendCodeDTO;
 import com.study.train.member.mapper.MemberMapper;
 import com.study.train.member.req.MemberRegisterReq;
@@ -27,7 +25,6 @@ import java.util.List;
 public class MemberService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MemberService.class);
-
 
     @Resource
     private MemberMapper memberMapper;
@@ -55,9 +52,9 @@ public class MemberService {
 
     public String sendCode(MemberSendCodeDTO memberSendCodeDTO) {
         String mobile = memberSendCodeDTO.getMobile();
-        Member members = selectByMobile(mobile);
+        Member memberDB = selectByMobile(mobile);
 
-        if (ObjectUtil.isNull(members)) {
+        if (ObjectUtil.isNull(memberDB)) {
             LOG.info("手机号不存在，插入一条数据");
             Member member = new Member();
             member.setId(SnowUtil.getSnowflakeNextId());
@@ -68,7 +65,8 @@ public class MemberService {
         }
 
         //生成验证码
-        String code = RandomUtil.randomString(4);
+//        String code = RandomUtil.randomString(4);
+        String code = "8888";
         LOG.info("生成短信验证码：{}", code);
 
         //保存短信记录表；手机号，短信验证码，有效期，是否已使用，业务类型，发送时间，使用时间
@@ -94,9 +92,8 @@ public class MemberService {
 
         MemberLoginResp memberLoginResp = BeanUtil.copyProperties(member, MemberLoginResp.class);
 
-
-
-        String token =  JWTutil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
+        // 生成JWT
+        String token = JWTutil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
         memberLoginResp.setToken(token);
 
 

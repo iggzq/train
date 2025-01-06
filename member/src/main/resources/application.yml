@@ -7,8 +7,8 @@ spring:
   #数据库连接
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: root
+    username: train
+    password: train
     url: jdbc:mysql://localhost/train?characterEncoding=UTF8&autoReconnect=true&serverTimezone=Asia/Shanghai
   application:
     name: member

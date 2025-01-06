@@ -27,15 +27,12 @@ public class JWTutil {
         payload.put(JWTPayload.NOT_BEFORE, now);
         payload.put("id", id);
         payload.put("mobile", mobile);
-        String token = JWTUtil.createToken(payload, KEY.getBytes());
-
-        return token;
+        return JWTUtil.createToken(payload, KEY.getBytes());
     }
 
     public static boolean validate(String token){
         JWT jwt = JWTUtil.parseToken(token).setKey(KEY.getBytes());
-        boolean validated = jwt.validate(0);
-        return validated;
+        return jwt.validate(0);
     }
 
     public static JSONObject getJSONObject(String token){
@@ -44,10 +41,6 @@ public class JWTutil {
         payloads.remove(JWTPayload.NOT_BEFORE);
         payloads.remove(JWTPayload.EXPIRES_AT);
         payloads.remove(JWTPayload.ISSUED_AT);
-
         return payloads;
-
-
     }
-
 }
