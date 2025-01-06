@@ -30,7 +30,6 @@ public class ConfirmOrderController {
     @PostMapping("/get-expire-time")
     public CommonResp<Long> getExpireTime(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) {
         Long expireTime = confirmOrderService.getExpireTime(confirmOrderDTO);
-        System.out.println(expireTime);
         return new CommonResp<>(expireTime);
     }
 

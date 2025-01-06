@@ -138,7 +138,6 @@ public class ConfirmOrderService {
         String start = confirmOrderDTO.getStart();
         String end = confirmOrderDTO.getEnd();
         DateTime now = DateTime.now();
-        System.out.println(now);
         long snowflakeNextId = SnowUtil.getSnowflakeNextId();
         ConfirmOrder confirmOrder = new ConfirmOrder();
         confirmOrder.setId(snowflakeNextId);
