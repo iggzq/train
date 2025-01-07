@@ -10,7 +10,7 @@ import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
 import com.study.train.member.domain.Passenger;
 import com.study.train.member.domain.PassengerExample;
-import com.study.train.member.dto.PassengerQueryDTO;
+import com.study.train.member.req.PassengerQueryReq;
 import com.study.train.member.mapper.PassengerMapper;
 import com.study.train.member.req.PassengerSaveReq;
 import com.study.train.member.resp.PassengerQueryResp;
@@ -48,13 +48,13 @@ public class PassengerService {
 
     }
 
-    public PageResp<PassengerQueryResp> queryList(PassengerQueryDTO passengerQueryDTO) {
+    public PageResp<PassengerQueryResp> queryList(PassengerQueryReq passengerQueryReq) {
         PassengerExample passengerExample = new PassengerExample();
         PassengerExample.Criteria criteria = passengerExample.createCriteria();
-        if (ObjectUtil.isNotNull(passengerQueryDTO.getMemberId())) {
-            criteria.andMemberIdEqualTo(passengerQueryDTO.getMemberId());
+        if (ObjectUtil.isNotNull(passengerQueryReq.getMemberId())) {
+            criteria.andMemberIdEqualTo(passengerQueryReq.getMemberId());
         }
-        PageHelper.startPage(passengerQueryDTO.getPage(), passengerQueryDTO.getSize());
+        PageHelper.startPage(passengerQueryReq.getPage(), passengerQueryReq.getSize());
         List<Passenger> passengers = passengerMapper.selectByExample(passengerExample);
 
         PageInfo<Passenger> pageInfo = new PageInfo<>(passengers);

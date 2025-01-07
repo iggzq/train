@@ -29,7 +29,7 @@
       </template>
     </template>
   </a-table>
-  <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="确认" cancel-text="取消">
+  <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="保存" cancel-text="取消">
     <a-form :model="passenger" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
       <a-form-item label="姓名">
         <a-input v-model:value="passenger.name"/>
@@ -100,7 +100,7 @@ const onAdd = () => {
 };
 
 const onEdit = (record) => {
-  passenger.value = window.Tool.copy(record);
+  passenger.value = record
   visible.value = true;
 };
 
