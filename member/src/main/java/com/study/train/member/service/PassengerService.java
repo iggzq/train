@@ -6,13 +6,13 @@ import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.common.context.LoginMemberContext;
+import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
 import com.study.train.member.domain.Passenger;
 import com.study.train.member.domain.PassengerExample;
-import com.study.train.common.resp.PageResp;
 import com.study.train.member.dto.PassengerQueryDTO;
-import com.study.train.member.dto.PassengerSaveDTO;
 import com.study.train.member.mapper.PassengerMapper;
+import com.study.train.member.req.PassengerSaveReq;
 import com.study.train.member.resp.PassengerQueryResp;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -29,9 +29,9 @@ public class PassengerService {
     @Resource
     PassengerMapper passengerMapper;
 
-    public void save(PassengerSaveDTO passengerSaveDTO) {
+    public void save(PassengerSaveReq passengerSaveReq) {
         DateTime now = new DateTime();
-        Passenger passenger = BeanUtil.copyProperties(passengerSaveDTO, Passenger.class);
+        Passenger passenger = BeanUtil.copyProperties(passengerSaveReq, Passenger.class);
         if (ObjectUtil.isNull(passenger.getId())) {
             passenger.setMemberId(LoginMemberContext.getId());
             passenger.setId(SnowUtil.getSnowflakeNextId());

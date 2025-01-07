@@ -10,7 +10,7 @@ SESSION_PAY_INFO = "TICKET_PAY_INFO";
 
 SessionStorage = {
     get: function (key) {
-        var v = sessionStorage.getItem(key);
+        const v = sessionStorage.getItem(key);
         if (v && typeof (v) !== "undefined" && v !== "undefined") {
             return JSON.parse(v);
         }

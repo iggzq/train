@@ -7,6 +7,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTPayload;
 import cn.hutool.jwt.JWTUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +16,9 @@ import java.util.Map;
 public class JWTutil {
 
     public static final String KEY = "HELLO,WORLD";
+
+    private static final Logger LOG = LoggerFactory.getLogger(JWTutil.class);
+
 
     public static String createToken(Long id, String mobile) {
 
@@ -32,12 +37,17 @@ public class JWTutil {
         return JWTUtil.createToken(payload, KEY.getBytes());
     }
 
-    public static boolean validate(String token){
-        JWT jwt = JWTUtil.parseToken(token).setKey(KEY.getBytes());
-        return jwt.validate(0);
+    public static boolean validate(String token) {
+        try {
+            JWT jwt = JWTUtil.parseToken(token).setKey(KEY.getBytes());
+            return jwt.validate(0);
+        } catch (Exception e) {
+            LOG.error("JWT校验失败", e);
+            return false;
+        }
     }
 
-    public static JSONObject getJSONObject(String token){
+    public static JSONObject getJSONObject(String token) {
         JWT jwt = JWTUtil.parseToken(token).setKey(KEY.getBytes());
         JSONObject payloads = jwt.getPayloads();
         payloads.remove(JWTPayload.NOT_BEFORE);
