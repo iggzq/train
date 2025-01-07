@@ -7,7 +7,8 @@
            :columns="columns"
            :pagination="pagination"
            @change="handleTableChange"
-           :loading="loading">
+           :loading="loading"
+           :scroll="{ y: 480 }">
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'operation'">
         <a-space>
@@ -31,13 +32,13 @@
   </a-table>
   <a-modal v-model:visible="visible" title="乘车人" @ok="handleOk" ok-text="保存" cancel-text="取消">
     <a-form :model="passenger" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
-      <a-form-item label="姓名">
+      <a-form-item label="姓名" :rules="[{ required: true, message: '请输入姓名!'}]">
         <a-input v-model:value="passenger.name"/>
       </a-form-item>
-      <a-form-item label="身份证">
+      <a-form-item label="身份证" :rules="[{ required: true, message: '请输入身份证号!'}]">
         <a-input v-model:value="passenger.idCard"/>
       </a-form-item>
-      <a-form-item label="旅客类型">
+      <a-form-item label="旅客类型" :rules="[{ required: true, message: '请选择旅客类型!'}]">
         <a-select v-model:value="passenger.type">
           <a-select-option v-for="item in PASSENGER_TYPE_ARRAY" :key="item.key" :value="item.key">
             {{ item.value }}
@@ -55,7 +56,7 @@ import axios from "axios";
 
 const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
 const visible = ref(false);
-let passenger = ref({
+const passenger = ref({
   id: undefined,
   memberId: undefined,
   name: undefined,
@@ -100,7 +101,7 @@ const onAdd = () => {
 };
 
 const onEdit = (record) => {
-  passenger.value = record
+  passenger.value = window.Tool.copy(record);
   visible.value = true;
 };
 
@@ -183,5 +184,9 @@ onMounted(() => {
 .top_button {
   position: relative;
   display: flex;
+}
+
+.tableContent {
+  overflow-y: scroll;
 }
 </style>

@@ -12,7 +12,7 @@ public class PageResp<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "PageDTO{" +
+        return "PageResp{" +
                 "total=" + total +
                 ", data=" + data +
                 '}';

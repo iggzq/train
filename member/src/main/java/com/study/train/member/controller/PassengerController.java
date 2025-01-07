@@ -25,15 +25,15 @@ public class PassengerController {
 
 
     @PostMapping("/save")
-    public CommonResp<Object> register(@Valid @RequestBody PassengerSaveReq passengerSaveReq) {
-        PassengerService.save(passengerSaveReq);
+    public CommonResp<Object> register(@Valid @RequestBody PassengerSaveReq req) {
+        PassengerService.save(req);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<PassengerQueryResp>> queryList(@Valid PassengerQueryReq passengerQueryReq) {
-        passengerQueryReq.setMemberId(loginMemberHolder.getId());
-        PageResp<PassengerQueryResp> list = PassengerService.queryList(passengerQueryReq);
+    public CommonResp<PageResp<PassengerQueryResp>> queryList(@Valid PassengerQueryReq req) {
+        req.setMemberId(loginMemberHolder.getId());
+        PageResp<PassengerQueryResp> list = PassengerService.queryList(req);
         return new CommonResp<>(list);
     }
 

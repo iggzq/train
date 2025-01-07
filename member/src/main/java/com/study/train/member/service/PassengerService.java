@@ -32,9 +32,9 @@ public class PassengerService {
     @Resource
     PassengerMapper passengerMapper;
 
-    public void save(PassengerSaveReq passengerSaveReq) {
+    public void save(PassengerSaveReq req) {
         DateTime now = new DateTime();
-        Passenger passenger = BeanUtil.copyProperties(passengerSaveReq, Passenger.class);
+        Passenger passenger = BeanUtil.copyProperties(req, Passenger.class);
         if (ObjectUtil.isNull(passenger.getId())) {
             passenger.setMemberId(loginMemberHolder.getId());
             passenger.setId(SnowUtil.getSnowflakeNextId());
@@ -48,13 +48,13 @@ public class PassengerService {
 
     }
 
-    public PageResp<PassengerQueryResp> queryList(PassengerQueryReq passengerQueryReq) {
+    public PageResp<PassengerQueryResp> queryList(PassengerQueryReq req) {
         PassengerExample passengerExample = new PassengerExample();
         PassengerExample.Criteria criteria = passengerExample.createCriteria();
-        if (ObjectUtil.isNotNull(passengerQueryReq.getMemberId())) {
-            criteria.andMemberIdEqualTo(passengerQueryReq.getMemberId());
+        if (ObjectUtil.isNotNull(req.getMemberId())) {
+            criteria.andMemberIdEqualTo(req.getMemberId());
         }
-        PageHelper.startPage(passengerQueryReq.getPage(), passengerQueryReq.getSize());
+        PageHelper.startPage(req.getPage(), req.getSize());
         List<Passenger> passengers = passengerMapper.selectByExample(passengerExample);
 
         PageInfo<Passenger> pageInfo = new PageInfo<>(passengers);
@@ -63,11 +63,11 @@ public class PassengerService {
         LOG.info("总页数:{}", pageInfo.getPages());
 
         List<PassengerQueryResp> passengerQueryResps = BeanUtil.copyToList(passengers, PassengerQueryResp.class);
-        PageResp<PassengerQueryResp> pageDTO = new PageResp<>();
-        pageDTO.setTotal(pageInfo.getTotal());
-        pageDTO.setData(passengerQueryResps);
+        PageResp<PassengerQueryResp> pageResp = new PageResp<>();
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(passengerQueryResps);
 
-        return pageDTO;
+        return pageResp;
     }
 
     public void delete(Long id) {
