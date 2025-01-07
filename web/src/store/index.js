@@ -11,6 +11,10 @@ export default createStore({
         setMember(state, member) {
             state.member = member;
             window.SessionStorage.set(MEMBER, member);
+        },
+        clearLoginInfo(){
+            window.SessionStorage.remove(MEMBER);
+            this.commit("setMember", {});
         }
     },
     actions: {},

@@ -9,9 +9,9 @@ import com.study.train.common.util.SnowUtil;
 import com.study.train.member.domain.Member;
 import com.study.train.member.domain.MemberExample;
 import com.study.train.member.dto.MemberLoginDTO;
-import com.study.train.member.dto.MemberSendCodeDTO;
 import com.study.train.member.mapper.MemberMapper;
 import com.study.train.member.req.MemberRegisterReq;
+import com.study.train.member.req.MemberSendCodeReq;
 import com.study.train.member.resp.MemberLoginResp;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
@@ -50,8 +50,8 @@ public class MemberService {
         return member.getId();
     }
 
-    public String sendCode(MemberSendCodeDTO memberSendCodeDTO) {
-        String mobile = memberSendCodeDTO.getMobile();
+    public String sendCode(MemberSendCodeReq memberSendCodeReq) {
+        String mobile = memberSendCodeReq.getMobile();
         Member memberDB = selectByMobile(mobile);
 
         if (ObjectUtil.isNull(memberDB)) {

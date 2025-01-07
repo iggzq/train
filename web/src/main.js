@@ -18,6 +18,7 @@ for (const i in icons) {
 }
 
 axios.interceptors.request.use(function (config) {
+    console.log('请求参数： ', config)
     const token = store.state.member.token;
     if (token) {
         config.headers.token = token;
@@ -29,6 +30,7 @@ axios.interceptors.request.use(function (config) {
 })
 
 axios.interceptors.response.use(function (response) {
+    console.log('返回结果： ', response)
     return response;
 }, error => {
     const resp = error.response;
