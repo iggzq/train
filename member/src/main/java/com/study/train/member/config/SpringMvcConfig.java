@@ -9,6 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class SpringMvcConfig implements WebMvcConfigurer {
+
     @Resource
     MemberInterceptor memberInterceptor;
 
@@ -18,8 +19,11 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(logInterceptor);
-        registry.addInterceptor(memberInterceptor).addPathPatterns("/**")
-                .excludePathPatterns("/member/member/send-code",
-                        "/member/member/login");
+        registry.addInterceptor(memberInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/member/send-code",
+                        "/member/login"
+                );
     }
 }

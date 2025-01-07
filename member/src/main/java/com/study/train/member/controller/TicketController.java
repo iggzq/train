@@ -1,6 +1,6 @@
 package com.study.train.member.controller;
 
-import com.study.train.common.context.LoginMemberContext;
+import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.resp.PageResp;
 import com.study.train.member.dto.TicketQueryDTO;
@@ -19,10 +19,13 @@ public class TicketController {
     @Resource
     private TicketService ticketService;
 
+    @Resource
+    private LoginMemberHolder loginMemberHolder;
+
     @GetMapping("/query-list")
     public CommonResp<PageResp<TicketQueryResp>> query(@Valid TicketQueryDTO req) {
         CommonResp<PageResp<TicketQueryResp>> commonResp = new CommonResp<>();
-        req.setMemberId(LoginMemberContext.getId());
+        req.setMemberId(loginMemberHolder.getId());
         PageResp<TicketQueryResp> pageResp = ticketService.queryList(req);
         commonResp.setContent(pageResp);
         return commonResp;

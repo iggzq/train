@@ -1,6 +1,6 @@
 package com.study.train.member.controller;
 
-import com.study.train.common.context.LoginMemberContext;
+import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.resp.PageResp;
 import com.study.train.member.dto.PassengerQueryDTO;
@@ -18,6 +18,9 @@ import java.util.List;
 public class PassengerController {
 
     @Resource
+    private LoginMemberHolder loginMemberHolder;
+
+    @Resource
     private PassengerService PassengerService;
 
 
@@ -28,9 +31,9 @@ public class PassengerController {
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<PassengerQueryResp>> queryList(@Valid @RequestBody PassengerQueryDTO PassengerQueryDTO) {
-        PassengerQueryDTO.setMemberId(LoginMemberContext.getId());
-        PageResp<PassengerQueryResp> list = PassengerService.queryList(PassengerQueryDTO);
+    public CommonResp<PageResp<PassengerQueryResp>> queryList(@Valid PassengerQueryDTO passengerQueryDTO) {
+        passengerQueryDTO.setMemberId(loginMemberHolder.getId());
+        PageResp<PassengerQueryResp> list = PassengerService.queryList(passengerQueryDTO);
         return new CommonResp<>(list);
     }
 

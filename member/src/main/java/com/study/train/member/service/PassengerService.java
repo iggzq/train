@@ -5,7 +5,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.common.context.LoginMemberContext;
+import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
 import com.study.train.member.domain.Passenger;
@@ -27,13 +27,16 @@ public class PassengerService {
     private static final Logger LOG = LoggerFactory.getLogger(PassengerService.class);
 
     @Resource
+    LoginMemberHolder loginMemberHolder;
+
+    @Resource
     PassengerMapper passengerMapper;
 
     public void save(PassengerSaveReq passengerSaveReq) {
         DateTime now = new DateTime();
         Passenger passenger = BeanUtil.copyProperties(passengerSaveReq, Passenger.class);
         if (ObjectUtil.isNull(passenger.getId())) {
-            passenger.setMemberId(LoginMemberContext.getId());
+            passenger.setMemberId(loginMemberHolder.getId());
             passenger.setId(SnowUtil.getSnowflakeNextId());
             passenger.setCreateTime(now);
             passenger.setUpdateTime(now);
@@ -75,7 +78,7 @@ public class PassengerService {
     public List<PassengerQueryResp> queryMyPassenger() {
         PassengerExample passengerExample = new PassengerExample();
         PassengerExample.Criteria criteria = passengerExample.createCriteria();
-        criteria.andMemberIdEqualTo(LoginMemberContext.getId());
+        criteria.andMemberIdEqualTo(loginMemberHolder.getId());
         List<Passenger> passengers = passengerMapper.selectByExample(passengerExample);
         return BeanUtil.copyToList(passengers, PassengerQueryResp.class);
     }
