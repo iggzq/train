@@ -28,7 +28,7 @@ public class MemberInterceptor implements HandlerInterceptor {
         String token = request.getHeader(TOKEN_HEADER);
         LOG.info("获取会员登陆:【{}】，请求 URI: {}", token, request.getRequestURI());
         JSONObject jsonObject = JWTutil.getJSONObject(token);
-        LOG.info("当前登陆会员:【{}】", token);
+        LOG.info("当前登陆会员:【{}】", jsonObject);
         loginMemberHolder.setMember(JSONUtil.toBean(jsonObject, MemberLoginResp.class));
         return true;
     }

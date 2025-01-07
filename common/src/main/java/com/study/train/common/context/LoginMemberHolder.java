@@ -2,13 +2,11 @@ package com.study.train.common.context;
 
 import com.study.train.common.resp.MemberLoginResp;
 import jakarta.annotation.PreDestroy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.annotation.SessionScope;
 
 @Component
-@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
+@SessionScope
 public class LoginMemberHolder {
 
     private MemberLoginResp member;
