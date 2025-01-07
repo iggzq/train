@@ -13,7 +13,7 @@ import com.study.train.business.enums.SeatColEnum;
 import com.study.train.business.mapper.DailyTrainStationCarriageMapper;
 import com.study.train.business.resp.DailyTrainStationCarriageQueryResp;
 import com.study.train.common.resp.PageResp;
-import com.study.train.common.util.SnowUtil;
+import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

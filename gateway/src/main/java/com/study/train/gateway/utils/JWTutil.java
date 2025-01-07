@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class JWTutil {
 
-    public static final String KEY = "HELLOWORLD";
+    public static final String KEY = "HELLO,WORLD";
 
     public static String createToken(Long id, String mobile) {
 
@@ -28,15 +28,13 @@ public class JWTutil {
         payload.put(JWTPayload.NOT_BEFORE, now);
         payload.put("id", id);
         payload.put("mobile", mobile);
-        String token = JWTUtil.createToken(payload, KEY.getBytes());
 
-        return token;
+        return JWTUtil.createToken(payload, KEY.getBytes());
     }
 
     public static boolean validate(String token){
         JWT jwt = JWTUtil.parseToken(token).setKey(KEY.getBytes());
-        boolean validated = jwt.validate(0);
-        return validated;
+        return jwt.validate(0);
     }
 
     public static JSONObject getJSONObject(String token){

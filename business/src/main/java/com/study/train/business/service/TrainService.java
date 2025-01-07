@@ -15,7 +15,7 @@ import com.study.train.business.resp.TrainQueryResp;
 import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.resp.PageResp;
-import com.study.train.common.util.SnowUtil;
+import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

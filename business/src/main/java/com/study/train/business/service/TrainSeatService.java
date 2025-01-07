@@ -8,7 +8,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
 import com.study.train.business.enums.SeatColEnum;
-import com.study.train.common.util.SnowUtil;
+import com.study.train.common.utils.SnowUtil;
 import com.study.train.common.resp.PageResp;
 import com.study.train.business.dto.TrainSeatQueryDTO;
 import com.study.train.business.dto.TrainSeatSaveDTO;

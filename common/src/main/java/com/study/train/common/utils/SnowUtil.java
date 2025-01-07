@@ -1,4 +1,4 @@
-package com.study.train.common.util;
+package com.study.train.common.utils;
 
 import cn.hutool.core.util.IdUtil;
 

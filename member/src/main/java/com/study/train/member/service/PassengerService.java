@@ -6,7 +6,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.common.context.LoginMemberContext;
-import com.study.train.common.util.SnowUtil;
+import com.study.train.common.utils.SnowUtil;
 import com.study.train.member.domain.Passenger;
 import com.study.train.member.domain.PassengerExample;
 import com.study.train.common.resp.PageResp;

@@ -24,7 +24,7 @@ import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.PageResp;
-import com.study.train.common.util.SnowUtil;
+import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;

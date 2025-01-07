@@ -14,7 +14,7 @@ import com.study.train.business.dto.DailyTrainStationSaveDTO;
 import com.study.train.business.mapper.DailyTrainStationMapper;
 import com.study.train.business.resp.DailyTrainStationQueryResp;
 import com.study.train.common.resp.PageResp;
-import com.study.train.common.util.SnowUtil;
+import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

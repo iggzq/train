@@ -12,7 +12,7 @@ import com.study.train.business.mapper.customer.DailyTrainTicketMapperCust;
 import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.CommonResp;
-import com.study.train.common.util.SnowUtil;
+import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

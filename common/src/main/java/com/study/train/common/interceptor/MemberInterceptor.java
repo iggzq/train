@@ -5,7 +5,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.study.train.common.context.LoginMemberContext;
 import com.study.train.common.resp.MemberLoginResp;
-import com.study.train.common.util.JWTutil;
+import com.study.train.common.utils.JWTutil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
