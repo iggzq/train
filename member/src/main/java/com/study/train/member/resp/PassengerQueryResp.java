@@ -1,6 +1,8 @@
 package com.study.train.member.resp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,8 +11,11 @@ import java.util.Date;
 @Setter
 @Getter
 public class PassengerQueryResp {
+
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long memberId;
 
     private String name;
