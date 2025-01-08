@@ -14,20 +14,9 @@
     </a-layout-footer>
   </a-layout>
 </template>
-<script>
-import {defineComponent} from 'vue';
+<script setup>
 import TheHeader from "@/components/the-header.vue";
 import TheSider from "@/components/the-sider.vue";
-
-export default defineComponent({
-  components: {
-    TheSider,
-    TheHeader,
-  },
-  setup() {
-    return {};
-  },
-});
 </script>
 <style>
 </style>

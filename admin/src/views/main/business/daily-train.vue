@@ -80,258 +80,229 @@
   </a-modal>
 </template>
 
-<script>
-import {defineComponent, ref, onMounted} from "vue";
+<script setup>
+import {onMounted, ref} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
 import TrainSelectView from "@/components/train-select.vue";
 import dayjs from "dayjs";
 
-export default defineComponent({
-  name: "daily-train-view",
-  components: {TrainSelectView},
-  setup() {
-    const TRAIN_TYPE_ARRAY = window.TRAIN_TYPE_ARRAY;
-    const visible = ref(false);
-    const genDailyVisible = ref(false);
-    const genDaily = ref({
-      date: null,
-    });
-    const genDailyLoading = ref(false);
-    let dailyTrain = ref({
-      id: undefined,
-      date: undefined,
-      code: undefined,
-      type: undefined,
-      start: undefined,
-      startPinyin: undefined,
-      startTime: undefined,
-      end: undefined,
-      endPinyin: undefined,
-      endTime: undefined,
-      createTime: undefined,
-      updateTime: undefined,
-    });
-    const dailyTrains = ref([]);
-    // 分页的三个属性名是固定的
-    const pagination = ref({
-      total: 0,
-      current: 1,
-      pageSize: 10,
-    });
-    let loading = ref(false);
-    let params = ref({
-      code: null,
-      date: null,
-    });
-    const columns = [
-      {
-        title: '日期',
-        dataIndex: 'date',
-        key: 'date',
-      },
-      {
-        title: '车次编号',
-        dataIndex: 'code',
-        key: 'code',
-      },
-      {
-        title: '车次类型',
-        dataIndex: 'type',
-        key: 'type',
-      },
-      {
-        title: '始发站',
-        dataIndex: 'start',
-        key: 'start',
-      },
-      {
-        title: '始发站拼音',
-        dataIndex: 'startPinyin',
-        key: 'startPinyin',
-      },
-      {
-        title: '出发时间',
-        dataIndex: 'startTime',
-        key: 'startTime',
-      },
-      {
-        title: '终点站',
-        dataIndex: 'end',
-        key: 'end',
-      },
-      {
-        title: '终点站拼音',
-        dataIndex: 'endPinyin',
-        key: 'endPinyin',
-      },
-      {
-        title: '到站时间',
-        dataIndex: 'endTime',
-        key: 'endTime',
-      },
-      {
-        title: '操作',
-        dataIndex: 'operation'
-      }
-    ];
+const TRAIN_TYPE_ARRAY = window.TRAIN_TYPE_ARRAY;
+const visible = ref(false);
+const genDailyVisible = ref(false);
+const genDaily = ref({
+  date: null,
+});
+const genDailyLoading = ref(false);
+let dailyTrain = ref({
+  id: undefined,
+  date: undefined,
+  code: undefined,
+  type: undefined,
+  start: undefined,
+  startPinyin: undefined,
+  startTime: undefined,
+  end: undefined,
+  endPinyin: undefined,
+  endTime: undefined,
+  createTime: undefined,
+  updateTime: undefined,
+});
+const dailyTrains = ref([]);
+// 分页的三个属性名是固定的
+const pagination = ref({
+  total: 0,
+  current: 1,
+  pageSize: 10,
+});
+let loading = ref(false);
+let params = ref({
+  code: null,
+  date: null,
+});
+const columns = [
+  {
+    title: '日期',
+    dataIndex: 'date',
+    key: 'date',
+  },
+  {
+    title: '车次编号',
+    dataIndex: 'code',
+    key: 'code',
+  },
+  {
+    title: '车次类型',
+    dataIndex: 'type',
+    key: 'type',
+  },
+  {
+    title: '始发站',
+    dataIndex: 'start',
+    key: 'start',
+  },
+  {
+    title: '始发站拼音',
+    dataIndex: 'startPinyin',
+    key: 'startPinyin',
+  },
+  {
+    title: '出发时间',
+    dataIndex: 'startTime',
+    key: 'startTime',
+  },
+  {
+    title: '终点站',
+    dataIndex: 'end',
+    key: 'end',
+  },
+  {
+    title: '终点站拼音',
+    dataIndex: 'endPinyin',
+    key: 'endPinyin',
+  },
+  {
+    title: '到站时间',
+    dataIndex: 'endTime',
+    key: 'endTime',
+  },
+  {
+    title: '操作',
+    dataIndex: 'operation'
+  }
+];
 
-    const onAdd = () => {
-      dailyTrain.value = {};
-      visible.value = true;
-    };
+const onAdd = () => {
+  dailyTrain.value = {};
+  visible.value = true;
+};
 
-    const onEdit = (record) => {
-      dailyTrain.value = window.Tool.copy(record);
-      visible.value = true;
-    };
+const onEdit = (record) => {
+  dailyTrain.value = window.Tool.copy(record);
+  visible.value = true;
+};
 
-    const onDelete = (record) => {
-      axios.delete("/business/admin/daily-train/delete/" + record.id).then((response) => {
-        const data = response.data;
-        if (data.success) {
-          notification.success({description: "删除成功！"});
-          handleQuery({
-            page: pagination.value.current,
-            size: pagination.value.pageSize,
-          });
-        } else {
-          notification.error({description: data.message});
-        }
-      });
-    };
-
-    const handleOk = () => {
-      axios.post("/business/admin/daily-train/save", dailyTrain.value).then((response) => {
-        let data = response.data;
-        if (data.success) {
-          notification.success({description: "保存成功！"});
-          visible.value = false;
-          handleQuery({
-            page: pagination.value.current,
-            size: pagination.value.pageSize
-          });
-        } else {
-          notification.error({description: data.message});
-        }
-      });
-    };
-
-    const handleQuery = (param) => {
-      if (!param) {
-        param = {
-          page: 1,
-          size: pagination.value.pageSize
-        };
-      }
-      loading.value = true;
-      axios.get("/business/admin/daily-train/query-list", {
-        params: {
-          page: param.page,
-          size: param.size,
-          code: params.value.code,
-          date: params.value.date,
-        }
-      }).then((response) => {
-        loading.value = false;
-        let data = response.data;
-        if (data.success) {
-          dailyTrains.value = data.content.data;
-          // 设置分页控件的值
-          pagination.value.current = param.page;
-          pagination.value.total = data.content.total;
-        } else {
-          notification.error({description: data.message});
-        }
-      });
-    };
-
-    const handleTableChange = (page) => {
-      // console.log("看看自带的分页参数都有啥：" + JSON.stringify(page));
-      pagination.value.pageSize = page.pageSize;
+const onDelete = (record) => {
+  axios.delete("/business/admin/daily-train/delete/" + record.id).then((response) => {
+    const data = response.data;
+    if (data.success) {
+      notification.success({description: "删除成功！"});
       handleQuery({
-        page: page.current,
-        size: page.pageSize
+        page: pagination.value.current,
+        size: pagination.value.pageSize,
       });
-    };
+    } else {
+      notification.error({description: data.message});
+    }
+  });
+};
 
-    const onChangeCode = (train) => {
-      console.log("train:" + JSON.stringify(train));
-      if (train) {
-        dailyTrain.value.code = train.code;
-        dailyTrain.value.type = train.type;
-        dailyTrain.value.start = train.start;
-        dailyTrain.value.startPinyin = train.startPinyin;
-        dailyTrain.value.end = train.end;
-        dailyTrain.value.endPinyin = train.endPinyin;
-        dailyTrain.value.startTime = train.startTime;
-        dailyTrain.value.endTime = train.endTime;
-      }
+const handleOk = () => {
+  axios.post("/business/admin/daily-train/save", dailyTrain.value).then((response) => {
+    let data = response.data;
+    if (data.success) {
+      notification.success({description: "保存成功！"});
+      visible.value = false;
       handleQuery({
         page: pagination.value.current,
         size: pagination.value.pageSize
-      })
-    };
-    const onClickGenDaily = () => {
-      genDailyVisible.value = true;
-    }
-
-    const handleGenDailyOk = () => {
-      loading.value = true;
-      genDailyLoading.value = true;
-      let date = dayjs(genDaily.value.date).format("YYYY-MM-DD");
-      axios.get("/business/admin/daily-train/gen-daily/" + date).then((resp) => {
-        let data = resp.data;
-        if (data.success) {
-          loading.value = false;
-          visible.value = false;
-          notification.success({description: "生成成功!"});
-          handleQuery({
-            page: pagination.value.current,
-            size: pagination.value.pageSize,
-          });
-          genDailyVisible.value = false;
-        } else {
-          loading.value = false;
-          notification.error({description: data.message});
-          genDailyVisible.value = false;
-
-        }
-      })
-      genDailyLoading.value = false;
-
-    }
-
-    onMounted(() => {
-      handleQuery({
-        page: 1,
-        size: pagination.value.pageSize
       });
-    });
+    } else {
+      notification.error({description: data.message});
+    }
+  });
+};
 
-    return {
-      TRAIN_TYPE_ARRAY,
-      dailyTrain,
-      visible,
-      dailyTrains,
-      pagination,
-      columns,
-      handleTableChange,
-      handleQuery,
-      loading,
-      onAdd,
-      handleOk,
-      onEdit,
-      onDelete,
-      onChangeCode,
-      params,
-      genDailyVisible,
-      onClickGenDaily,
-      genDaily,
-      handleGenDailyOk,
-      genDailyLoading
+const handleQuery = (param) => {
+  if (!param) {
+    param = {
+      page: 1,
+      size: pagination.value.pageSize
     };
-  },
+  }
+  loading.value = true;
+  axios.get("/business/admin/daily-train/query-list", {
+    params: {
+      page: param.page,
+      size: param.size,
+      code: params.value.code,
+      date: params.value.date,
+    }
+  }).then((response) => {
+    loading.value = false;
+    let data = response.data;
+    if (data.success) {
+      dailyTrains.value = data.content.data;
+      // 设置分页控件的值
+      pagination.value.current = param.page;
+      pagination.value.total = data.content.total;
+    } else {
+      notification.error({description: data.message});
+    }
+  });
+};
+
+const handleTableChange = (page) => {
+  // console.log("看看自带的分页参数都有啥：" + JSON.stringify(page));
+  pagination.value.pageSize = page.pageSize;
+  handleQuery({
+    page: page.current,
+    size: page.pageSize
+  });
+};
+
+const onChangeCode = (train) => {
+  console.log("train:" + JSON.stringify(train));
+  if (train) {
+    dailyTrain.value.code = train.code;
+    dailyTrain.value.type = train.type;
+    dailyTrain.value.start = train.start;
+    dailyTrain.value.startPinyin = train.startPinyin;
+    dailyTrain.value.end = train.end;
+    dailyTrain.value.endPinyin = train.endPinyin;
+    dailyTrain.value.startTime = train.startTime;
+    dailyTrain.value.endTime = train.endTime;
+  }
+  handleQuery({
+    page: pagination.value.current,
+    size: pagination.value.pageSize
+  })
+};
+const onClickGenDaily = () => {
+  genDailyVisible.value = true;
+}
+
+const handleGenDailyOk = () => {
+  loading.value = true;
+  genDailyLoading.value = true;
+  let date = dayjs(genDaily.value.date).format("YYYY-MM-DD");
+  axios.get("/business/admin/daily-train/gen-daily/" + date).then((resp) => {
+    let data = resp.data;
+    if (data.success) {
+      loading.value = false;
+      visible.value = false;
+      notification.success({description: "生成成功!"});
+      handleQuery({
+        page: pagination.value.current,
+        size: pagination.value.pageSize,
+      });
+      genDailyVisible.value = false;
+    } else {
+      loading.value = false;
+      notification.error({description: data.message});
+      genDailyVisible.value = false;
+
+    }
+  })
+  genDailyLoading.value = false;
+
+}
+
+onMounted(() => {
+  handleQuery({
+    page: 1,
+    size: pagination.value.pageSize
+  });
 });
 </script>
 <style scoped>
