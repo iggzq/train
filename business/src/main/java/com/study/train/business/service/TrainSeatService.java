@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -74,7 +75,7 @@ public class TrainSeatService {
         trainSeatMapper.deleteByPrimaryKey(id);
     }
 
-    //生成座位
+    // 生成座位
     @Transactional
     public void genTrainSeat(String trainCode){
         DateTime now = DateTime.now();
@@ -85,6 +86,8 @@ public class TrainSeatService {
         trainSeatMapper.deleteByExample(trainSeatExample);
         //查找当前车次所有车厢
         List<TrainCarriage> trainCarriages = trainCarriageService.selectByTrainCode(trainCode);
+        // 创建总座位集合
+        List<TrainSeat> trainSeats = new ArrayList<>();
         //循环生成每个车厢的座位
         for (TrainCarriage trainCarriage : trainCarriages) {
             //拿到车厢行数和座位类型
@@ -97,7 +100,7 @@ public class TrainSeatService {
             for (int row = 1; row <= rowCount; row++) {
                 //循环列数
                 for (SeatColEnum seatColEnum : colsByType) {
-                    //构造座位数据，并保存数据库
+                    //构造座位数据，并汇总
                     TrainSeat trainSeat = new TrainSeat();
                     trainSeat.setId(SnowUtil.getSnowflakeNextId());
                     trainSeat.setTrainCode(trainCode);
@@ -108,13 +111,12 @@ public class TrainSeatService {
                     trainSeat.setCarriageSeatIndex(seatIndex++);
                     trainSeat.setCreateTime(now);
                     trainSeat.setUpdateTime(now);
-
-
-
-                    trainSeatMapper.insert(trainSeat);
+                    trainSeats.add(trainSeat);
                 }
             }
         }
+        // 保存到数据库中
+        trainSeatMapper.insertBatch(trainSeats);
     }
 
     public List<TrainSeat> selectByTrainCode(String trainCode) {

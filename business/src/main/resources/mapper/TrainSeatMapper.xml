@@ -112,6 +112,18 @@
       #{row,jdbcType=CHAR}, #{col,jdbcType=CHAR}, #{seatType,jdbcType=CHAR}, #{carriageSeatIndex,jdbcType=INTEGER}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
+  <insert id="insertBatch" parameterType="java.util.List">
+    insert into train_seat
+    (id, train_code, carriage_index, `row`, col, seat_type, carriage_seat_index, create_time,
+      update_time)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=BIGINT}, #{item.trainCode,jdbcType=VARCHAR}, #{item.carriageIndex,jdbcType=INTEGER},
+        #{item.row,jdbcType=CHAR}, #{item.col,jdbcType=CHAR}, #{item.seatType,jdbcType=CHAR},
+        #{item.carriageSeatIndex,jdbcType=INTEGER}, #{item.createTime,jdbcType=TIMESTAMP},
+        #{item.updateTime,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
   <insert id="insertSelective" parameterType="com.study.train.business.domain.TrainSeat">
     insert into train_seat
     <trim prefix="(" suffix=")" suffixOverrides=",">
