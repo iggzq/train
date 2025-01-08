@@ -185,8 +185,4 @@ onMounted(() => {
   position: relative;
   display: flex;
 }
-
-.tableContent {
-  overflow-y: scroll;
-}
 </style>

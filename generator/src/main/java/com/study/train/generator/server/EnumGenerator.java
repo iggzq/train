@@ -109,7 +109,6 @@ public class EnumGenerator {
 
     /**
      * 写文件
-     * @param stringBuffer
      */
     public static void writeJs(StringBuffer stringBuffer) {
         FileOutputStream out = null;
