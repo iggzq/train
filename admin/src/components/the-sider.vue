@@ -35,14 +35,14 @@
         <template #title>
           <coffee-outlined/> &nbsp; 基础数据
         </template>
-        <a-menu-item key="/base/station">
-          <router-link to="/base/station">
-            <user-outlined/> &nbsp; 车站管理
-          </router-link>
-        </a-menu-item>
         <a-menu-item key="/base/train">
           <router-link to="/base/train">
             <user-outlined/> &nbsp; 车次管理
+          </router-link>
+        </a-menu-item>
+        <a-menu-item key="/base/station">
+          <router-link to="/base/station">
+            <user-outlined/> &nbsp; 车站管理
           </router-link>
         </a-menu-item>
         <a-menu-item key="/base/train-station">

@@ -12,22 +12,24 @@ const routes = [
             component: () => import('../views/main/welcome.vue'),
         }, {
             path: 'base/',
-            children: [{
-                path: 'station',
-                component: () => import('../views/main/base/station.vue')
-            }, {
-                path: 'train',
-                component: () => import('../views/main/base/train.vue')
-            }, {
-                path: 'train-station',
-                component: () => import('../views/main/base/train-station.vue')
-            }, {
-                path: 'train-carriage',
-                component: () => import('../views/main/base/train-carriage.vue')
-            }, {
-                path: 'train-seat',
-                component: () => import('../views/main/base/train-seat.vue')
-            }]
+            children: [
+                {
+                    path: 'train',
+                    component: () => import('../views/main/base/train.vue')
+                },
+                {
+                    path: 'station',
+                    component: () => import('../views/main/base/station.vue')
+                }, {
+                    path: 'train-station',
+                    component: () => import('../views/main/base/train-station.vue')
+                }, {
+                    path: 'train-carriage',
+                    component: () => import('../views/main/base/train-carriage.vue')
+                }, {
+                    path: 'train-seat',
+                    component: () => import('../views/main/base/train-seat.vue')
+                }]
         }, {
             path: 'business/',
             children: [

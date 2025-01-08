@@ -8,61 +8,48 @@
     </a-select-option>
   </a-select>
 </template>
-<script>
-import {defineComponent, onMounted, ref, watch} from "vue";
+<script setup>
+import { ref, watch, onMounted } from "vue";
 import axios from "axios";
-import {notification} from "ant-design-vue";
+import { notification } from "ant-design-vue";
 
-export default defineComponent({
-  name: "train-select-view",
-  props: ["modelValue"],
-  emits: ['update:modelValue', 'change'],
-  setup(props, {emit}) {
-    const trainCode = ref();
-    const trains = ref([]);
+const props = defineProps(["modelValue"]);
+const emit = defineEmits(['update:modelValue', 'change']);
 
-    watch(() => props.modelValue, () => {
-      console.log("props.modelValue", props.modelValue);
-      trainCode.value = props.modelValue;
-    }, {immediate: true});
+const trainCode = ref();
+const trains = ref([]);
 
-    const queryTrainCode = () => {
-      axios.get("/business/admin/train/query-all").then((resp) => {
-        let data = resp.data;
-        if (data.success) {
-          trains.value = data.content;
-        } else {
-          notification.error({description: data.message});
-        }
-      })
-    };
+watch(() => props.modelValue, () => {
+  console.log("props.modelValue", props.modelValue);
+  trainCode.value = props.modelValue;
+}, { immediate: true });
 
-    const filterTrainCodeOption = (input, option) => {
-      console.log(input, option);
-      return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-    };
-
-    const onChange = (value) => {
-      emit('update:modelValue', value);
-      let train = trains.value.filter(item => item.code === value)[0];
-      if (Tool.isEmpty(train)) {
-        train = {};
-      }
-      emit('change', train)
-    };
-    onMounted(() => {
-      queryTrainCode();
-    });
-
-    return {
-      trainCode,
-      trains,
-      filterTrainCodeOption,
-      onChange,
-
+const queryTrainCode = () => {
+  axios.get("/business/admin/train/query-all").then((resp) => {
+    let data = resp.data;
+    if (data.success) {
+      trains.value = data.content;
+    } else {
+      notification.error({ description: data.message });
     }
+  })
+};
 
+const filterTrainCodeOption = (input, option) => {
+  console.log(input, option);
+  return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+};
+
+const onChange = (value) => {
+  emit('update:modelValue', value);
+  let train = trains.value.find(item => item.code === value);
+  if (window.Tool.isEmpty(train)) {
+    train = {};
   }
+  emit('change', train)
+};
 
-})
+onMounted(() => {
+  queryTrainCode();
+});
 </script>
