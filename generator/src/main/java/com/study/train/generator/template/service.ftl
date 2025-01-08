@@ -9,8 +9,8 @@ import com.study.train.common.utils.SnowUtil;
 import com.study.train.${module}.domain.${Domain};
 import com.study.train.${module}.domain.${Domain}Example;
 import com.study.train.common.resp.PageResp;
-import com.study.train.${module}.dto.${Domain}QueryDTO;
-import com.study.train.${module}.dto.${Domain}SaveDTO;
+import com.study.train.${module}.req.${Domain}QueryReq;
+import com.study.train.${module}.req.${Domain}SaveReq;
 import com.study.train.${module}.mapper.${Domain}Mapper;
 import com.study.train.${module}.resp.${Domain}QueryResp;
 import jakarta.annotation.Resource;
@@ -28,9 +28,9 @@ public class ${Domain}Service {
     @Resource
     ${Domain}Mapper ${domain}Mapper;
 
-    public void save(${Domain}SaveDTO ${domain}SaveDTO) {
+    public void save(${Domain}SaveReq ${domain}SaveReq) {
         DateTime now = new DateTime();
-        ${Domain} ${domain} = BeanUtil.copyProperties(${domain}SaveDTO, ${Domain}.class);
+        ${Domain} ${domain} = BeanUtil.copyProperties(${domain}SaveReq, ${Domain}.class);
         if (ObjectUtil.isNull(${domain}.getId())) {
             ${domain}.setId(SnowUtil.getSnowflakeNextId());
             ${domain}.setCreateTime(now);
@@ -43,10 +43,10 @@ public class ${Domain}Service {
 
     }
 
-    public PageResp<${Domain}QueryResp> queryList(${Domain}QueryDTO ${domain}QueryDTO) {
+    public PageResp<${Domain}QueryResp> queryList(${Domain}QueryReq ${domain}QueryReq) {
         ${Domain}Example ${domain}Example = new ${Domain}Example();
         ${Domain}Example.Criteria criteria = ${domain}Example.createCriteria();
-        PageHelper.startPage(${domain}QueryDTO.getPage(), ${domain}QueryDTO.getSize());
+        PageHelper.startPage(${domain}QueryReq.getPage(), ${domain}QueryReq.getSize());
         List<${Domain}> ${domain}s = ${domain}Mapper.selectByExample(${domain}Example);
 
         PageInfo<${Domain}> pageInfo = new PageInfo<>(${domain}s);

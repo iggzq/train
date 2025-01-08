@@ -37,7 +37,7 @@
         </template>
     </a-table>
     <#if !readOnly>
-        <a-modal v-model:visible="visible" title="${tableNameCn}" @ok="handleOk" ok-text="确认" cancel-text="取消">
+        <a-modal v-model:visible="visible" title="${tableNameComment}" @ok="handleOk" ok-text="确认" cancel-text="取消">
             <a-form :model="${domain}" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
                 <#list fieldList as field>
                     <#if field.name!="id" && field.nameHump!="createTime" && field.nameHump!="updateTime">

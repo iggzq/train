@@ -1,4 +1,4 @@
-package com.study.train.${module}.dto;
+package com.study.train.${module}.req;
 
 <#list typeSet as type>
     <#if type=='Date'>
@@ -13,7 +13,7 @@ package com.study.train.${module}.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class ${Domain}SaveDTO {
+public class ${Domain}QueryReq {
 
 <#list fieldList as field>
     /**

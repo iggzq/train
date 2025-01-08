@@ -26,20 +26,26 @@ public class ServerGenerate {
 
     public static void main(String[] args) throws Exception {
 
+        // 1. 获取generator-config-{}.xml里的{}值
         String generatorPath = getGeneratorPath();
-
+        // 2. 将1获取到的{}值拼接到serviceToPath中，形成完整待生成代码的模块路径
         moduleName = generatorPath.replace("src/main/resources/generator-config-", "").replace(".xml", "");
         System.out.println("moduleName:" + moduleName);
         serviceToPath = serviceToPath.replace("[module]", moduleName);
         new File(serviceToPath).mkdirs();
         System.out.println(serviceToPath);
+
+        // 3.读取加载generator-config-{}.xml文件
         Document document = new SAXReader().read("generator/" + generatorPath);
+
+        // 4.获取generator-config-{}.xml文件里的tableName和domainObjectName两个表参数
         Node table = document.selectSingleNode("//table");
         System.out.println(table);
         Node tableName = table.selectSingleNode("@tableName");
         Node domainObjectName = table.selectSingleNode("@domainObjectName");
         System.out.println(tableName.getText() + "/" + domainObjectName.getText());
 
+        // 5.获取generator-config-{}.xml里的connectionURL、userId、password三个数据库参数
         Node connectionURL = document.selectSingleNode("//@connectionURL");
         Node userId = document.selectSingleNode("//@userId");
         Node password = document.selectSingleNode("//@password");
@@ -52,12 +58,13 @@ public class ServerGenerate {
         DbUtil.password = password.getText();
 
 
-        //获取表名do_main,实体类名Domain,业务类前缀domain
+        // 6.获取表名do_main,实体类名Domain,业务类前缀domain
         String Domain = domainObjectName.getText();
         String domain = Domain.substring(0, 1).toLowerCase() + Domain.substring(1);
         String do_main = tableName.getText().replaceAll("_", "-");
 
-        String tableNameCn = DbUtil.getTableComment(tableName.getText());
+        // 7.获取表注释,字段信息，以及字段类型集合
+        String tableNameComment = DbUtil.getTableComment(tableName.getText());
         List<Field> fieldList = DbUtil.getColumnByTableName(tableName.getText());
         Set<String> typeSet = getJavaTypes(fieldList);
 
@@ -68,10 +75,11 @@ public class ServerGenerate {
         param.put("do_main", do_main);
         param.put("fieldList", fieldList);
         param.put("typeSet", typeSet);
-        param.put("tableNameCn", tableNameCn);
+        param.put("tableNameComment", tableNameComment);
         param.put("readOnly", readOnly);
         System.out.println("组装参数：" + param);
 
+        // 8.生成代码
         generateCode(Domain, param, "service", "service");
         generateCode(Domain, param, "controller/admin", "adminController");
         generateCode(Domain, param, "dto", "saveDTO");
