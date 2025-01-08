@@ -1,7 +1,7 @@
 package com.study.train.generator.server;
 
 import com.study.train.generator.util.DbUtil;
-import com.study.train.generator.util.Field;
+import com.study.train.generator.util.entity.Field;
 import com.study.train.generator.util.FreeMarkerUtil;
 import freemarker.template.TemplateException;
 import org.dom4j.Document;
@@ -82,8 +82,8 @@ public class ServerGenerate {
         // 8.生成代码
         generateCode(Domain, param, "service", "service");
         generateCode(Domain, param, "controller/admin", "adminController");
-        generateCode(Domain, param, "dto", "saveDTO");
-        generateCode(Domain, param, "dto", "queryDTO");
+        generateCode(Domain, param, "req", "saveReq");
+        generateCode(Domain, param, "req", "queryReq");
         generateCode(Domain, param, "resp", "queryResp");
 
         genVue(do_main, param);

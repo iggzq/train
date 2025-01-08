@@ -3,6 +3,7 @@ package com.study.train.generator.util;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.study.train.generator.util.entity.Field;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -34,9 +35,6 @@ public class    DbUtil {
 
     /**
      * 获得表注释
-     * @param tableName
-     * @return
-     * @throws Exception
      */
     public static String getTableComment(String tableName) throws Exception {
         Connection conn = getConnection();
@@ -58,9 +56,6 @@ public class    DbUtil {
 
     /**
      * 获得所有列信息
-     * @param tableName
-     * @return
-     * @throws Exception
      */
     public static List<Field> getColumnByTableName(String tableName) throws Exception {
         List<Field> fieldList = new ArrayList<>();
