@@ -19,7 +19,7 @@ import com.study.train.business.enums.SeatColEnum;
 import com.study.train.business.enums.SeatTypeEnum;
 import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.resp.ConfirmOrderQueryResp;
-import com.study.train.common.context.LoginMemberContext;
+import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
 import com.study.train.common.req.MemberTicketReq;
@@ -42,6 +42,9 @@ import java.util.TimeZone;
 public class ConfirmOrderService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfirmOrderService.class);
+
+    @Resource
+    private LoginMemberHolder loginMemberHolder;
 
     @Resource
     ConfirmOrderMapper confirmOrderMapper;
@@ -103,7 +106,7 @@ public class ConfirmOrderService {
     public Long getExpireTime(ConfirmOrderDTO confirmOrderDTO) {
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
         confirmOrderExample.createCriteria()
-                .andMemberIdEqualTo(LoginMemberContext.getId())
+                .andMemberIdEqualTo(loginMemberHolder.getId())
                 .andTrainCodeEqualTo(confirmOrderDTO.getTrainCode())
                 .andDateEqualTo(confirmOrderDTO.getDate());
         Date createTime = confirmOrderMapper.selectByExample(confirmOrderExample).get(0).getCreateTime();
@@ -126,7 +129,7 @@ public class ConfirmOrderService {
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
         confirmOrderExample.createCriteria()
                 .andDateEqualTo(confirmOrderDTO.getDate())
-                .andMemberIdEqualTo(LoginMemberContext.getId())
+                .andMemberIdEqualTo(loginMemberHolder.getId())
                 .andTrainCodeEqualTo(confirmOrderDTO.getTrainCode());
         List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
         if (!confirmOrders.isEmpty()) {
@@ -141,7 +144,7 @@ public class ConfirmOrderService {
         long snowflakeNextId = SnowUtil.getSnowflakeNextId();
         ConfirmOrder confirmOrder = new ConfirmOrder();
         confirmOrder.setId(snowflakeNextId);
-        confirmOrder.setMemberId(LoginMemberContext.getId());
+        confirmOrder.setMemberId(loginMemberHolder.getId());
         confirmOrder.setDate(date);
         confirmOrder.setTrainCode(trainCode);
         confirmOrder.setStart(start);

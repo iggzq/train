@@ -9,7 +9,7 @@ import com.study.train.business.feign.MemberFeign;
 import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.mapper.DailyTrainStationSeatMapper;
 import com.study.train.business.mapper.customer.DailyTrainTicketMapperCust;
-import com.study.train.common.context.LoginMemberContext;
+import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.utils.SnowUtil;
@@ -26,6 +26,9 @@ import java.util.List;
 @Service
 public class AfterConfirmOrderService {
     private static final Logger LOG = LoggerFactory.getLogger(ConfirmOrderService.class);
+
+    @Resource
+    private LoginMemberHolder loginMemberHolder;
 
     @Resource
     private DailyTrainStationSeatMapper dailyTrainStationSeatMapper;
@@ -86,7 +89,7 @@ public class AfterConfirmOrderService {
             // 调用会员服务接口，为会员增加一张车票
             MemberTicketReq memberTicketReq = new MemberTicketReq();
             memberTicketReq.setId(SnowUtil.getSnowflakeNextId());
-            memberTicketReq.setMemberId(LoginMemberContext.getId());
+            memberTicketReq.setMemberId(loginMemberHolder.getId());
             memberTicketReq.setPassengerId(tickets.get(j).getPassengerId());
             memberTicketReq.setPassengerName(tickets.get(j).getPassengerName());
             memberTicketReq.setTrainDate(dailyTrainTicket.getDate());

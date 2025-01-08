@@ -30,11 +30,13 @@ public enum TrainTypeEnum {
 
     @Override
     public String toString() {
-        return "TrainTypeEnum{" +
-                "key='" + key + '\'' +
-                ", value='" + value + '\'' +
-                ", priceRate=" + priceRate +
-                '}';
+        return new StringBuilder()
+                .append("TrainTypeEnum{")
+                .append("key='").append(key).append('\'')
+                .append(", value='").append(value).append('\'')
+                .append(", priceRate=").append(priceRate)
+                .append('}')
+                .toString();
     }
 
     public BigDecimal getPriceRate() {
