@@ -46,25 +46,6 @@ import axios from "axios";
 const SEAT_COL_ARRAY = window.SEAT_COL_ARRAY;
 const SEAT_TYPE_ARRAY = window.SEAT_TYPE_ARRAY;
 const ORDER_STATUS = window.CONFIRM_ORDER_STATUS_ARRAY;
-// const visible = ref(false);
-// let ticket = ref({
-//   id: undefined,
-//   memberId: undefined,
-//   passengerId: undefined,
-//   passengerName: undefined,
-//   trainDate: undefined,
-//   trainCode: undefined,
-//   carriageIndex: undefined,
-//   seatRow: undefined,
-//   seatCol: undefined,
-//   startStation: undefined,
-//   startTime: undefined,
-//   endStation: undefined,
-//   endTime: undefined,
-//   seatType: undefined,
-//   createTime: undefined,
-//   updateTime: undefined,
-// });
 const tickets = ref([]);
 // 分页的三个属性名是固定的
 const pagination = ref({

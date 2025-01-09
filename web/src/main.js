@@ -40,6 +40,8 @@ axios.interceptors.response.use(function (response) {
         store.commit("setMember", {});
         notification.error({description: "未登录或登陆超时"});
         router.push('/login');
+    } else {
+        notification.error({description: '系统出错，请联系管理员！'})
     }
     return Promise.reject(error);
 })

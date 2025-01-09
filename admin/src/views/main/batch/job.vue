@@ -1,94 +1,88 @@
 <template>
-  <div class="job">
-    <p>
-      <a-button type="primary" @click="handleAdd()">
-        新增
-      </a-button>&nbsp;
-      <a-button type="primary" @click="handleQuery()">
-        刷新
-      </a-button>
-    </p>
-    <a-table :dataSource="jobs"
-             :columns="columns"
-             :loading="loading">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.dataIndex === 'operation'">
-          <a-space>
-            <a-popconfirm
-                title="手动执行会立即执行一次，确定执行？"
-                ok-text="是"
-                cancel-text="否"
-                @confirm="handleRun(record)"
-            >
-              <a-button type="primary" size="small">
-                手动执行
-              </a-button>
-            </a-popconfirm>
-            <a-popconfirm
-                title="确定重启？"
-                ok-text="是"
-                cancel-text="否"
-                @confirm="handleResume(record)"
-            >
-              <a-button v-show="record.state === 'PAUSED' || record.state === 'ERROR'" type="primary" size="small">
-                重启
-              </a-button>
-            </a-popconfirm>
-            <a-popconfirm
-                title="确定暂停？"
-                ok-text="是"
-                cancel-text="否"
-                @confirm="handlePause(record)"
-            >
-              <a-button v-show="record.state === 'NORMAL' || record.state === 'BLOCKED'" type="primary" size="small">
-                暂停
-              </a-button>
-            </a-popconfirm>
-            <a-button type="primary" @click="handleEdit(record)" size="small">
-              编辑
+  <a-space class="top_button">
+    <a-button type="primary" @click="handleQuery()">刷新</a-button>
+    <a-button type="primary" @click="handleAdd()">新增</a-button>&nbsp;
+  </a-space>
+  <a-table :dataSource="jobs"
+           :columns="columns"
+           :loading="loading">
+    <template #bodyCell="{ column, record }">
+      <template v-if="column.dataIndex === 'operation'">
+        <a-space>
+          <a-popconfirm
+              title="手动执行会立即执行一次，确定执行？"
+              ok-text="是"
+              cancel-text="否"
+              @confirm="handleRun(record)"
+          >
+            <a-button type="primary" size="small">
+              手动执行
             </a-button>
-            <a-popconfirm
-                title="删除后不可恢复，确认删除?"
-                ok-text="是"
-                cancel-text="否"
-                @confirm="handleDelete(record)"
-            >
-              <a-button type="danger" size="small">
-                删除
-              </a-button>
-            </a-popconfirm>
-          </a-space>
-        </template>
+          </a-popconfirm>
+          <a-popconfirm
+              title="确定重启？"
+              ok-text="是"
+              cancel-text="否"
+              @confirm="handleResume(record)"
+          >
+            <a-button v-show="record.state === 'PAUSED' || record.state === 'ERROR'" type="primary" size="small">
+              重启
+            </a-button>
+          </a-popconfirm>
+          <a-popconfirm
+              title="确定暂停？"
+              ok-text="是"
+              cancel-text="否"
+              @confirm="handlePause(record)"
+          >
+            <a-button v-show="record.state === 'NORMAL' || record.state === 'BLOCKED'" type="primary" size="small">
+              暂停
+            </a-button>
+          </a-popconfirm>
+          <a-button type="primary" @click="handleEdit(record)" size="small">
+            编辑
+          </a-button>
+          <a-popconfirm
+              title="删除后不可恢复，确认删除?"
+              ok-text="是"
+              cancel-text="否"
+              @confirm="handleDelete(record)"
+          >
+            <a-button type="danger" size="small">
+              删除
+            </a-button>
+          </a-popconfirm>
+        </a-space>
       </template>
-    </a-table>
+    </template>
+  </a-table>
 
-    <a-modal
-        title="用户"
-        v-model:visible="modalVisible"
-        :confirm-loading="modalLoading"
-        @ok="handleModalOk"
-    >
-      <a-form :model="job" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-        <a-form-item label="类名">
-          <a-input v-model:value="job.name"/>
-        </a-form-item>
-        <a-form-item label="描述">
-          <a-input v-model:value="job.description"/>
-        </a-form-item>
-        <a-form-item label="分组">
-          <a-input v-model:value="job.group" :disabled="!!job.state"/>
-        </a-form-item>
-        <a-form-item label="表达式">
-          <a-input v-model:value="job.cronExpression"/>
-          <div class="ant-alert ant-alert-success">
-            每5秒执行一次：0/5 * * * * ?
-            <br>
-            每5分钟执行一次：* 0/5 * * * ?
-          </div>
-        </a-form-item>
-      </a-form>
-    </a-modal>
-  </div>
+  <a-modal
+      title="用户"
+      v-model:visible="modalVisible"
+      :confirm-loading="modalLoading"
+      @ok="handleModalOk"
+  >
+    <a-form :model="job" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+      <a-form-item label="类名">
+        <a-input v-model:value="job.name"/>
+      </a-form-item>
+      <a-form-item label="描述">
+        <a-input v-model:value="job.description"/>
+      </a-form-item>
+      <a-form-item label="分组">
+        <a-input v-model:value="job.group" :disabled="!!job.state"/>
+      </a-form-item>
+      <a-form-item label="表达式">
+        <a-input v-model:value="job.cronExpression"/>
+        <div class="ant-alert ant-alert-success">
+          每5秒执行一次：0/5 * * * * ?
+          <br>
+          每5分钟执行一次：* 0/5 * * * ?
+        </div>
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 
 <script setup>
@@ -136,7 +130,7 @@ const handleQuery = () => {
     } else {
       notification.error({description: data.message});
     }
-  });
+  })
 };
 
 // -------- 表单 ---------
@@ -256,5 +250,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.top_button {
+  position: relative;
+  display: flex;
+}
 </style>
 

@@ -2,7 +2,7 @@ import {createApp} from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import Antd from 'ant-design-vue';
+import Antd, {notification} from 'ant-design-vue';
 import 'ant-design-vue/dist/antd.css';
 import * as Icons from '@ant-design/icons-vue';
 import axios from 'axios';
@@ -21,15 +21,18 @@ axios.interceptors.request.use(function (config) {
     console.log("请求参数：", config);
     return config;
 }, error => {
-    return Promise.reject(error);
+    console.log(error)
+    notification.error({description: '系统出错，请联系管理员！'})
 })
 
 axios.interceptors.response.use(function (response) {
     console.log("返回结果：", response);
     return response;
 }, error => {
+    console.log(error)
+    notification.error({description: '系统出错，请联系管理员！'})
     return Promise.reject(error);
 })
 axios.defaults.baseURL = process.env.VUE_APP_SERVER
-// console.log('环境：', process.env.NODE_ENV)
-// console.log('后端地址：', process.env.VUE_APP_SERVER)
+console.log('环境：', process.env.NODE_ENV)
+console.log('后端地址：', process.env.VUE_APP_SERVER)
