@@ -1,7 +1,7 @@
 package com.study.train.batch.job;
 
 import cn.hutool.core.date.DateUtil;
-import com.study.train.batch.feign.BussinessFeign;
+import com.study.train.batch.feign.BusinessFeign;
 import jakarta.annotation.Resource;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -14,12 +14,12 @@ import java.util.Date;
 public class DailyTrainJob implements Job {
 
     @Resource
-    BussinessFeign bussinessFeign;
+    BusinessFeign businessFeign;
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         Date date = new Date();
         Date expireTime = DateUtil.offsetDay(date, 15).toJdkDate();
-        bussinessFeign.genDaily(expireTime);
+        businessFeign.genDaily(expireTime);
     }
 }

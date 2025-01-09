@@ -62,8 +62,10 @@
       v-model:visible="modalVisible"
       :confirm-loading="modalLoading"
       @ok="handleModalOk"
+      ok-text="保存"
+      cancel-text="取消"
   >
-    <a-form :model="job" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+    <a-form :model="job" :label-col="{ span: 3 }" :wrapper-col="{ span: 18 }" ok-text="保存" cancel-text="取消">
       <a-form-item label="类名">
         <a-input v-model:value="job.name"/>
       </a-form-item>
