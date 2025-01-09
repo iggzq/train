@@ -2,8 +2,8 @@ package com.study.train.business.controller.admin;
 
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.resp.PageResp;
-import com.study.train.business.dto.DailyTrainStationQueryDTO;
-import com.study.train.business.dto.DailyTrainStationSaveDTO;
+import com.study.train.business.req.DailyTrainStationQueryReq;
+import com.study.train.business.req.DailyTrainStationSaveReq;
 import com.study.train.business.resp.DailyTrainStationQueryResp;
 import com.study.train.business.service.DailyTrainStationService;
 import jakarta.annotation.Resource;
@@ -19,14 +19,14 @@ public class DailyTrainStationAdminController {
 
 
     @PostMapping("/save")
-    public CommonResp<Object> register(@Valid @RequestBody DailyTrainStationSaveDTO DailyTrainStationSaveDTO) {
-        DailyTrainStationService.save(DailyTrainStationSaveDTO);
+    public CommonResp<Object> register(@Valid @RequestBody DailyTrainStationSaveReq DailyTrainStationSaveReq) {
+        DailyTrainStationService.save(DailyTrainStationSaveReq);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<DailyTrainStationQueryResp>> queryList(@Valid DailyTrainStationQueryDTO DailyTrainStationQueryDTO) {
-        PageResp<DailyTrainStationQueryResp> list = DailyTrainStationService.queryList(DailyTrainStationQueryDTO);
+    public CommonResp<PageResp<DailyTrainStationQueryResp>> queryList(@Valid DailyTrainStationQueryReq DailyTrainStationQueryReq) {
+        PageResp<DailyTrainStationQueryResp> list = DailyTrainStationService.queryList(DailyTrainStationQueryReq);
         return new CommonResp<>(list);
     }
 

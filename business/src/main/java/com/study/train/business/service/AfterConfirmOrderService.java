@@ -3,7 +3,7 @@ package com.study.train.business.service;
 import com.study.train.business.domain.ConfirmOrder;
 import com.study.train.business.domain.DailyTrainStationSeat;
 import com.study.train.business.domain.DailyTrainTicket;
-import com.study.train.business.dto.ConfirmOrderTicketDTO;
+import com.study.train.business.req.ConfirmOrderTicketReq;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.feign.MemberFeign;
 import com.study.train.business.mapper.ConfirmOrderMapper;
@@ -40,7 +40,7 @@ public class AfterConfirmOrderService {
     private ConfirmOrderMapper confirmOrderMapper;
 
     @Transactional
-    public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketDTO> tickets,ConfirmOrder confirmOrder,float amount) {
+    public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketReq> tickets, ConfirmOrder confirmOrder, float amount) {
         List<MemberTicketReq> memberTicketReqs = new ArrayList<>();
         for (int j = 0; j < finalSeats.size(); j++) {
             DailyTrainStationSeat dailyTrainSeat = finalSeats.get(j);

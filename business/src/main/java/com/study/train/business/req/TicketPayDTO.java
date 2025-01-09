@@ -1,4 +1,4 @@
-package com.study.train.business.dto;
+package com.study.train.business.req;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -17,4 +17,5 @@ public class TicketPayDTO {
     private String amount;
     //商品描述
     private String subject;
+
 }

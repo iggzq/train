@@ -1,7 +1,7 @@
 package com.study.train.business.controller.admin;
 
-import com.study.train.business.dto.DailyTrainStationCarriageQueryDTO;
-import com.study.train.business.dto.DailyTrainStationCarriageSaveDTO;
+import com.study.train.business.req.DailyTrainStationCarriageQueryReq;
+import com.study.train.business.req.DailyTrainStationCarriageSaveReq;
 import com.study.train.business.resp.DailyTrainStationCarriageQueryResp;
 import com.study.train.business.service.DailyTrainStationCarriageService;
 import com.study.train.common.resp.CommonResp;
@@ -19,14 +19,14 @@ public class DailyTrainStationCarriageAdminController {
 
 
     @PostMapping("/save")
-    public CommonResp<Object> register(@Valid @RequestBody DailyTrainStationCarriageSaveDTO DailyTrainStationCarriageSaveDTO) {
-        DailyTrainStationCarriageService.save(DailyTrainStationCarriageSaveDTO);
+    public CommonResp<Object> register(@Valid @RequestBody DailyTrainStationCarriageSaveReq DailyTrainStationCarriageSaveReq) {
+        DailyTrainStationCarriageService.save(DailyTrainStationCarriageSaveReq);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<DailyTrainStationCarriageQueryResp>> queryList(@Valid DailyTrainStationCarriageQueryDTO DailyTrainStationCarriageQueryDTO) {
-        PageResp<DailyTrainStationCarriageQueryResp> list = DailyTrainStationCarriageService.queryList(DailyTrainStationCarriageQueryDTO);
+    public CommonResp<PageResp<DailyTrainStationCarriageQueryResp>> queryList(@Valid DailyTrainStationCarriageQueryReq DailyTrainStationCarriageQueryReq) {
+        PageResp<DailyTrainStationCarriageQueryResp> list = DailyTrainStationCarriageService.queryList(DailyTrainStationCarriageQueryReq);
         return new CommonResp<>(list);
     }
 

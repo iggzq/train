@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
-import com.study.train.business.dto.*;
+import com.study.train.business.req.*;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.enums.SeatColEnum;
 import com.study.train.business.enums.SeatTypeEnum;
@@ -65,9 +65,9 @@ public class ConfirmOrderService {
     private PaymentService paymentService;
 
 
-    public void save(ConfirmOrderSaveDTO confirmOrderSaveDTO) {
+    public void save(ConfirmOrderSaveReq confirmOrderSaveReq) {
         DateTime now = new DateTime();
-        ConfirmOrder confirmOrder = BeanUtil.copyProperties(confirmOrderSaveDTO, ConfirmOrder.class);
+        ConfirmOrder confirmOrder = BeanUtil.copyProperties(confirmOrderSaveReq, ConfirmOrder.class);
         if (ObjectUtil.isNull(confirmOrder.getId())) {
             confirmOrder.setId(SnowUtil.getSnowflakeNextId());
             confirmOrder.setCreateTime(now);
@@ -80,10 +80,10 @@ public class ConfirmOrderService {
 
     }
 
-    public PageResp<ConfirmOrderQueryResp> queryList(ConfirmOrderQueryDTO confirmOrderQueryDTO) {
+    public PageResp<ConfirmOrderQueryResp> queryList(ConfirmOrderQueryReq confirmOrderQueryReq) {
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
         ConfirmOrderExample.Criteria criteria = confirmOrderExample.createCriteria();
-        PageHelper.startPage(confirmOrderQueryDTO.getPage(), confirmOrderQueryDTO.getSize());
+        PageHelper.startPage(confirmOrderQueryReq.getPage(), confirmOrderQueryReq.getSize());
         List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
 
         PageInfo<ConfirmOrder> pageInfo = new PageInfo<>(confirmOrders);
@@ -103,12 +103,12 @@ public class ConfirmOrderService {
         confirmOrderMapper.deleteByPrimaryKey(id);
     }
 
-    public Long getExpireTime(ConfirmOrderDTO confirmOrderDTO) {
+    public Long getExpireTime(ConfirmOrderReq confirmOrderReq) {
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
         confirmOrderExample.createCriteria()
                 .andMemberIdEqualTo(loginMemberHolder.getId())
-                .andTrainCodeEqualTo(confirmOrderDTO.getTrainCode())
-                .andDateEqualTo(confirmOrderDTO.getDate());
+                .andTrainCodeEqualTo(confirmOrderReq.getTrainCode())
+                .andDateEqualTo(confirmOrderReq.getDate());
         Date createTime = confirmOrderMapper.selectByExample(confirmOrderExample).get(0).getCreateTime();
         System.out.println(createTime);
         LocalDateTime now = LocalDateTimeUtil.now();
@@ -123,23 +123,23 @@ public class ConfirmOrderService {
     }
 
 
-    public TicketPayDTO saveConfirm(ConfirmOrderDTO confirmOrderDTO) throws JsonProcessingException {
+    public TicketPayDTO saveConfirm(ConfirmOrderReq confirmOrderReq) throws JsonProcessingException {
         //检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
-        List<ConfirmOrderTicketDTO> tickets = confirmOrderDTO.getTickets();
+        List<ConfirmOrderTicketReq> tickets = confirmOrderReq.getTickets();
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
         confirmOrderExample.createCriteria()
-                .andDateEqualTo(confirmOrderDTO.getDate())
+                .andDateEqualTo(confirmOrderReq.getDate())
                 .andMemberIdEqualTo(loginMemberHolder.getId())
-                .andTrainCodeEqualTo(confirmOrderDTO.getTrainCode());
+                .andTrainCodeEqualTo(confirmOrderReq.getTrainCode());
         List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
         if (!confirmOrders.isEmpty()) {
             throw new BusinessException(BusinessExceptionEnum.ORDER_ALREADY_EXIST);
         }
         //保存订单到订单信息表
-        Date date = confirmOrderDTO.getDate();
-        String trainCode = confirmOrderDTO.getTrainCode();
-        String start = confirmOrderDTO.getStart();
-        String end = confirmOrderDTO.getEnd();
+        Date date = confirmOrderReq.getDate();
+        String trainCode = confirmOrderReq.getTrainCode();
+        String start = confirmOrderReq.getStart();
+        String end = confirmOrderReq.getEnd();
         DateTime now = DateTime.now();
         long snowflakeNextId = SnowUtil.getSnowflakeNextId();
         ConfirmOrder confirmOrder = new ConfirmOrder();
@@ -149,7 +149,7 @@ public class ConfirmOrderService {
         confirmOrder.setTrainCode(trainCode);
         confirmOrder.setStart(start);
         confirmOrder.setEnd(end);
-        confirmOrder.setDailyTrainTicketId(confirmOrderDTO.getDailyTrainTicketId());
+        confirmOrder.setDailyTrainTicketId(confirmOrderReq.getDailyTrainTicketId());
         confirmOrder.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
         confirmOrder.setCreateTime(now);
         confirmOrder.setUpdateTime(now);
@@ -158,27 +158,27 @@ public class ConfirmOrderService {
 
         //查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
         DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
-        Float totalMoney = reduceTicketNum(confirmOrderDTO, dailyTrainTicket);
+        Float totalMoney = reduceTicketNum(confirmOrderReq, dailyTrainTicket);
         //最终选座结果
         List<DailyTrainStationSeat> finalSeatList = new ArrayList<>();
 
-        ConfirmOrderTicketDTO confirmOrderTicketDTO = tickets.get(0);
-        if (StrUtil.isBlank(confirmOrderTicketDTO.getSeat())) {
+        ConfirmOrderTicketReq confirmOrderTicketReq = tickets.get(0);
+        if (StrUtil.isBlank(confirmOrderTicketReq.getSeat())) {
             LOG.info("本次购票没有选座");
-            for (ConfirmOrderTicketDTO ticket : tickets) {
+            for (ConfirmOrderTicketReq ticket : tickets) {
                 getSeat(finalSeatList, date, trainCode, ticket.getSeatTypeCode(), null, null, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
             }
         } else {
             LOG.info("本次购票有选座");
-            List<SeatColEnum> seatColEnumList = SeatColEnum.getColsByType(confirmOrderTicketDTO.getSeatTypeCode());
+            List<SeatColEnum> seatColEnumList = SeatColEnum.getColsByType(confirmOrderTicketReq.getSeatTypeCode());
             List<Integer> offsetList = getOffsetList(seatColEnumList, tickets);
 
-            getSeat(finalSeatList, date, trainCode, confirmOrderTicketDTO.getSeatTypeCode(),
-                    confirmOrderTicketDTO.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
+            getSeat(finalSeatList, date, trainCode, confirmOrderTicketReq.getSeatTypeCode(),
+                    confirmOrderTicketReq.getSeat().split("")[0], offsetList, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
         }
         List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets,confirmOrder,totalMoney);
 
-        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 60, finalSeatList, dailyTrainTicket, confirmOrderDTO, memberTicketReqs);
+        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 60, finalSeatList, dailyTrainTicket, confirmOrderReq, memberTicketReqs);
         TicketPayDTO ticketPayDTO = new TicketPayDTO();
         ticketPayDTO.setAmount(String.valueOf(totalMoney));
         ticketPayDTO.setTradeName("车票");
@@ -187,7 +187,7 @@ public class ConfirmOrderService {
     }
 
     @NotNull
-    private static List<Integer> getOffsetList(List<SeatColEnum> seatColEnumList, List<ConfirmOrderTicketDTO> tickets) {
+    private static List<Integer> getOffsetList(List<SeatColEnum> seatColEnumList, List<ConfirmOrderTicketReq> tickets) {
         List<String> refreshSeatList = new ArrayList<>();
         for (int i = 1; i <= 2; i++) {
             for (SeatColEnum seatColEnum : seatColEnumList) {
@@ -197,7 +197,7 @@ public class ConfirmOrderService {
         //绝对偏移值，即：在参照座位列表中，找到当前座位的索引
         List<Integer> absoluteOffsetList = new ArrayList<>();
         List<Integer> offsetList = new ArrayList<>();
-        for (ConfirmOrderTicketDTO ticket : tickets) {
+        for (ConfirmOrderTicketReq ticket : tickets) {
             int index = refreshSeatList.indexOf(ticket.getSeat());
             absoluteOffsetList.add(index);
         }
@@ -296,9 +296,9 @@ public class ConfirmOrderService {
 
     }
 
-    private Float reduceTicketNum(ConfirmOrderDTO confirmOrderDTO, DailyTrainTicket dailyTrainTicket) {
+    private Float reduceTicketNum(ConfirmOrderReq confirmOrderReq, DailyTrainTicket dailyTrainTicket) {
         Float totalMoney = 0f;
-        for (ConfirmOrderTicketDTO ticketReq : confirmOrderDTO.getTickets()) {
+        for (ConfirmOrderTicketReq ticketReq : confirmOrderReq.getTickets()) {
             String seatTypeCode = ticketReq.getSeatTypeCode();
             SeatTypeEnum seatTypeEnum = EnumUtil.getBy(SeatTypeEnum::getKey, seatTypeCode);
             switch (seatTypeEnum) {

@@ -9,8 +9,8 @@ import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.DailyTrainStation;
 import com.study.train.business.domain.DailyTrainStationExample;
 import com.study.train.business.domain.TrainStation;
-import com.study.train.business.dto.DailyTrainStationQueryDTO;
-import com.study.train.business.dto.DailyTrainStationSaveDTO;
+import com.study.train.business.req.DailyTrainStationQueryReq;
+import com.study.train.business.req.DailyTrainStationSaveReq;
 import com.study.train.business.mapper.DailyTrainStationMapper;
 import com.study.train.business.resp.DailyTrainStationQueryResp;
 import com.study.train.common.resp.PageResp;
@@ -34,9 +34,9 @@ public class DailyTrainStationService {
     @Resource
     TrainStationService trainStationService;
 
-    public void save(DailyTrainStationSaveDTO dailyTrainStationSaveDTO) {
+    public void save(DailyTrainStationSaveReq dailyTrainStationSaveReq) {
         DateTime now = new DateTime();
-        DailyTrainStation dailyTrainStation = BeanUtil.copyProperties(dailyTrainStationSaveDTO, DailyTrainStation.class);
+        DailyTrainStation dailyTrainStation = BeanUtil.copyProperties(dailyTrainStationSaveReq, DailyTrainStation.class);
         if (ObjectUtil.isNull(dailyTrainStation.getId())) {
             dailyTrainStation.setId(SnowUtil.getSnowflakeNextId());
             dailyTrainStation.setCreateTime(now);
@@ -49,18 +49,18 @@ public class DailyTrainStationService {
 
     }
 
-    public PageResp<DailyTrainStationQueryResp> queryList(DailyTrainStationQueryDTO dailyTrainStationQueryDTO) {
+    public PageResp<DailyTrainStationQueryResp> queryList(DailyTrainStationQueryReq dailyTrainStationQueryReq) {
         DailyTrainStationExample dailyTrainStationExample = new DailyTrainStationExample();
         dailyTrainStationExample.setOrderByClause("date desc");
         DailyTrainStationExample.Criteria criteria = dailyTrainStationExample.createCriteria();
-        if (ObjectUtil.isNotNull(dailyTrainStationQueryDTO.getDate())) {
-            criteria.andDateEqualTo(dailyTrainStationQueryDTO.getDate());
+        if (ObjectUtil.isNotNull(dailyTrainStationQueryReq.getDate())) {
+            criteria.andDateEqualTo(dailyTrainStationQueryReq.getDate());
         }
 
-        if (ObjectUtil.isNotEmpty(dailyTrainStationQueryDTO.getTrainCode())) {
-            criteria.andTrainCodeEqualTo(dailyTrainStationQueryDTO.getTrainCode());
+        if (ObjectUtil.isNotEmpty(dailyTrainStationQueryReq.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(dailyTrainStationQueryReq.getTrainCode());
         }
-        PageHelper.startPage(dailyTrainStationQueryDTO.getPage(), dailyTrainStationQueryDTO.getSize());
+        PageHelper.startPage(dailyTrainStationQueryReq.getPage(), dailyTrainStationQueryReq.getSize());
         List<DailyTrainStation> dailyTrainStations = dailyTrainStationMapper.selectByExample(dailyTrainStationExample);
 
         PageInfo<DailyTrainStation> pageInfo = new PageInfo<>(dailyTrainStations);

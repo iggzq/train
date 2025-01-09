@@ -1,7 +1,7 @@
 package com.study.train.business.controller.admin;
 
-import com.study.train.business.dto.TrainSeatQueryDTO;
-import com.study.train.business.dto.TrainSeatSaveDTO;
+import com.study.train.business.req.TrainSeatQueryReq;
+import com.study.train.business.req.TrainSeatSaveReq;
 import com.study.train.business.resp.TrainSeatQueryResp;
 import com.study.train.business.service.TrainSeatService;
 import com.study.train.common.resp.CommonResp;
@@ -19,14 +19,14 @@ public class TrainSeatAdminController {
 
 
     @PostMapping("/save")
-    public CommonResp<Object> register(@Valid @RequestBody TrainSeatSaveDTO TrainSeatSaveDTO) {
-        TrainSeatService.save(TrainSeatSaveDTO);
+    public CommonResp<Object> register(@Valid @RequestBody TrainSeatSaveReq TrainSeatSaveReq) {
+        TrainSeatService.save(TrainSeatSaveReq);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<TrainSeatQueryResp>> queryList(@Valid TrainSeatQueryDTO TrainSeatQueryDTO) {
-        PageResp<TrainSeatQueryResp> list = TrainSeatService.queryList(TrainSeatQueryDTO);
+    public CommonResp<PageResp<TrainSeatQueryResp>> queryList(@Valid TrainSeatQueryReq TrainSeatQueryReq) {
+        PageResp<TrainSeatQueryResp> list = TrainSeatService.queryList(TrainSeatQueryReq);
         return new CommonResp<>(list);
     }
 

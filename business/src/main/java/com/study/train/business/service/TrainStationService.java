@@ -8,8 +8,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.TrainStation;
 import com.study.train.business.domain.TrainStationExample;
-import com.study.train.business.dto.TrainStationQueryDTO;
-import com.study.train.business.dto.TrainStationSaveDTO;
+import com.study.train.business.req.TrainStationQueryReq;
+import com.study.train.business.req.TrainStationSaveReq;
 import com.study.train.business.mapper.TrainStationMapper;
 import com.study.train.business.resp.TrainStationQueryResp;
 import com.study.train.common.exception.BusinessException;
@@ -31,11 +31,11 @@ public class TrainStationService {
     @Resource
     TrainStationMapper trainStationMapper;
 
-    public void save(TrainStationSaveDTO trainStationSaveDTO) {
+    public void save(TrainStationSaveReq trainStationSaveReq) {
         DateTime now = new DateTime();
-        TrainStation trainStation = BeanUtil.copyProperties(trainStationSaveDTO, TrainStation.class);
+        TrainStation trainStation = BeanUtil.copyProperties(trainStationSaveReq, TrainStation.class);
         if (ObjectUtil.isNull(trainStation.getId())) {
-            TrainStation byUnique = selectByUnique(trainStationSaveDTO.getTrainCode(), trainStationSaveDTO.getIndex());
+            TrainStation byUnique = selectByUnique(trainStationSaveReq.getTrainCode(), trainStationSaveReq.getIndex());
             if (ObjectUtil.isNotNull(byUnique)) {
                 throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_STATION_INDEX_UNIQUE_ERROR);
             }
@@ -74,14 +74,14 @@ public class TrainStationService {
         }
     }
 
-    public PageResp<TrainStationQueryResp> queryList(TrainStationQueryDTO trainStationQueryDTO) {
+    public PageResp<TrainStationQueryResp> queryList(TrainStationQueryReq trainStationQueryReq) {
         TrainStationExample trainStationExample = new TrainStationExample();
         trainStationExample.setOrderByClause("`train_code` desc,`index` asc");
         TrainStationExample.Criteria criteria = trainStationExample.createCriteria();
-        if (ObjectUtil.isNotEmpty(trainStationQueryDTO.getTrainCode())) {
-            criteria.andTrainCodeEqualTo(trainStationQueryDTO.getTrainCode());
+        if (ObjectUtil.isNotEmpty(trainStationQueryReq.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(trainStationQueryReq.getTrainCode());
         }
-        PageHelper.startPage(trainStationQueryDTO.getPage(), trainStationQueryDTO.getSize());
+        PageHelper.startPage(trainStationQueryReq.getPage(), trainStationQueryReq.getSize());
         List<TrainStation> trainStations = trainStationMapper.selectByExample(trainStationExample);
 
         PageInfo<TrainStation> pageInfo = new PageInfo<>(trainStations);

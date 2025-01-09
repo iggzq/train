@@ -1,8 +1,8 @@
 package com.study.train.business.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.study.train.business.dto.ConfirmOrderDTO;
-import com.study.train.business.dto.TicketPayDTO;
+import com.study.train.business.req.ConfirmOrderReq;
+import com.study.train.business.req.TicketPayDTO;
 import com.study.train.business.service.ConfirmOrderService;
 import com.study.train.common.resp.CommonResp;
 import jakarta.annotation.Resource;
@@ -18,8 +18,8 @@ public class ConfirmOrderController {
 
 
     @PostMapping("/save-order")
-    public CommonResp<TicketPayDTO> saveOrder(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) throws JsonProcessingException {
-        TicketPayDTO ticketPayDTO = confirmOrderService.saveConfirm(confirmOrderDTO);
+    public CommonResp<TicketPayDTO> saveOrder(@Valid @RequestBody ConfirmOrderReq confirmOrderReq) throws JsonProcessingException {
+        TicketPayDTO ticketPayDTO = confirmOrderService.saveConfirm(confirmOrderReq);
         return new CommonResp<>(ticketPayDTO);
     }
 
@@ -28,8 +28,8 @@ public class ConfirmOrderController {
      * @return 秒为单位
      */
     @PostMapping("/get-expire-time")
-    public CommonResp<Long> getExpireTime(@Valid @RequestBody ConfirmOrderDTO confirmOrderDTO) {
-        Long expireTime = confirmOrderService.getExpireTime(confirmOrderDTO);
+    public CommonResp<Long> getExpireTime(@Valid @RequestBody ConfirmOrderReq confirmOrderReq) {
+        Long expireTime = confirmOrderService.getExpireTime(confirmOrderReq);
         return new CommonResp<>(expireTime);
     }
 

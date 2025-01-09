@@ -7,11 +7,11 @@ import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
+import com.study.train.business.req.TrainSeatQueryReq;
 import com.study.train.business.enums.SeatColEnum;
 import com.study.train.common.utils.SnowUtil;
 import com.study.train.common.resp.PageResp;
-import com.study.train.business.dto.TrainSeatQueryDTO;
-import com.study.train.business.dto.TrainSeatSaveDTO;
+import com.study.train.business.req.TrainSeatSaveReq;
 import com.study.train.business.mapper.TrainSeatMapper;
 import com.study.train.business.resp.TrainSeatQueryResp;
 import jakarta.annotation.Resource;
@@ -34,9 +34,9 @@ public class TrainSeatService {
     @Resource
     TrainCarriageService trainCarriageService;
 
-    public void save(TrainSeatSaveDTO trainSeatSaveDTO) {
+    public void save(TrainSeatSaveReq trainSeatSaveReq) {
         DateTime now = DateTime.now();
-        TrainSeat trainSeat = BeanUtil.copyProperties(trainSeatSaveDTO, TrainSeat.class);
+        TrainSeat trainSeat = BeanUtil.copyProperties(trainSeatSaveReq, TrainSeat.class);
         if (ObjectUtil.isNull(trainSeat.getId())) {
             trainSeat.setId(SnowUtil.getSnowflakeNextId());
             trainSeat.setCreateTime(now);
@@ -49,13 +49,13 @@ public class TrainSeatService {
 
     }
 
-    public PageResp<TrainSeatQueryResp> queryList(TrainSeatQueryDTO trainSeatQueryDTO) {
+    public PageResp<TrainSeatQueryResp> queryList(TrainSeatQueryReq trainSeatQueryReq) {
         TrainSeatExample trainSeatExample = new TrainSeatExample();
         TrainSeatExample.Criteria criteria = trainSeatExample.createCriteria();
-        if (ObjectUtil.isNotEmpty(trainSeatQueryDTO.getTrainCode())) {
-            criteria.andTrainCodeEqualTo(trainSeatQueryDTO.getTrainCode());
+        if (ObjectUtil.isNotEmpty(trainSeatQueryReq.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(trainSeatQueryReq.getTrainCode());
         }
-        PageHelper.startPage(trainSeatQueryDTO.getPage(), trainSeatQueryDTO.getSize());
+        PageHelper.startPage(trainSeatQueryReq.getPage(), trainSeatQueryReq.getSize());
         List<TrainSeat> trainSeats = trainSeatMapper.selectByExample(trainSeatExample);
 
         PageInfo<TrainSeat> pageInfo = new PageInfo<>(trainSeats);
@@ -116,7 +116,9 @@ public class TrainSeatService {
             }
         }
         // 保存到数据库中
-        trainSeatMapper.insertBatch(trainSeats);
+        int i = trainSeatMapper.insertBatch(trainSeats);
+        // 打印日志
+        LOG.info("生成座位成功，车次：{}，数量：{}", trainCode, i);
     }
 
     public List<TrainSeat> selectByTrainCode(String trainCode) {

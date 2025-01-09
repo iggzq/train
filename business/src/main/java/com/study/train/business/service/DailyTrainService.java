@@ -9,8 +9,8 @@ import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.DailyTrain;
 import com.study.train.business.domain.DailyTrainExample;
 import com.study.train.business.domain.Train;
-import com.study.train.business.dto.DailyTrainQueryDTO;
-import com.study.train.business.dto.DailyTrainSaveDTO;
+import com.study.train.business.req.DailyTrainQueryReq;
+import com.study.train.business.req.DailyTrainSaveReq;
 import com.study.train.business.mapper.DailyTrainMapper;
 import com.study.train.business.resp.DailyTrainQueryResp;
 import com.study.train.common.resp.PageResp;
@@ -47,9 +47,9 @@ public class DailyTrainService {
     @Resource
     DailyTrainTicketService dailyTrainTicketService;
 
-    public void save(DailyTrainSaveDTO dailyTrainSaveDTO) {
+    public void save(DailyTrainSaveReq dailyTrainSaveReq) {
         DateTime now = new DateTime();
-        DailyTrain dailyTrain = BeanUtil.copyProperties(dailyTrainSaveDTO, DailyTrain.class);
+        DailyTrain dailyTrain = BeanUtil.copyProperties(dailyTrainSaveReq, DailyTrain.class);
         if (ObjectUtil.isNull(dailyTrain.getId())) {
             dailyTrain.setId(SnowUtil.getSnowflakeNextId());
             dailyTrain.setCreateTime(now);
@@ -62,19 +62,19 @@ public class DailyTrainService {
 
     }
 
-    public PageResp<DailyTrainQueryResp> queryList(DailyTrainQueryDTO dailyTrainQueryDTO) {
+    public PageResp<DailyTrainQueryResp> queryList(DailyTrainQueryReq dailyTrainQueryReq) {
         DailyTrainExample dailyTrainExample = new DailyTrainExample();
         dailyTrainExample.setOrderByClause("date desc");
         DailyTrainExample.Criteria criteria = dailyTrainExample.createCriteria();
 
-        if (ObjectUtil.isNotNull(dailyTrainQueryDTO.getDate())) {
-            criteria.andDateEqualTo(dailyTrainQueryDTO.getDate());
+        if (ObjectUtil.isNotNull(dailyTrainQueryReq.getDate())) {
+            criteria.andDateEqualTo(dailyTrainQueryReq.getDate());
         }
 
-        if (ObjectUtil.isNotEmpty(dailyTrainQueryDTO.getCode())) {
-            criteria.andCodeEqualTo(dailyTrainQueryDTO.getCode());
+        if (ObjectUtil.isNotEmpty(dailyTrainQueryReq.getCode())) {
+            criteria.andCodeEqualTo(dailyTrainQueryReq.getCode());
         }
-        PageHelper.startPage(dailyTrainQueryDTO.getPage(), dailyTrainQueryDTO.getSize());
+        PageHelper.startPage(dailyTrainQueryReq.getPage(), dailyTrainQueryReq.getSize());
         List<DailyTrain> dailyTrains = dailyTrainMapper.selectByExample(dailyTrainExample);
 
 

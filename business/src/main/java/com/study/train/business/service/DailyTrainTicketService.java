@@ -9,8 +9,8 @@ import com.alibaba.fastjson2.util.DateUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
-import com.study.train.business.dto.DailyTrainTicketQueryDTO;
-import com.study.train.business.dto.DailyTrainTicketSaveDTO;
+import com.study.train.business.req.DailyTrainTicketQueryReq;
+import com.study.train.business.req.DailyTrainTicketSaveReq;
 import com.study.train.business.enums.SeatTypeEnum;
 import com.study.train.business.enums.TrainTypeEnum;
 import com.study.train.business.mapper.DailyTrainTicketMapper;
@@ -43,9 +43,9 @@ public class DailyTrainTicketService {
     @Resource
     DailyTrainStationSeatService dailyTrainStationSeatService;
 
-    public void save(DailyTrainTicketSaveDTO dailyTrainTicketSaveDTO) {
+    public void save(DailyTrainTicketSaveReq dailyTrainTicketSaveReq) {
         DateTime now = new DateTime();
-        DailyTrainTicket dailyTrainTicket = BeanUtil.copyProperties(dailyTrainTicketSaveDTO, DailyTrainTicket.class);
+        DailyTrainTicket dailyTrainTicket = BeanUtil.copyProperties(dailyTrainTicketSaveReq, DailyTrainTicket.class);
         if (ObjectUtil.isNull(dailyTrainTicket.getId())) {
             dailyTrainTicket.setId(SnowUtil.getSnowflakeNextId());
             dailyTrainTicket.setCreateTime(now);
@@ -58,30 +58,30 @@ public class DailyTrainTicketService {
 
     }
 
-    public PageResp<DailyTrainTicketQueryResp> queryList(DailyTrainTicketQueryDTO dailyTrainTicketQueryDTO) {
+    public PageResp<DailyTrainTicketQueryResp> queryList(DailyTrainTicketQueryReq dailyTrainTicketQueryReq) {
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         DailyTrainTicketExample.Criteria criteria = dailyTrainTicketExample.createCriteria();
-        if (ObjectUtil.isNotNull(dailyTrainTicketQueryDTO.getDate())) {
+        if (ObjectUtil.isNotNull(dailyTrainTicketQueryReq.getDate())) {
             //获取当前日期，精确到天
             Date date = new Date();
             String format = DateUtils.format(date, "yyyy-MM-dd");
             Date nowDay = DateUtils.parseDate(format);
             //判断选择日期是否在当前日期之前
-            if (nowDay.after(dailyTrainTicketQueryDTO.getDate())) {
+            if (nowDay.after(dailyTrainTicketQueryReq.getDate())) {
                 throw new BusinessException(BusinessExceptionEnum.USER_SELECT_DATE_BEFORE_NOW);
             }
-            criteria.andDateEqualTo(dailyTrainTicketQueryDTO.getDate());
+            criteria.andDateEqualTo(dailyTrainTicketQueryReq.getDate());
         }
-        if (ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getTrainCode())) {
-            criteria.andTrainCodeEqualTo(dailyTrainTicketQueryDTO.getTrainCode());
+        if (ObjectUtil.isNotEmpty(dailyTrainTicketQueryReq.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(dailyTrainTicketQueryReq.getTrainCode());
         }
-        if (ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getStart())) {
-            criteria.andStartEqualTo(dailyTrainTicketQueryDTO.getStart());
+        if (ObjectUtil.isNotEmpty(dailyTrainTicketQueryReq.getStart())) {
+            criteria.andStartEqualTo(dailyTrainTicketQueryReq.getStart());
         }
-        if (ObjectUtil.isNotEmpty(dailyTrainTicketQueryDTO.getEnd())) {
-            criteria.andEndEqualTo(dailyTrainTicketQueryDTO.getEnd());
+        if (ObjectUtil.isNotEmpty(dailyTrainTicketQueryReq.getEnd())) {
+            criteria.andEndEqualTo(dailyTrainTicketQueryReq.getEnd());
         }
-        PageHelper.startPage(dailyTrainTicketQueryDTO.getPage(), dailyTrainTicketQueryDTO.getSize());
+        PageHelper.startPage(dailyTrainTicketQueryReq.getPage(), dailyTrainTicketQueryReq.getSize());
         List<DailyTrainTicket> dailyTrainTickets = dailyTrainTicketMapper.selectByExample(dailyTrainTicketExample);
 
         PageInfo<DailyTrainTicket> pageInfo = new PageInfo<>(dailyTrainTickets);

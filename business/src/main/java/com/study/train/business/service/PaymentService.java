@@ -7,8 +7,8 @@ import com.study.train.business.domain.ConfirmOrder;
 import com.study.train.business.domain.ConfirmOrderExample;
 import com.study.train.business.domain.DailyTrainStationSeat;
 import com.study.train.business.domain.DailyTrainTicket;
-import com.study.train.business.dto.ConfirmOrderDTO;
-import com.study.train.business.dto.ConfirmOrderTicketDTO;
+import com.study.train.business.req.ConfirmOrderReq;
+import com.study.train.business.req.ConfirmOrderTicketReq;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.enums.SeatTypeEnum;
 import com.study.train.business.feign.MemberFeign;
@@ -47,16 +47,16 @@ public class PaymentService {
 
 
     @Async
-    public void setPaymentStatusWithExpiration(String orderId, Object value, int expireTimeInSeconds, List<DailyTrainStationSeat> finalSeatList, DailyTrainTicket dailyTrainTicket, ConfirmOrderDTO confirmOrderDTO, List<MemberTicketReq> memberTicketReqs) throws JsonProcessingException {
+    public void setPaymentStatusWithExpiration(String orderId, Object value, int expireTimeInSeconds, List<DailyTrainStationSeat> finalSeatList, DailyTrainTicket dailyTrainTicket, ConfirmOrderReq confirmOrderReq, List<MemberTicketReq> memberTicketReqs) throws JsonProcessingException {
         // 设置Redis键值对并设置过期时间
         redisTemplate.opsForValue().set(orderId, value, expireTimeInSeconds + 1, TimeUnit.MINUTES);
 
         // 使用异步任务来定时检查未支付的订单并恢复MySQL的值
-        checkAndRestorePaymentStatusFromDatabase(orderId, finalSeatList, dailyTrainTicket, confirmOrderDTO, memberTicketReqs);
+        checkAndRestorePaymentStatusFromDatabase(orderId, finalSeatList, dailyTrainTicket, confirmOrderReq, memberTicketReqs);
     }
 
     @Async
-    protected void checkAndRestorePaymentStatusFromDatabase(String orderId, List<DailyTrainStationSeat> finalSeatList, DailyTrainTicket dailyTrainTicket, ConfirmOrderDTO confirmOrderDTO, List<MemberTicketReq> memberTicketReqs) throws JsonProcessingException {
+    protected void checkAndRestorePaymentStatusFromDatabase(String orderId, List<DailyTrainStationSeat> finalSeatList, DailyTrainTicket dailyTrainTicket, ConfirmOrderReq confirmOrderReq, List<MemberTicketReq> memberTicketReqs) throws JsonProcessingException {
         // 等待一段时间
         try {
 //            Thread.sleep(900);
@@ -75,7 +75,7 @@ public class PaymentService {
             Object delete = redisTemplate.opsForValue().get(orderId);
             if (delete != null) {
                 //修改回票数
-                increaseTicketNum(confirmOrderDTO, dailyTrainTicket);
+                increaseTicketNum(confirmOrderReq, dailyTrainTicket);
                 //修改订单状态
                 confirmOrder.setStatus("C");
                 confirmOrder.setUpdateTime(new Date());
@@ -134,8 +134,8 @@ public class PaymentService {
 
     }
 
-    public void increaseTicketNum(ConfirmOrderDTO confirmOrderDTO, DailyTrainTicket dailyTrainTicket) {
-        for (ConfirmOrderTicketDTO ticketReq : confirmOrderDTO.getTickets()) {
+    public void increaseTicketNum(ConfirmOrderReq confirmOrderReq, DailyTrainTicket dailyTrainTicket) {
+        for (ConfirmOrderTicketReq ticketReq : confirmOrderReq.getTickets()) {
             String seatTypeCode = ticketReq.getSeatTypeCode();
             SeatTypeEnum seatTypeEnum = EnumUtil.getBy(SeatTypeEnum::getKey, seatTypeCode);
             switch (seatTypeEnum) {

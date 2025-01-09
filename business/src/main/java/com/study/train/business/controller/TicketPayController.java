@@ -4,7 +4,7 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.study.train.business.domain.ConfirmOrder;
-import com.study.train.business.dto.TicketPayDTO;
+import com.study.train.business.req.TicketPayDTO;
 import com.study.train.business.mapper.ConfirmOrderMapper;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,6 +1,6 @@
 package com.study.train.business.controller;
 
-import com.study.train.business.dto.DailyTrainTicketQueryDTO;
+import com.study.train.business.req.DailyTrainTicketQueryReq;
 import com.study.train.business.resp.DailyTrainTicketQueryResp;
 import com.study.train.business.service.DailyTrainTicketService;
 import com.study.train.common.resp.CommonResp;
@@ -21,8 +21,8 @@ public class DailyTrainTicketController {
 
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<DailyTrainTicketQueryResp>> queryList(@Valid DailyTrainTicketQueryDTO DailyTrainTicketQueryDTO) {
-        PageResp<DailyTrainTicketQueryResp> list = DailyTrainTicketService.queryList(DailyTrainTicketQueryDTO);
+    public CommonResp<PageResp<DailyTrainTicketQueryResp>> queryList(@Valid DailyTrainTicketQueryReq DailyTrainTicketQueryReq) {
+        PageResp<DailyTrainTicketQueryResp> list = DailyTrainTicketService.queryList(DailyTrainTicketQueryReq);
         return new CommonResp<>(list);
     }
 

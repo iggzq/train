@@ -8,8 +8,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.TrainCarriage;
 import com.study.train.business.domain.TrainCarriageExample;
-import com.study.train.business.dto.TrainCarriageQueryDTO;
-import com.study.train.business.dto.TrainCarriageSaveDTO;
+import com.study.train.business.req.TrainCarriageQueryReq;
+import com.study.train.business.req.TrainCarriageSaveReq;
 import com.study.train.business.enums.SeatColEnum;
 import com.study.train.business.mapper.TrainCarriageMapper;
 import com.study.train.business.resp.TrainCarriageQueryResp;
@@ -32,14 +32,14 @@ public class TrainCarriageService {
     @Resource
     TrainCarriageMapper trainCarriageMapper;
 
-    public void save(TrainCarriageSaveDTO trainCarriageSaveDTO) {
+    public void save(TrainCarriageSaveReq trainCarriageSaveReq) {
         DateTime now = DateTime.now();
-        List<SeatColEnum> seatColEnums = SeatColEnum.getColsByType(trainCarriageSaveDTO.getSeatType());
-        trainCarriageSaveDTO.setColCount(seatColEnums.size());
-        trainCarriageSaveDTO.setSeatCount(trainCarriageSaveDTO.getColCount() * trainCarriageSaveDTO.getRowCount());
-        TrainCarriage trainCarriage = BeanUtil.copyProperties(trainCarriageSaveDTO, TrainCarriage.class);
+        List<SeatColEnum> seatColEnums = SeatColEnum.getColsByType(trainCarriageSaveReq.getSeatType());
+        trainCarriageSaveReq.setColCount(seatColEnums.size());
+        trainCarriageSaveReq.setSeatCount(trainCarriageSaveReq.getColCount() * trainCarriageSaveReq.getRowCount());
+        TrainCarriage trainCarriage = BeanUtil.copyProperties(trainCarriageSaveReq, TrainCarriage.class);
         if (ObjectUtil.isNull(trainCarriage.getId())) {
-            TrainCarriage byUnique = selectByUnique(trainCarriageSaveDTO.getTrainCode(), trainCarriageSaveDTO.getIndex());
+            TrainCarriage byUnique = selectByUnique(trainCarriageSaveReq.getTrainCode(), trainCarriageSaveReq.getIndex());
             if (ObjectUtil.isNotNull(byUnique)) {
                 throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_CARRIAGE_INDEX_UNIQUE_ERROR);
             }
@@ -66,13 +66,13 @@ public class TrainCarriageService {
         }
     }
 
-    public PageResp<TrainCarriageQueryResp> queryList(TrainCarriageQueryDTO trainCarriageQueryDTO) {
+    public PageResp<TrainCarriageQueryResp> queryList(TrainCarriageQueryReq trainCarriageQueryReq) {
         TrainCarriageExample trainCarriageExample = new TrainCarriageExample();
         TrainCarriageExample.Criteria criteria = trainCarriageExample.createCriteria();
-        if (ObjectUtil.isNotEmpty(trainCarriageQueryDTO.getTrainCode())) {
-            criteria.andTrainCodeEqualTo(trainCarriageQueryDTO.getTrainCode());
+        if (ObjectUtil.isNotEmpty(trainCarriageQueryReq.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(trainCarriageQueryReq.getTrainCode());
         }
-        PageHelper.startPage(trainCarriageQueryDTO.getPage(), trainCarriageQueryDTO.getSize());
+        PageHelper.startPage(trainCarriageQueryReq.getPage(), trainCarriageQueryReq.getSize());
         List<TrainCarriage> trainCarriages = trainCarriageMapper.selectByExample(trainCarriageExample);
 
         PageInfo<TrainCarriage> pageInfo = new PageInfo<>(trainCarriages);

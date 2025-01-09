@@ -2,8 +2,8 @@ package com.study.train.business.controller.admin;
 
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.resp.PageResp;
-import com.study.train.business.dto.DailyTrainStationSeatQueryDTO;
-import com.study.train.business.dto.DailyTrainStationSeatSaveDTO;
+import com.study.train.business.req.DailyTrainStationSeatQueryReq;
+import com.study.train.business.req.DailyTrainStationSeatSaveReq;
 import com.study.train.business.resp.DailyTrainStationSeatQueryResp;
 import com.study.train.business.service.DailyTrainStationSeatService;
 import jakarta.annotation.Resource;
@@ -19,14 +19,14 @@ public class DailyTrainStationSeatAdminController {
 
 
     @PostMapping("/save")
-    public CommonResp<Object> register(@Valid @RequestBody DailyTrainStationSeatSaveDTO DailyTrainStationSeatSaveDTO) {
-        DailyTrainStationSeatService.save(DailyTrainStationSeatSaveDTO);
+    public CommonResp<Object> register(@Valid @RequestBody DailyTrainStationSeatSaveReq DailyTrainStationSeatSaveReq) {
+        DailyTrainStationSeatService.save(DailyTrainStationSeatSaveReq);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<DailyTrainStationSeatQueryResp>> queryList(@Valid DailyTrainStationSeatQueryDTO DailyTrainStationSeatQueryDTO) {
-        PageResp<DailyTrainStationSeatQueryResp> list = DailyTrainStationSeatService.queryList(DailyTrainStationSeatQueryDTO);
+    public CommonResp<PageResp<DailyTrainStationSeatQueryResp>> queryList(@Valid DailyTrainStationSeatQueryReq DailyTrainStationSeatQueryReq) {
+        PageResp<DailyTrainStationSeatQueryResp> list = DailyTrainStationSeatService.queryList(DailyTrainStationSeatQueryReq);
         return new CommonResp<>(list);
     }
 

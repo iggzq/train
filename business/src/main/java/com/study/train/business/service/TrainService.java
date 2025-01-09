@@ -8,8 +8,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.Train;
 import com.study.train.business.domain.TrainExample;
-import com.study.train.business.dto.TrainQueryDTO;
-import com.study.train.business.dto.TrainSaveDTO;
+import com.study.train.business.req.TrainQueryReq;
+import com.study.train.business.req.TrainSaveReq;
 import com.study.train.business.mapper.TrainMapper;
 import com.study.train.business.resp.TrainQueryResp;
 import com.study.train.common.exception.BusinessException;
@@ -31,12 +31,12 @@ public class TrainService {
     @Resource
     TrainMapper trainMapper;
 
-    public void save(TrainSaveDTO trainSaveDTO) {
+    public void save(TrainSaveReq trainSaveReq) {
         DateTime now = new DateTime();
-        Train train = BeanUtil.copyProperties(trainSaveDTO, Train.class);
+        Train train = BeanUtil.copyProperties(trainSaveReq, Train.class);
         if (ObjectUtil.isNull(train.getId())) {
 
-            Train byUnique = selectByUnique(trainSaveDTO.getCode());
+            Train byUnique = selectByUnique(trainSaveReq.getCode());
             if(ObjectUtil.isNotNull(byUnique)){
                 throw new BusinessException(BusinessExceptionEnum.BUSINESS_TRAIN_CODE_UNIQUE_ERROR);
             }
@@ -63,10 +63,10 @@ public class TrainService {
         }
     }
 
-    public PageResp<TrainQueryResp> queryList(TrainQueryDTO trainQueryDTO) {
+    public PageResp<TrainQueryResp> queryList(TrainQueryReq trainQueryReq) {
         TrainExample trainExample = new TrainExample();
         TrainExample.Criteria criteria = trainExample.createCriteria();
-        PageHelper.startPage(trainQueryDTO.getPage(), trainQueryDTO.getSize());
+        PageHelper.startPage(trainQueryReq.getPage(), trainQueryReq.getSize());
         List<Train> trains = trainMapper.selectByExample(trainExample);
 
         PageInfo<Train> pageInfo = new PageInfo<>(trains);

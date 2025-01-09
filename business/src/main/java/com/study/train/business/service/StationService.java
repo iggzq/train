@@ -8,8 +8,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.Station;
 import com.study.train.business.domain.StationExample;
-import com.study.train.business.dto.StationQueryDTO;
-import com.study.train.business.dto.StationSaveDTO;
+import com.study.train.business.req.StationQueryReq;
+import com.study.train.business.req.StationSaveReq;
 import com.study.train.business.mapper.StationMapper;
 import com.study.train.business.resp.StationQueryResp;
 import com.study.train.common.exception.BusinessException;
@@ -31,16 +31,15 @@ public class StationService {
     @Resource
     StationMapper stationMapper;
 
-    public void save(StationSaveDTO stationSaveDTO) {
+    public void save(StationSaveReq stationSaveReq) {
         DateTime now = new DateTime();
-        Station station = BeanUtil.copyProperties(stationSaveDTO, Station.class);
+        Station station = BeanUtil.copyProperties(stationSaveReq, Station.class);
         if (ObjectUtil.isNull(station.getId())) {
             //校验唯一键是否存在
-            Station stationDB = selectByUnique(stationSaveDTO.getName());
+            Station stationDB = selectByUnique(stationSaveReq.getName());
             if (ObjectUtil.isNotNull(stationDB)) {
                 throw new BusinessException(BusinessExceptionEnum.BUSINESS_STATION_NAME_UNIQUE_ERROR);
             }
-
 
             station.setId(SnowUtil.getSnowflakeNextId());
             station.setCreateTime(now);
@@ -65,10 +64,10 @@ public class StationService {
         }
     }
 
-    public PageResp<StationQueryResp> queryList(StationQueryDTO stationQueryDTO) {
+    public PageResp<StationQueryResp> queryList(StationQueryReq stationQueryReq) {
         StationExample stationExample = new StationExample();
         StationExample.Criteria criteria = stationExample.createCriteria();
-        PageHelper.startPage(stationQueryDTO.getPage(), stationQueryDTO.getSize());
+        PageHelper.startPage(stationQueryReq.getPage(), stationQueryReq.getSize());
         List<Station> stations = stationMapper.selectByExample(stationExample);
 
         PageInfo<Station> pageInfo = new PageInfo<>(stations);

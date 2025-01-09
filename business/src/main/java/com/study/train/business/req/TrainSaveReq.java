@@ -1,4 +1,4 @@
-package com.study.train.business.dto;
+package com.study.train.business.req;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Setter
 @Getter
-public class TrainSaveDTO {
+public class TrainSaveReq {
 
     /**
      * id

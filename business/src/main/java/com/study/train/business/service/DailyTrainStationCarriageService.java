@@ -7,8 +7,8 @@ import cn.hutool.core.util.ObjectUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
-import com.study.train.business.dto.DailyTrainStationCarriageQueryDTO;
-import com.study.train.business.dto.DailyTrainStationCarriageSaveDTO;
+import com.study.train.business.req.DailyTrainStationCarriageQueryReq;
+import com.study.train.business.req.DailyTrainStationCarriageSaveReq;
 import com.study.train.business.enums.SeatColEnum;
 import com.study.train.business.mapper.DailyTrainStationCarriageMapper;
 import com.study.train.business.resp.DailyTrainStationCarriageQueryResp;
@@ -33,14 +33,14 @@ public class DailyTrainStationCarriageService {
     @Resource
     TrainCarriageService trainCarriageService;
 
-    public void save(DailyTrainStationCarriageSaveDTO dailyTrainStationCarriageSaveDTO) {
+    public void save(DailyTrainStationCarriageSaveReq dailyTrainStationCarriageSaveReq) {
         DateTime now = DateTime.now();
 
-        List<SeatColEnum> seatColEnums = SeatColEnum.getColsByType(dailyTrainStationCarriageSaveDTO.getSeatType());
-        dailyTrainStationCarriageSaveDTO.setColCount(seatColEnums.size());
-        dailyTrainStationCarriageSaveDTO.setSeatCount(dailyTrainStationCarriageSaveDTO.getColCount() * dailyTrainStationCarriageSaveDTO.getRowCount());
+        List<SeatColEnum> seatColEnums = SeatColEnum.getColsByType(dailyTrainStationCarriageSaveReq.getSeatType());
+        dailyTrainStationCarriageSaveReq.setColCount(seatColEnums.size());
+        dailyTrainStationCarriageSaveReq.setSeatCount(dailyTrainStationCarriageSaveReq.getColCount() * dailyTrainStationCarriageSaveReq.getRowCount());
 
-        DailyTrainStationCarriage dailyTrainStationCarriage = BeanUtil.copyProperties(dailyTrainStationCarriageSaveDTO, DailyTrainStationCarriage.class);
+        DailyTrainStationCarriage dailyTrainStationCarriage = BeanUtil.copyProperties(dailyTrainStationCarriageSaveReq, DailyTrainStationCarriage.class);
         if (ObjectUtil.isNull(dailyTrainStationCarriage.getId())) {
             dailyTrainStationCarriage.setId(SnowUtil.getSnowflakeNextId());
             dailyTrainStationCarriage.setCreateTime(now);
@@ -53,18 +53,18 @@ public class DailyTrainStationCarriageService {
 
     }
 
-    public PageResp<DailyTrainStationCarriageQueryResp> queryList(DailyTrainStationCarriageQueryDTO dailyTrainStationCarriageQueryDTO) {
+    public PageResp<DailyTrainStationCarriageQueryResp> queryList(DailyTrainStationCarriageQueryReq dailyTrainStationCarriageQueryReq) {
         DailyTrainStationCarriageExample dailyTrainStationCarriageExample = new DailyTrainStationCarriageExample();
         dailyTrainStationCarriageExample.setOrderByClause("date desc");
         DailyTrainStationCarriageExample.Criteria criteria = dailyTrainStationCarriageExample.createCriteria();
-        if (ObjectUtil.isNotNull(dailyTrainStationCarriageQueryDTO.getDate())) {
-            criteria.andDateEqualTo(dailyTrainStationCarriageQueryDTO.getDate());
+        if (ObjectUtil.isNotNull(dailyTrainStationCarriageQueryReq.getDate())) {
+            criteria.andDateEqualTo(dailyTrainStationCarriageQueryReq.getDate());
         }
 
-        if (ObjectUtil.isNotEmpty(dailyTrainStationCarriageQueryDTO.getTrainCode())) {
-            criteria.andTrainCodeEqualTo(dailyTrainStationCarriageQueryDTO.getTrainCode());
+        if (ObjectUtil.isNotEmpty(dailyTrainStationCarriageQueryReq.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(dailyTrainStationCarriageQueryReq.getTrainCode());
         }
-        PageHelper.startPage(dailyTrainStationCarriageQueryDTO.getPage(), dailyTrainStationCarriageQueryDTO.getSize());
+        PageHelper.startPage(dailyTrainStationCarriageQueryReq.getPage(), dailyTrainStationCarriageQueryReq.getSize());
         List<DailyTrainStationCarriage> dailyTrainStationCarriages = dailyTrainStationCarriageMapper.selectByExample(dailyTrainStationCarriageExample);
 
         PageInfo<DailyTrainStationCarriage> pageInfo = new PageInfo<>(dailyTrainStationCarriages);

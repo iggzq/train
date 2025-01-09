@@ -1,9 +1,13 @@
-package com.study.train.business.dto;
+package com.study.train.business.req;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
-public class ConfirmOrderTicketDTO {
+@Setter
+@Getter
+public class ConfirmOrderTicketReq {
 
     /**
      * 乘客ID
@@ -39,54 +43,6 @@ public class ConfirmOrderTicketDTO {
      * 选座，可空，值示例：A1
      */
     private String seat;
-
-    public Long getPassengerId() {
-        return passengerId;
-    }
-
-    public void setPassengerId(Long passengerId) {
-        this.passengerId = passengerId;
-    }
-
-    public String getPassengerType() {
-        return passengerType;
-    }
-
-    public void setPassengerType(String passengerType) {
-        this.passengerType = passengerType;
-    }
-
-    public String getPassengerName() {
-        return passengerName;
-    }
-
-    public void setPassengerName(String passengerName) {
-        this.passengerName = passengerName;
-    }
-
-    public String getPassengerIdCard() {
-        return passengerIdCard;
-    }
-
-    public void setPassengerIdCard(String passengerIdCard) {
-        this.passengerIdCard = passengerIdCard;
-    }
-
-    public String getSeatTypeCode() {
-        return seatTypeCode;
-    }
-
-    public void setSeatTypeCode(String seatTypeCode) {
-        this.seatTypeCode = seatTypeCode;
-    }
-
-    public String getSeat() {
-        return seat;
-    }
-
-    public void setSeat(String seat) {
-        this.seat = seat;
-    }
 
     @Override
     public String toString() {

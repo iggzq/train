@@ -10,8 +10,8 @@ import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
 import com.study.train.common.utils.SnowUtil;
 import com.study.train.common.resp.PageResp;
-import com.study.train.business.dto.DailyTrainStationSeatQueryDTO;
-import com.study.train.business.dto.DailyTrainStationSeatSaveDTO;
+import com.study.train.business.req.DailyTrainStationSeatQueryReq;
+import com.study.train.business.req.DailyTrainStationSeatSaveReq;
 import com.study.train.business.mapper.DailyTrainStationSeatMapper;
 import com.study.train.business.resp.DailyTrainStationSeatQueryResp;
 import jakarta.annotation.Resource;
@@ -36,9 +36,9 @@ public class DailyTrainStationSeatService {
     @Resource
     TrainStationService trainStationService;
 
-    public void save(DailyTrainStationSeatSaveDTO dailyTrainStationSeatSaveDTO) {
+    public void save(DailyTrainStationSeatSaveReq dailyTrainStationSeatSaveReq) {
         DateTime now = new DateTime();
-        DailyTrainStationSeat dailyTrainStationSeat = BeanUtil.copyProperties(dailyTrainStationSeatSaveDTO, DailyTrainStationSeat.class);
+        DailyTrainStationSeat dailyTrainStationSeat = BeanUtil.copyProperties(dailyTrainStationSeatSaveReq, DailyTrainStationSeat.class);
         if (ObjectUtil.isNull(dailyTrainStationSeat.getId())) {
             dailyTrainStationSeat.setId(SnowUtil.getSnowflakeNextId());
             dailyTrainStationSeat.setCreateTime(now);
@@ -51,14 +51,14 @@ public class DailyTrainStationSeatService {
 
     }
 
-    public PageResp<DailyTrainStationSeatQueryResp> queryList(DailyTrainStationSeatQueryDTO dailyTrainStationSeatQueryDTO) {
+    public PageResp<DailyTrainStationSeatQueryResp> queryList(DailyTrainStationSeatQueryReq dailyTrainStationSeatQueryReq) {
         DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
         dailyTrainStationSeatExample.setOrderByClause("train_code asc,carriage_index asc,carriage_seat_index asc");
         DailyTrainStationSeatExample.Criteria criteria = dailyTrainStationSeatExample.createCriteria();
-        if (ObjectUtil.isNotEmpty(dailyTrainStationSeatQueryDTO.getTrainCode())) {
-            criteria.andTrainCodeEqualTo(dailyTrainStationSeatQueryDTO.getTrainCode());
+        if (ObjectUtil.isNotEmpty(dailyTrainStationSeatQueryReq.getTrainCode())) {
+            criteria.andTrainCodeEqualTo(dailyTrainStationSeatQueryReq.getTrainCode());
         }
-        PageHelper.startPage(dailyTrainStationSeatQueryDTO.getPage(), dailyTrainStationSeatQueryDTO.getSize());
+        PageHelper.startPage(dailyTrainStationSeatQueryReq.getPage(), dailyTrainStationSeatQueryReq.getSize());
         List<DailyTrainStationSeat> dailyTrainStationSeats = dailyTrainStationSeatMapper.selectByExample(dailyTrainStationSeatExample);
 
         PageInfo<DailyTrainStationSeat> pageInfo = new PageInfo<>(dailyTrainStationSeats);
