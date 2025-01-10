@@ -1,6 +1,6 @@
 <template>
   <a-space class="top_button">
-    <a-button type="primary" @click="handleQuery()">刷新</a-button>
+    <a-button type="primary" @click="handleQuery()">查找/刷新</a-button>
 
   </a-space>
   <a-table :data-source="confirmOrders"

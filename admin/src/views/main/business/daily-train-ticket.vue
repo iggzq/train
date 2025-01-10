@@ -4,7 +4,7 @@
     <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD"></a-date-picker>
     <station-select-view v-model="params.start" style="width: 150px"></station-select-view>
     <station-select-view v-model="params.end" style="width: 150px"></station-select-view>
-    <a-button type="primary" @click="handleQuery()">刷新</a-button>
+    <a-button type="primary" @click="handleQuery()">查找/刷新</a-button>
 
   </a-space>
   <a-table :data-source="dailyTrainTickets"

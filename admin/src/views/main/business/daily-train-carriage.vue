@@ -3,7 +3,7 @@
     <train-select-view v-model="params.trainCode" style="width: 150px"></train-select-view>
     <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD"
                    placeholder="请选择日期"/>
-    <a-button type="primary" @click="handleQuery()">刷新</a-button>
+    <a-button type="primary" @click="handleQuery()">查找/刷新</a-button>
     <a-button type="primary" @click="onAdd">新增</a-button>
   </a-space>
   <a-table :data-source="dailyTrainStationCarriages"

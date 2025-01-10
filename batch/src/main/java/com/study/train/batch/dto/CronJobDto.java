@@ -11,7 +11,7 @@ public class CronJobDto {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("CronJobDto{");
+        final StringBuilder sb = new StringBuilder("CronJobDto{");
         sb.append("cronExpression='").append(cronExpression).append('\'');
         sb.append(", group='").append(group).append('\'');
         sb.append(", name='").append(name).append('\'');
