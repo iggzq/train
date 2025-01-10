@@ -103,6 +103,7 @@ public class DailyTrainTicketService {
 
 
     public void genDaily(DailyTrain dailyTrain, Date date, String trainCode) {
+        LOG.info("生成日期【{}】车次【{}】的信息开始", DateTime.of(date).toString("yyyy-MM-dd"), trainCode);
         //删除该车次每日数据
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         dailyTrainTicketExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
@@ -173,6 +174,7 @@ public class DailyTrainTicketService {
                 dailyTrainTicketMapper.insert(dailyTrainTicket);
             }
         }
+        LOG.info("生成日期【{}】车次【{}】的信息结束", DateTime.of(date).toString("yyyy-MM-dd"), trainCode);
     }
 
     public DailyTrainTicket selectByUnique(Date date, String trainCode, String start, String end) {

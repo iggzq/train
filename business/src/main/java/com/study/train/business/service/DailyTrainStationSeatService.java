@@ -79,6 +79,7 @@ public class DailyTrainStationSeatService {
     }
 
     public void genDaily(Date date, String trainCode) {
+        LOG.info("生成日期【{}】车次【{}】的座位数据开始", date, trainCode);
         //删除该车次车站所有每日数据
         DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
         dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
@@ -105,6 +106,7 @@ public class DailyTrainStationSeatService {
             dailyTrainStationSeat.setSell(sell);
             dailyTrainStationSeatMapper.insert(dailyTrainStationSeat);
         }
+        LOG.info("生成日期【{}】车次【{}】的座位数据结束", date, trainCode);
     }
 
     public List<DailyTrainStationSeat> countSeat(Date date,String trainCode){

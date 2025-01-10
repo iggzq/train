@@ -55,7 +55,7 @@ public class DailyTrainStationCarriageService {
 
     public PageResp<DailyTrainStationCarriageQueryResp> queryList(DailyTrainStationCarriageQueryReq dailyTrainStationCarriageQueryReq) {
         DailyTrainStationCarriageExample dailyTrainStationCarriageExample = new DailyTrainStationCarriageExample();
-        dailyTrainStationCarriageExample.setOrderByClause("date desc");
+        dailyTrainStationCarriageExample.setOrderByClause("date desc, train_code asc, `index` asc");
         DailyTrainStationCarriageExample.Criteria criteria = dailyTrainStationCarriageExample.createCriteria();
         if (ObjectUtil.isNotNull(dailyTrainStationCarriageQueryReq.getDate())) {
             criteria.andDateEqualTo(dailyTrainStationCarriageQueryReq.getDate());
@@ -85,6 +85,7 @@ public class DailyTrainStationCarriageService {
     }
 
     public void genDaily(Date date, String trainCode) {
+        LOG.info("生成日期【{}】车次【{}】的车站数据开始", DateTime.of(date).toString("yyyy-MM-dd"), trainCode);
         //删除该车次车站所有每日数据
         DailyTrainStationCarriageExample dailyTrainStationCarriageExample = new DailyTrainStationCarriageExample();
         dailyTrainStationCarriageExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
@@ -107,6 +108,7 @@ public class DailyTrainStationCarriageService {
             dailyTrainStationCarriage.setDate(date);
             dailyTrainStationCarriageMapper.insert(dailyTrainStationCarriage);
         }
+        LOG.info("生成日期【{}】车次【{}】的车站数据结束", DateTime.of(date).toString("yyyy-MM-dd"), trainCode);
     }
 
     public List<DailyTrainStationCarriage> selectBySeatType(Date date, String trainCode, String seatType) {

@@ -9,9 +9,9 @@ import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.DailyTrain;
 import com.study.train.business.domain.DailyTrainExample;
 import com.study.train.business.domain.Train;
+import com.study.train.business.mapper.DailyTrainMapper;
 import com.study.train.business.req.DailyTrainQueryReq;
 import com.study.train.business.req.DailyTrainSaveReq;
-import com.study.train.business.mapper.DailyTrainMapper;
 import com.study.train.business.resp.DailyTrainQueryResp;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
@@ -109,11 +109,12 @@ public class DailyTrainService {
 
     @Transactional
     public void genDailyTrain(Date date, Train train) {
+        LOG.info("生成日期【{}】车次【{}】的信息开始", DateTime.of(date).toString("yyyy-MM-dd"), train.getCode());
         //删除该车次每日数据
         DailyTrainExample dailyTrainExample = new DailyTrainExample();
         dailyTrainExample.createCriteria().andDateEqualTo(date).andCodeEqualTo(train.getCode());
         dailyTrainMapper.deleteByExample(dailyTrainExample);
-        //生成该车次每日数据
+        //生成该车次十四天后的数据
         Date now = DateTime.now();
         DailyTrain dailyTrain = BeanUtil.copyProperties(train, DailyTrain.class);
         dailyTrain.setId(SnowUtil.getSnowflakeNextId());
@@ -128,7 +129,7 @@ public class DailyTrainService {
         //生成每日车次座位信息
         dailyTrainStationSeatService.genDaily(date, train.getCode());
         //生成票数信息
-        dailyTrainTicketService.genDaily(dailyTrain,date,train.getCode());
-
+        dailyTrainTicketService.genDaily(dailyTrain, date, train.getCode());
+        LOG.info("生成日期【{}】车次【{}】的信息结束", DateTime.of(date).toString("yyyy-MM-dd"), train.getCode());
     }
 }
