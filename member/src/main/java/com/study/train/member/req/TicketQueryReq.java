@@ -1,4 +1,4 @@
-package com.study.train.member.dto;
+package com.study.train.member.req;
 
 import com.study.train.common.req.PageReq;
 import lombok.Getter;

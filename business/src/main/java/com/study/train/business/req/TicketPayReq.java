@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class TicketPayDTO {
+public class TicketPayReq {
 
     //订单号
     @NotBlank

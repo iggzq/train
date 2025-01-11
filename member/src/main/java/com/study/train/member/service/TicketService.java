@@ -9,7 +9,7 @@ import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.PageResp;
 import com.study.train.member.domain.Ticket;
 import com.study.train.member.domain.TicketExample;
-import com.study.train.member.dto.TicketQueryReq;
+import com.study.train.member.req.TicketQueryReq;
 import com.study.train.member.mapper.TicketMapper;
 import com.study.train.member.resp.TicketQueryResp;
 import jakarta.annotation.Resource;

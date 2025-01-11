@@ -3,7 +3,7 @@ package com.study.train.member.controller;
 import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.resp.PageResp;
-import com.study.train.member.dto.TicketQueryReq;
+import com.study.train.member.req.TicketQueryReq;
 import com.study.train.member.resp.TicketQueryResp;
 import com.study.train.member.service.TicketService;
 import jakarta.annotation.Resource;

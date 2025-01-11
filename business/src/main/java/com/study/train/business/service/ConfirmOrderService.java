@@ -122,7 +122,7 @@ public class ConfirmOrderService {
 
 
     @Transactional
-    public TicketPayDTO saveConfirm(ConfirmOrderReq req) throws JsonProcessingException {
+    public TicketPayReq saveConfirm(ConfirmOrderReq req) throws JsonProcessingException {
         // 此处省略了业务校验，如车次是否存在
         // 1.检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
         List<ConfirmOrderTicketReq> tickets = req.getTickets();
@@ -178,11 +178,11 @@ public class ConfirmOrderService {
         // 6.设置支付过期时间,若订单未支付，则恢复余票
         paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 3, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
         // 7.返回支付信息,结束购票逻辑
-        TicketPayDTO ticketPayDTO = new TicketPayDTO();
-        ticketPayDTO.setAmount(String.valueOf(totalMoney));
-        ticketPayDTO.setTradeName("车票");
-        ticketPayDTO.setTradeNum(String.valueOf(snowflakeNextId));
-        return ticketPayDTO;
+        TicketPayReq ticketPayReq = new TicketPayReq();
+        ticketPayReq.setAmount(String.valueOf(totalMoney));
+        ticketPayReq.setTradeName("车票");
+        ticketPayReq.setTradeNum(String.valueOf(snowflakeNextId));
+        return ticketPayReq;
     }
 
     private void getSeat(List<DailyTrainStationSeat> finalSeatList, Date date, String reqTrainCode, String reqCarriageType, String reqSeatPosition, Integer startIndex, Integer endIndex) {

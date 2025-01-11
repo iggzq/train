@@ -1,7 +1,7 @@
 package com.study.train.member.controller;
 
 import com.study.train.common.resp.CommonResp;
-import com.study.train.member.dto.MemberLoginDTO;
+import com.study.train.member.req.MemberLoginReq;
 import com.study.train.member.req.MemberRegisterReq;
 import com.study.train.member.req.MemberSendCodeReq;
 import com.study.train.member.resp.MemberLoginResp;
@@ -34,7 +34,7 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public CommonResp<MemberLoginResp> login(@Valid @RequestBody MemberLoginDTO memberLoginDTO) {
-        return new CommonResp<>(memberService.login(memberLoginDTO));
+    public CommonResp<MemberLoginResp> login(@Valid @RequestBody MemberLoginReq memberLoginReq) {
+        return new CommonResp<>(memberService.login(memberLoginReq));
     }
 }

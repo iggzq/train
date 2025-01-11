@@ -8,7 +8,7 @@ import com.study.train.common.utils.JWTutil;
 import com.study.train.common.utils.SnowUtil;
 import com.study.train.member.domain.Member;
 import com.study.train.member.domain.MemberExample;
-import com.study.train.member.dto.MemberLoginDTO;
+import com.study.train.member.req.MemberLoginReq;
 import com.study.train.member.mapper.MemberMapper;
 import com.study.train.member.req.MemberRegisterReq;
 import com.study.train.member.req.MemberSendCodeReq;
@@ -75,9 +75,9 @@ public class MemberService {
         return code;
     }
 
-    public MemberLoginResp login(MemberLoginDTO memberLoginDTO) {
-        String mobile = memberLoginDTO.getMobile();
-        String code = memberLoginDTO.getCode();
+    public MemberLoginResp login(MemberLoginReq memberLoginReq) {
+        String mobile = memberLoginReq.getMobile();
+        String code = memberLoginReq.getCode();
         Member member = selectByMobile(mobile);
 
         if (ObjectUtil.isNull(member)) {
