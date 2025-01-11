@@ -18,14 +18,14 @@ public class FeignTicketController {
     private TicketService ticketService;
 
     @PostMapping("/save")
-    public CommonResp<Object> save(@Valid @RequestBody MemberTicketReq memberTicketReq){
-        ticketService.save(memberTicketReq);
+    public CommonResp<Object> save(@Valid @RequestBody MemberTicketReq req){
+        ticketService.save(req);
         return new CommonResp<>();
     }
 
     @PostMapping("/update")
-    public CommonResp<Object> update(@Valid @RequestBody MemberTicketReq memberTicketReq){
-        ticketService.update(memberTicketReq);
+    public CommonResp<Object> update(@Valid @RequestBody MemberTicketReq req){
+        ticketService.update(req);
         return new CommonResp<>();
     }
 }

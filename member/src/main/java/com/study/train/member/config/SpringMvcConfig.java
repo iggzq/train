@@ -24,7 +24,7 @@ public class SpringMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/member/send-code",
                         "/member/login",
-                        "/feign/ticket/save"
+                        "/feign/ticket/**"
                 );
     }
 }

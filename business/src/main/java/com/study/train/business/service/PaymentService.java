@@ -57,30 +57,29 @@ public class PaymentService {
 
     @Async
     protected void checkAndRestorePaymentStatusFromDatabase(String orderId, List<DailyTrainStationSeat> finalSeatList, DailyTrainTicket dailyTrainTicket, ConfirmOrderReq confirmOrderReq, List<MemberTicketReq> memberTicketReqs) throws JsonProcessingException {
-        // 等待一段时间
+        // 1. 等待一段时间
         try {
-//            Thread.sleep(900);
-            //等待15分钟，即超时
-            Thread.sleep(900000);
+            // 等待15分钟，即超时
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return;
         }
-        // 查询MySQL中该订单的支付状态
+        // 2. 查询business数据库中该订单的支付状态
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
         confirmOrderExample.createCriteria().andIdEqualTo(Long.valueOf(orderId));
         ConfirmOrder confirmOrder = confirmOrderMapper.selectByExample(confirmOrderExample).get(0);
         if (confirmOrder.getStatus().equals("P")) {
-            //到时间还未支付
+            // 3. 到时间还未支付
             Object delete = redisTemplate.opsForValue().get(orderId);
             if (delete != null) {
-                //修改回票数
+                // 3.1 修改回票数
                 increaseTicketNum(confirmOrderReq, dailyTrainTicket);
-                //修改订单状态
+                // 3.2 修改business数据库中的订单状态
                 confirmOrder.setStatus("C");
                 confirmOrder.setUpdateTime(new Date());
                 confirmOrderMapper.updateByPrimaryKeySelective(confirmOrder);
-                //恢复具体的座位销售情况
+                // 3.3 恢复具体的座位销售情况
                 for (int j = 0; j < finalSeatList.size(); j++) {
                     DailyTrainStationSeat dailyTrainSeat = finalSeatList.get(j);
                     DailyTrainStationSeat updateSeat = new DailyTrainStationSeat();

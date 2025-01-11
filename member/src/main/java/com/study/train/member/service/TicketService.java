@@ -40,8 +40,7 @@ public class TicketService {
         DateTime now = new DateTime();
         Ticket ticket = BeanUtil.copyProperties(memberTicketReq, Ticket.class);
         ticket.setUpdateTime(now);
-        ticket.setStatus(memberTicketReq.getStatus());
-        ticketMapper.updateByPrimaryKey(ticket);
+        ticketMapper.updateByPrimaryKeySelective(ticket);
     }
 
     public PageResp<TicketQueryResp> queryList(TicketQueryReq ticketQueryReq) {

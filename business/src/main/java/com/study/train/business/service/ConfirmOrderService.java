@@ -79,14 +79,16 @@ public class ConfirmOrderService {
 
     }
 
-    public PageResp<ConfirmOrderQueryResp> queryList(ConfirmOrderQueryReq confirmOrderQueryReq) {
+    public PageResp<ConfirmOrderQueryResp> queryList(ConfirmOrderQueryReq req) {
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
         ConfirmOrderExample.Criteria criteria = confirmOrderExample.createCriteria();
-        PageHelper.startPage(confirmOrderQueryReq.getPage(), confirmOrderQueryReq.getSize());
+
+        LOG.info("查询页码：{}", req.getPage());
+        LOG.info("每页条数：{}", req.getSize());
+        PageHelper.startPage(req.getPage(), req.getSize());
         List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
 
         PageInfo<ConfirmOrder> pageInfo = new PageInfo<>(confirmOrders);
-
         LOG.info("总行数：{}", pageInfo.getTotal());
         LOG.info("总页数:{}", pageInfo.getPages());
 
@@ -125,7 +127,11 @@ public class ConfirmOrderService {
         // 1.检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
         List<ConfirmOrderTicketReq> tickets = req.getTickets();
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
-        confirmOrderExample.createCriteria().andDateEqualTo(req.getDate()).andMemberIdEqualTo(loginMemberHolder.getId()).andTrainCodeEqualTo(req.getTrainCode());
+        confirmOrderExample.createCriteria()
+                .andStatusNotEqualTo(ConfirmOrderStatusEnum.CANCEL.getCode())
+                .andStatusNotEqualTo(ConfirmOrderStatusEnum.FAILURE.getCode())
+                .andDateEqualTo(req.getDate()).andMemberIdEqualTo(loginMemberHolder.getId())
+                .andTrainCodeEqualTo(req.getTrainCode());
         List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
         if (!confirmOrders.isEmpty()) {
             throw new BusinessException(BusinessExceptionEnum.ORDER_ALREADY_EXIST);
@@ -170,7 +176,7 @@ public class ConfirmOrderService {
         // 5.车次减去已购票数并增添用户购票结果
         List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
         // 6.设置支付过期时间,若订单未支付，则恢复余票
-        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 60, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
+        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 3, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
         // 7.返回支付信息,结束购票逻辑
         TicketPayDTO ticketPayDTO = new TicketPayDTO();
         ticketPayDTO.setAmount(String.valueOf(totalMoney));
@@ -195,7 +201,7 @@ public class ConfirmOrderService {
             int start = 0;
             int jump = 1;
             if (reqCarriageType.equals(SeatTypeEnum.YDZ.getKey())) {
-                if(ObjectUtil.isNotNull(reqSeatPosition)){
+                if (ObjectUtil.isNotNull(reqSeatPosition)) {
                     jump = 4;
                     start = switch (reqSeatPosition) {
                         case "A" -> 0;
@@ -206,7 +212,7 @@ public class ConfirmOrderService {
                     };
                 }
             } else if (reqCarriageType.equals(SeatTypeEnum.EDZ.getKey())) {
-                if(ObjectUtil.isNotNull(reqSeatPosition)) {
+                if (ObjectUtil.isNotNull(reqSeatPosition)) {
                     jump = 5;
                     start = switch (reqSeatPosition) {
                         case "A" -> 0;

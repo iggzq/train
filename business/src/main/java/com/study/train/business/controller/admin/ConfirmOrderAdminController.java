@@ -15,24 +15,24 @@ import org.springframework.web.bind.annotation.*;
 public class ConfirmOrderAdminController {
 
     @Resource
-    private ConfirmOrderService ConfirmOrderService;
+    private ConfirmOrderService confirmOrderService;
 
 
     @PostMapping("/save")
-    public CommonResp<Object> register(@Valid @RequestBody ConfirmOrderSaveReq ConfirmOrderSaveReq) {
-        ConfirmOrderService.save(ConfirmOrderSaveReq);
+    public CommonResp<Object> register(@Valid @RequestBody ConfirmOrderSaveReq req) {
+        confirmOrderService.save(req);
         return new CommonResp<>();
     }
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<ConfirmOrderQueryResp>> queryList(@Valid ConfirmOrderQueryReq ConfirmOrderQueryReq) {
-        PageResp<ConfirmOrderQueryResp> list = ConfirmOrderService.queryList(ConfirmOrderQueryReq);
+    public CommonResp<PageResp<ConfirmOrderQueryResp>> queryList(@Valid ConfirmOrderQueryReq req) {
+        PageResp<ConfirmOrderQueryResp> list = confirmOrderService.queryList(req);
         return new CommonResp<>(list);
     }
 
     @DeleteMapping("/delete/{id}")
     public CommonResp<Object> delete(@PathVariable Long id) {
-        ConfirmOrderService.delete(id);
+        confirmOrderService.delete(id);
         return new CommonResp<>();
     }
 
