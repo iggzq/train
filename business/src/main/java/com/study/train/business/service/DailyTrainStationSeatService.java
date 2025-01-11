@@ -79,24 +79,25 @@ public class DailyTrainStationSeatService {
     }
 
     public void genDaily(Date date, String trainCode) {
-        LOG.info("生成日期【{}】车次【{}】的座位数据开始", date, trainCode);
-        //删除该车次车站所有每日数据
+        LOG.info("生成日期【{}】车次【{}】的每日座位数据开始", date, trainCode);
+        //删除该车次车站所有每日座位数据
         DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
         dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
         dailyTrainStationSeatMapper.deleteByExample(dailyTrainStationSeatExample);
 
+
         List<TrainStation> trainStations = trainStationService.selectByTrainCode(trainCode);
         String sell = StrUtil.fillBefore("", '0', trainStations.size() - 1);
-        //查出某车次车站所有信息
 
-        List<TrainSeat> trainSeats = trainSeatService.selectByTrainCode(trainCode);
-
-        if (CollUtil.isEmpty(trainSeats)) {
-            LOG.info("该车次没有车站基础信息，生成该车站车站信息结束");
+        //查出某车次的所有座位信息
+        List<TrainSeat> seatList = trainSeatService.selectByTrainCode(trainCode);
+        if (CollUtil.isEmpty(seatList)) {
+            LOG.info("该车次没有座位基础数据，生成该车次的每日座位信息结束");
             return;
         }
-        for (TrainSeat trainStationSeat : trainSeats) {
-            //生成该车次每日数据
+
+
+        for (TrainSeat trainStationSeat : seatList) {
             Date now = DateTime.now();
             DailyTrainStationSeat dailyTrainStationSeat = BeanUtil.copyProperties(trainStationSeat, DailyTrainStationSeat.class);
             dailyTrainStationSeat.setId(SnowUtil.getSnowflakeNextId());
@@ -106,7 +107,7 @@ public class DailyTrainStationSeatService {
             dailyTrainStationSeat.setSell(sell);
             dailyTrainStationSeatMapper.insert(dailyTrainStationSeat);
         }
-        LOG.info("生成日期【{}】车次【{}】的座位数据结束", date, trainCode);
+        LOG.info("生成日期【{}】车次【{}】的每日座位数据结束", date, trainCode);
     }
 
     public List<DailyTrainStationSeat> countSeat(Date date,String trainCode){

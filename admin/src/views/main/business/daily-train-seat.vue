@@ -27,6 +27,11 @@
           </span>
         </span>
       </template>
+      <template v-else-if="column.dataIndex === 'sell'">
+        <span>
+            {{ record.sell }}
+        </span>
+      </template>
     </template>
   </a-table>
 </template>
@@ -85,6 +90,11 @@ const columns = [
     title: '同车厢座序',
     dataIndex: 'carriageSeatIndex',
     key: 'carriageSeatIndex',
+  },
+  {
+    title: '售卖情况',
+    dataIndex: 'sell',
+    key: 'sell',
   },
 ];
 

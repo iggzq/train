@@ -38,7 +38,10 @@ public class AfterConfirmOrderService {
     @Resource
     private ConfirmOrderMapper confirmOrderMapper;
 
-
+    /**
+     * 确认订单成功后，修改数据库，同时调用会员服务接口，为会员增加一张车票
+     *
+     */
     public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketReq> tickets, ConfirmOrder confirmOrder, float amount) {
         List<MemberTicketReq> memberTicketReqs = new ArrayList<>();
         for (int j = 0; j < finalSeats.size(); j++) {

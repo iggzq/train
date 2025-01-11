@@ -164,7 +164,10 @@ public class ConfirmOrderService {
                 getSeat(finalSeatList, date, trainCode, ticket.getSeatTypeCode(), ticket.getSeatPosition(), dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
             }
         }
-        // 5.保存最终选座和购票结果
+
+        LOG.info("最终选座结果：{}", finalSeatList);
+
+        // 5.车次减去已购票数并增添用户购票结果
         List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
         // 6.设置支付过期时间,若订单未支付，则恢复余票
         paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 60, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
@@ -216,10 +219,12 @@ public class ConfirmOrderService {
                 }
             }
 
+            // 6.遍历车厢中的座位，判断座位是否可以出售，若可以，则加入到getSeatList中
             for (; start < dailyTrainStationSeats.size(); start += jump) {
-                // 6.获取座位对象
+                // 7.获取车厢中的座位对象
                 DailyTrainStationSeat dailyTrainSeat = dailyTrainStationSeats.get(start);
                 String col = dailyTrainSeat.getCol();
+                // 8.
                 boolean alreadySellFlag = false;
                 for (DailyTrainStationSeat finalSeat : finalSeatList) {
                     if (finalSeat.getId().equals(dailyTrainSeat.getId())) {
@@ -228,8 +233,10 @@ public class ConfirmOrderService {
                     }
                 }
                 if (alreadySellFlag) {
+                    LOG.info("座位{}已被出售", dailyTrainSeat.getCarriageSeatIndex());
                     continue;
                 }
+
                 if (StrUtil.isBlank(reqSeatPosition)) {
                     LOG.info("有选座");
                 } else {
