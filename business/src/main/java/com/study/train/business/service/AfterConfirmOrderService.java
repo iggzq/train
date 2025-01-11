@@ -56,8 +56,6 @@ public class AfterConfirmOrderService {
             int minStartIndex = 0;
             for (int i = startIndex - 1; i >= 0; i--) {
                 char aChar = charArray[i];
-                System.out.println(i);
-                System.out.println(aChar);
                 if (aChar == '1') {
                     minStartIndex = i + 1;//1
                     break;

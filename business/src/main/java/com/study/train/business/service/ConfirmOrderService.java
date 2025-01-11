@@ -26,6 +26,7 @@ import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,30 +120,27 @@ public class ConfirmOrderService {
 
 
     @Transactional
-    public TicketPayDTO saveConfirm(ConfirmOrderReq confirmOrderReq) throws JsonProcessingException {
+    public TicketPayDTO saveConfirm(ConfirmOrderReq req) throws JsonProcessingException {
+        // 此处省略了业务校验，如车次是否存在
         // 1.检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
-        List<ConfirmOrderTicketReq> tickets = confirmOrderReq.getTickets();
+        List<ConfirmOrderTicketReq> tickets = req.getTickets();
         ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
-        confirmOrderExample.createCriteria().andDateEqualTo(confirmOrderReq.getDate()).andMemberIdEqualTo(loginMemberHolder.getId()).andTrainCodeEqualTo(confirmOrderReq.getTrainCode());
+        confirmOrderExample.createCriteria().andDateEqualTo(req.getDate()).andMemberIdEqualTo(loginMemberHolder.getId()).andTrainCodeEqualTo(req.getTrainCode());
         List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
         if (!confirmOrders.isEmpty()) {
             throw new BusinessException(BusinessExceptionEnum.ORDER_ALREADY_EXIST);
         }
         // 2.创建订单对象，并保存订单到订单信息表
-        Date date = confirmOrderReq.getDate();
-        String trainCode = confirmOrderReq.getTrainCode();
-        String start = confirmOrderReq.getStart();
-        String end = confirmOrderReq.getEnd();
+        Date date = req.getDate();
+        String trainCode = req.getTrainCode();
+        String start = req.getStart();
+        String end = req.getEnd();
         DateTime now = DateTime.now();
         long snowflakeNextId = SnowUtil.getSnowflakeNextId();
         ConfirmOrder confirmOrder = new ConfirmOrder();
+        BeanUtils.copyProperties(req, confirmOrder);
         confirmOrder.setId(snowflakeNextId);
         confirmOrder.setMemberId(loginMemberHolder.getId());
-        confirmOrder.setDate(date);
-        confirmOrder.setTrainCode(trainCode);
-        confirmOrder.setStart(start);
-        confirmOrder.setEnd(end);
-        confirmOrder.setDailyTrainTicketId(confirmOrderReq.getDailyTrainTicketId());
         confirmOrder.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
         confirmOrder.setCreateTime(now);
         confirmOrder.setUpdateTime(now);
@@ -151,7 +149,7 @@ public class ConfirmOrderService {
 
         // 3.查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
         DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
-        Float totalMoney = reduceTicketNum(confirmOrderReq, dailyTrainTicket);
+        Float totalMoney = reduceTicketNum(req, dailyTrainTicket);
 
         // 4.创建最终选座对象，用以保存选座结果
         List<DailyTrainStationSeat> finalSeatList = new ArrayList<>();
@@ -169,7 +167,7 @@ public class ConfirmOrderService {
         // 5.保存最终选座和购票结果
         List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
         // 6.设置支付过期时间,若订单未支付，则恢复余票
-        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 60, finalSeatList, dailyTrainTicket, confirmOrderReq, memberTicketReqs);
+        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 60, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
         // 7.返回支付信息,结束购票逻辑
         TicketPayDTO ticketPayDTO = new TicketPayDTO();
         ticketPayDTO.setAmount(String.valueOf(totalMoney));
@@ -192,26 +190,30 @@ public class ConfirmOrderService {
             // 4.遍历车厢中的座位，判断座位是否可以出售，若可以，则加入到getSeatList中
             // 5.根据用户选择的座位类型来决定i的初始值和跳转
             int start = 0;
-            int jump = 0;
+            int jump = 1;
             if (reqCarriageType.equals(SeatTypeEnum.YDZ.getKey())) {
-                jump = 4;
-                start = switch (reqSeatPosition) {
-                    case "A" -> 0;
-                    case "C" -> 1;
-                    case "D" -> 2;
-                    case "F" -> 3;
-                    default -> start;
-                };
+                if(ObjectUtil.isNotNull(reqSeatPosition)){
+                    jump = 4;
+                    start = switch (reqSeatPosition) {
+                        case "A" -> 0;
+                        case "C" -> 1;
+                        case "D" -> 2;
+                        case "F" -> 3;
+                        default -> start;
+                    };
+                }
             } else if (reqCarriageType.equals(SeatTypeEnum.EDZ.getKey())) {
-                jump = 5;
-                start = switch (reqSeatPosition) {
-                    case "A" -> 0;
-                    case "B" -> 1;
-                    case "C" -> 2;
-                    case "D" -> 3;
-                    case "F" -> 4;
-                    default -> start;
-                };
+                if(ObjectUtil.isNotNull(reqSeatPosition)) {
+                    jump = 5;
+                    start = switch (reqSeatPosition) {
+                        case "A" -> 0;
+                        case "B" -> 1;
+                        case "C" -> 2;
+                        case "D" -> 3;
+                        case "F" -> 4;
+                        default -> start;
+                    };
+                }
             }
 
             for (; start < dailyTrainStationSeats.size(); start += jump) {

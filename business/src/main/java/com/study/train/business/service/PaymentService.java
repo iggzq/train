@@ -47,12 +47,12 @@ public class PaymentService {
 
 
     @Async
-    public void setPaymentStatusWithExpiration(String orderId, Object value, int expireTimeInSeconds, List<DailyTrainStationSeat> finalSeatList, DailyTrainTicket dailyTrainTicket, ConfirmOrderReq confirmOrderReq, List<MemberTicketReq> memberTicketReqs) throws JsonProcessingException {
+    public void setPaymentStatusWithExpiration(String orderId, Object value, int expireTimeInSeconds, List<DailyTrainStationSeat> finalSeatList, DailyTrainTicket dailyTrainTicket, ConfirmOrderReq req, List<MemberTicketReq> memberTicketReqs) throws JsonProcessingException {
         // 设置Redis键值对并设置过期时间
         redisTemplate.opsForValue().set(orderId, value, expireTimeInSeconds + 1, TimeUnit.MINUTES);
 
         // 使用异步任务来定时检查未支付的订单并恢复MySQL的值
-        checkAndRestorePaymentStatusFromDatabase(orderId, finalSeatList, dailyTrainTicket, confirmOrderReq, memberTicketReqs);
+        checkAndRestorePaymentStatusFromDatabase(orderId, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
     }
 
     @Async
