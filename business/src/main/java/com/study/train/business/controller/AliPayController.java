@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/ticket-pay/")
-public class TicketPayController {
+public class AliPayController {
 
     @Resource
     private AlipayClient alipayClient;

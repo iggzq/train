@@ -176,7 +176,7 @@ public class ConfirmOrderService {
         // 5.车次减去已购票数并增添用户购票结果
         List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
         // 6.设置支付过期时间,若订单未支付，则恢复余票
-        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 3, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
+        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 5, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
         // 7.返回支付信息,结束购票逻辑
         TicketPayReq ticketPayReq = new TicketPayReq();
         ticketPayReq.setAmount(String.valueOf(totalMoney));

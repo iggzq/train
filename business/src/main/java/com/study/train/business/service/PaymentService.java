@@ -57,10 +57,10 @@ public class PaymentService {
 
     @Async
     protected void checkAndRestorePaymentStatusFromDatabase(String orderId, List<DailyTrainStationSeat> finalSeatList, DailyTrainTicket dailyTrainTicket, ConfirmOrderReq confirmOrderReq, List<MemberTicketReq> memberTicketReqs) throws JsonProcessingException {
-        // 1. 等待一段时间
+
         try {
-            // 等待15分钟，即超时
-            Thread.sleep(3000);
+            // 1.等待6分钟
+            Thread.sleep(360000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return;
