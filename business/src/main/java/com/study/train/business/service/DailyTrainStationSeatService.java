@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -96,7 +97,8 @@ public class DailyTrainStationSeatService {
             return;
         }
 
-
+        // 创建每日车次的每日座位集合，以便批量插入
+        List<DailyTrainStationSeat> dailyTrainStationSeats = new ArrayList<>();
         for (TrainSeat trainStationSeat : seatList) {
             Date now = DateTime.now();
             DailyTrainStationSeat dailyTrainStationSeat = BeanUtil.copyProperties(trainStationSeat, DailyTrainStationSeat.class);
@@ -105,8 +107,9 @@ public class DailyTrainStationSeatService {
             dailyTrainStationSeat.setUpdateTime(now);
             dailyTrainStationSeat.setDate(date);
             dailyTrainStationSeat.setSell(sell);
-            dailyTrainStationSeatMapper.insert(dailyTrainStationSeat);
+            dailyTrainStationSeats.add(dailyTrainStationSeat);
         }
+        dailyTrainStationSeatMapper.insertBatch(dailyTrainStationSeats);
         LOG.info("生成日期【{}】车次【{}】的每日座位数据结束", date, trainCode);
     }
 

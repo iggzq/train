@@ -2,8 +2,9 @@ package com.study.train.business.mapper;
 
 import com.study.train.business.domain.DailyTrainStationSeat;
 import com.study.train.business.domain.DailyTrainStationSeatExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface DailyTrainStationSeatMapper {
     long countByExample(DailyTrainStationSeatExample example);
@@ -13,6 +14,8 @@ public interface DailyTrainStationSeatMapper {
     int deleteByPrimaryKey(Long id);
 
     int insert(DailyTrainStationSeat record);
+
+    int insertBatch(List<DailyTrainStationSeat> list);
 
     int insertSelective(DailyTrainStationSeat record);
 
@@ -27,4 +30,5 @@ public interface DailyTrainStationSeatMapper {
     int updateByPrimaryKeySelective(DailyTrainStationSeat record);
 
     int updateByPrimaryKey(DailyTrainStationSeat record);
+
 }

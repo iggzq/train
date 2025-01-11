@@ -189,6 +189,18 @@
       </if>
     </trim>
   </insert>
+  <insert id="insertBatch" parameterType="com.study.train.business.domain.DailyTrainStationSeat">
+      insert into daily_train_seat (id, `date`, train_code, carriage_index,
+      `row`, col, seat_type, carriage_seat_index,
+      sell, create_time, update_time)
+      values
+      <foreach collection="list" item="item" index="index" separator=",">
+          (#{item.id,jdbcType=BIGINT}, #{item.date,jdbcType=DATE}, #{item.trainCode,jdbcType=VARCHAR},
+          #{item.carriageIndex,jdbcType=INTEGER}, #{item.row,jdbcType=CHAR}, #{item.col,jdbcType=CHAR},
+          #{item.seatType,jdbcType=CHAR}, #{item.carriageSeatIndex,jdbcType=INTEGER}, #{item.sell,jdbcType=VARCHAR},
+          #{item.createTime,jdbcType=TIMESTAMP}, #{item.updateTime,jdbcType=TIMESTAMP})
+      </foreach>
+  </insert>
   <select id="countByExample" parameterType="com.study.train.business.domain.DailyTrainStationSeatExample" resultType="java.lang.Long">
     select count(*) from daily_train_seat
     <if test="_parameter != null">
