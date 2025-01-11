@@ -76,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, member_id, `date`, train_code, `start`, `end`, daily_train_ticket_id, `status`, 
-    create_time, update_time, amount
+    create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
     tickets

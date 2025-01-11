@@ -42,7 +42,7 @@ public class ConfirmOrderTicketReq {
     /**
      * 选座，可空，值示例：A1
      */
-    private String seat;
+    private String seatPosition;
 
     @Override
     public String toString() {
@@ -52,7 +52,7 @@ public class ConfirmOrderTicketReq {
         sb.append(", passengerName='").append(passengerName).append('\'');
         sb.append(", passengerIdCard='").append(passengerIdCard).append('\'');
         sb.append(", seatTypeCode='").append(seatTypeCode).append('\'');
-        sb.append(", seat='").append(seat).append('\'');
+        sb.append(", seat='").append(seatPosition).append('\'');
         sb.append('}');
         return sb.toString();
     }

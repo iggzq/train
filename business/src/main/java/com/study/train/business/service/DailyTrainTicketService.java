@@ -9,11 +9,11 @@ import com.alibaba.fastjson2.util.DateUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
-import com.study.train.business.req.DailyTrainTicketQueryReq;
-import com.study.train.business.req.DailyTrainTicketSaveReq;
 import com.study.train.business.enums.SeatTypeEnum;
 import com.study.train.business.enums.TrainTypeEnum;
 import com.study.train.business.mapper.DailyTrainTicketMapper;
+import com.study.train.business.req.DailyTrainTicketQueryReq;
+import com.study.train.business.req.DailyTrainTicketSaveReq;
 import com.study.train.business.resp.DailyTrainTicketQueryResp;
 import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
@@ -102,8 +102,9 @@ public class DailyTrainTicketService {
     }
 
 
+
     public void genDaily(DailyTrain dailyTrain, Date date, String trainCode) {
-        LOG.info("生成日期【{}】车次【{}】的信息开始", DateTime.of(date).toString("yyyy-MM-dd"), trainCode);
+        LOG.info("生成日期【{}】车次【{}】的余票生成开始", DateTime.of(date).toString("yyyy-MM-dd"), trainCode);
         //删除该车次每日数据
         DailyTrainTicketExample dailyTrainTicketExample = new DailyTrainTicketExample();
         dailyTrainTicketExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
@@ -113,7 +114,7 @@ public class DailyTrainTicketService {
         List<TrainStation> trainStations = trainStationService.selectByTrainCode(trainCode);
 
         if (CollUtil.isEmpty(trainStations)) {
-            LOG.info("该车次没有车站基础信息，生成该车站车站信息结束");
+            LOG.info("该车次没有车站基础信息，生成该车次车票结束");
             return;
         }
         int ydz = 0;
@@ -138,10 +139,13 @@ public class DailyTrainTicketService {
             }
         }
         Date now = DateTime.now();
+        // 1. 二层循环，i表示出发站，j表示到达站
         for (int i = 0; i < trainStations.size(); i++) {
             BigDecimal sumKm = new BigDecimal(0);
+            // 2. 获取出发站对象
             TrainStation trainStationStart = trainStations.get(i);
             for (int j = i + 1; j < trainStations.size(); j++) {
+                // 3. 获取到达站对象
                 TrainStation trainStationEnd = trainStations.get(j);
                 sumKm = sumKm.add(trainStationEnd.getKm());
                 BigDecimal priceRate = EnumUtil.getFieldBy(TrainTypeEnum::getPriceRate, TrainTypeEnum::getKey, dailyTrain.getType());
@@ -149,6 +153,7 @@ public class DailyTrainTicketService {
                 edzPrice = sumKm.multiply(SeatTypeEnum.EDZ.getPrice()).multiply(priceRate).setScale(2, RoundingMode.HALF_UP);
                 rwPrice = sumKm.multiply(SeatTypeEnum.RW.getPrice()).multiply(priceRate).setScale(2, RoundingMode.HALF_UP);
                 ywPrice = sumKm.multiply(SeatTypeEnum.YW.getPrice()).multiply(priceRate).setScale(2, RoundingMode.HALF_UP);
+                // 4. 构建车票对象
                 DailyTrainTicket dailyTrainTicket = new DailyTrainTicket();
                 dailyTrainTicket.setId(SnowUtil.getSnowflakeNextId());
                 dailyTrainTicket.setDate(date);
@@ -174,7 +179,7 @@ public class DailyTrainTicketService {
                 dailyTrainTicketMapper.insert(dailyTrainTicket);
             }
         }
-        LOG.info("生成日期【{}】车次【{}】的信息结束", DateTime.of(date).toString("yyyy-MM-dd"), trainCode);
+        LOG.info("生成日期【{}】车次【{}】的余票生成结束", DateTime.of(date).toString("yyyy-MM-dd"), trainCode);
     }
 
     public DailyTrainTicket selectByUnique(Date date, String trainCode, String start, String end) {

@@ -2,7 +2,7 @@ package com.study.train.member.controller.admin;
 
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.resp.PageResp;
-import com.study.train.member.dto.TicketQueryDTO;
+import com.study.train.member.dto.TicketQueryReq;
 import com.study.train.member.resp.TicketQueryResp;
 import com.study.train.member.service.TicketService;
 import jakarta.annotation.Resource;
@@ -19,8 +19,8 @@ public class TicketAdminController {
 
 
     @GetMapping("/query-list")
-    public CommonResp<PageResp<TicketQueryResp>> queryList(@Valid TicketQueryDTO ticketQueryDTO) {
-        PageResp<TicketQueryResp> list = TicketService.queryList(ticketQueryDTO);
+    public CommonResp<PageResp<TicketQueryResp>> queryList(@Valid TicketQueryReq ticketQueryReq) {
+        PageResp<TicketQueryResp> list = TicketService.queryList(ticketQueryReq);
         return new CommonResp<>(list);
     }
 

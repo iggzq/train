@@ -1,18 +1,18 @@
 <template>
   <div class="order-train">
-    <span class="order-train-main">{{ dailyTrainTicket.data }}</span>&nbsp;
-    <span class="order-train-main">{{ dailyTrainTicket.trainCode }}</span>次&nbsp;
-    <span class="order-train-main">{{ dailyTrainTicket.start }}</span>站
-    <span class="order-train-main">({{ dailyTrainTicket.startTime }})</span>&nbsp;
+    <span style="font-weight: bolder; color: cyan">{{ dailyTrainTicket.date }}</span>&nbsp;
+    <span class="order-train-main top-text">{{ dailyTrainTicket.trainCode }}</span>次&nbsp;
+    <span class="order-train-main top-text">{{ dailyTrainTicket.start }}</span>站
+    <span class="order-train-main top-text">({{ dailyTrainTicket.startTime }})</span>&nbsp;
     <span class="order-train-main">——</span>&nbsp;
-    <span class="order-train-main">{{ dailyTrainTicket.end }}</span>站
-    <span class="order-train-main">({{ dailyTrainTicket.endTime }})</span>&nbsp;
+    <span class="order-train-main top-text">{{ dailyTrainTicket.end }}</span>站
+    <span class="order-train-main top-text">({{ dailyTrainTicket.endTime }})</span>&nbsp;
   </div>
   <div class="order-train-ticket">
     <span v-for="item in seatTypes" :key="item.key">
       <span>{{ item.value }}：</span>
       <span class="order-train-ticket-main">{{ item.price }}￥</span>&nbsp;
-      <span class="order-train-ticket-main">{{ item.count }}</span>&nbsp;张票&nbsp;&nbsp;
+      <span>{{ item.count }}</span>&nbsp;张票&nbsp;&nbsp;
     </span>
   </div>
   <a-divider></a-divider>
@@ -47,7 +47,8 @@
       </template>
 
       <template v-else-if="column.dataIndex === 'seatPosition' && record.seatTypeCode === '1'">
-        <a-select v-model:value="record.seatPosition" style="width: 100%"
+        <a-select v-model:value="record.seatPosition"
+                  style="width: 100%"
                   :placeholder="seatTypes[0].count <= 20 ? '剩余座位数小于20,不可选座' : '可选择座位'"
                   :disabled="seatTypes[0].count <= 20">
           <a-select-option v-for="item in seatColsYD" :key="item.key" :value="item.value">
@@ -166,35 +167,31 @@ const handleQueryPassengers = () => {
 }
 
 const goPay = async () => {
-
-  const response = await axios.post("/business/confirm-order/save-order", {
+  axios.post("/business/confirm-order/save-order",{
     dailyTrainTicketId: dailyTrainTicket.id,
     date: dailyTrainTicket.date,
     trainCode: dailyTrainTicket.trainCode,
     start: dailyTrainTicket.start,
     end: dailyTrainTicket.end,
-    tickets: tickets.value,
-  });
-  let data = response.data;
-  orderInfo.value = response.data;
-  console.log("world")
-  console.log(orderInfo.value);
-  console.log(data);
+    tickets: tickets.value
+  }).then((resp) => {
+    if (resp.data.success) {
+      let data = resp.data;
+      orderInfo.value = resp.data;
+      totalMoney = data.content.amount;
+      notification.success({description: "下单成功！"});
+      SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
+      SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
+      SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
+      SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
+      SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
+      router.push("/orderConfirm");
+    }else {
+      notification.error({description: data.message});
+      router.push("/ticket");
+    }
 
-  if (data.success) {
-    totalMoney = data.content.amount;
-    notification.success({description: "下单成功！"});
-    SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
-    SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
-    SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
-    SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
-    SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
-    await router.push("/orderConfirm");
-  } else {
-    notification.error({description: data.message});
-    await router.push("/ticket");
-  }
-
+  })
   let seatTypeTmp = Tool.copy(seatTypes);
   if (tickets.value.length === 0) {
     notification.error({description: '请选择乘客！'});
@@ -235,12 +232,10 @@ watch(() => passengerChecked.value, () => {
 }, {immediate: true});
 </script>
 <style scoped>
-.main {
-  display: flex;
-}
 
 .order-train {
   display: flex;
+  align-items: baseline;
 }
 
 .order-train-ticket {
@@ -275,5 +270,8 @@ watch(() => passengerChecked.value, () => {
   justify-content: flex-end;
 }
 
+.top-text{
+  align-items: baseline;
+}
 
 </style>

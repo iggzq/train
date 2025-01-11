@@ -9,7 +9,7 @@ import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.PageResp;
 import com.study.train.member.domain.Ticket;
 import com.study.train.member.domain.TicketExample;
-import com.study.train.member.dto.TicketQueryDTO;
+import com.study.train.member.dto.TicketQueryReq;
 import com.study.train.member.mapper.TicketMapper;
 import com.study.train.member.resp.TicketQueryResp;
 import jakarta.annotation.Resource;
@@ -44,14 +44,14 @@ public class TicketService {
         ticketMapper.updateByPrimaryKey(ticket);
     }
 
-    public PageResp<TicketQueryResp> queryList(TicketQueryDTO ticketQueryDTO) {
+    public PageResp<TicketQueryResp> queryList(TicketQueryReq ticketQueryReq) {
         TicketExample ticketExample = new TicketExample();
         ticketExample.setOrderByClause("`create_time` desc");
         TicketExample.Criteria criteria = ticketExample.createCriteria();
-        if(ObjectUtil.isNotNull(ticketQueryDTO.getMemberId())){
-            criteria.andMemberIdEqualTo(ticketQueryDTO.getMemberId());
+        if(ObjectUtil.isNotNull(ticketQueryReq.getMemberId())){
+            criteria.andMemberIdEqualTo(ticketQueryReq.getMemberId());
         }
-        PageHelper.startPage(ticketQueryDTO.getPage(), ticketQueryDTO.getSize());
+        PageHelper.startPage(ticketQueryReq.getPage(), ticketQueryReq.getSize());
         List<Ticket> tickets = ticketMapper.selectByExample(ticketExample);
 
         PageInfo<Ticket> pageInfo = new PageInfo<>(tickets);

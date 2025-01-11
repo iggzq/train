@@ -3,12 +3,12 @@ package com.study.train.business.service;
 import com.study.train.business.domain.ConfirmOrder;
 import com.study.train.business.domain.DailyTrainStationSeat;
 import com.study.train.business.domain.DailyTrainTicket;
-import com.study.train.business.req.ConfirmOrderTicketReq;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.feign.MemberFeign;
 import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.mapper.DailyTrainStationSeatMapper;
 import com.study.train.business.mapper.customer.DailyTrainTicketMapperCust;
+import com.study.train.business.req.ConfirmOrderTicketReq;
 import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.CommonResp;
@@ -17,7 +17,6 @@ import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +38,7 @@ public class AfterConfirmOrderService {
     @Resource
     private ConfirmOrderMapper confirmOrderMapper;
 
-    @Transactional
+
     public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketReq> tickets, ConfirmOrder confirmOrder, float amount) {
         List<MemberTicketReq> memberTicketReqs = new ArrayList<>();
         for (int j = 0; j < finalSeats.size(); j++) {
@@ -72,10 +71,7 @@ public class AfterConfirmOrderService {
                     break;
                 }
             }
-            System.out.println(minStartIndex);
-            System.out.println(maxStartIndex);
-            System.out.println(minEndIndex);
-            System.out.println(maxEndIndex);
+
             dailyTrainTicketMapperCust.updateCountBySell(
                     dailyTrainSeat.getDate(),
                     dailyTrainSeat.getTrainCode(),

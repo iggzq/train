@@ -65,7 +65,6 @@ public class MemberService {
         }
 
         //生成验证码
-//        String code = RandomUtil.randomString(4);
         String code = "8888";
         LOG.info("生成短信验证码：{}", code);
 
