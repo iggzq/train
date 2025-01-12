@@ -24,9 +24,3 @@ mybatis:
 logging:
   level:
     com.study.train.business.mapper: trace
-
-alipay:
-  appId:
-  appPrivateKey:
-  alipayPublicKey:
-  notifyUrl:

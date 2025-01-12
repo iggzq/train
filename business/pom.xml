@@ -31,11 +31,11 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.alipay.sdk</groupId>
-            <artifactId>alipay-sdk-java</artifactId>
-            <version>4.39.134.ALL</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.alipay.sdk</groupId>-->
+        <!--            <artifactId>alipay-sdk-java</artifactId>-->
+        <!--            <version>4.39.134.ALL</version>-->
+        <!--        </dependency>-->
 
 
         <dependency>
@@ -48,10 +48,10 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-starter-loadbalancer</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.cloud</groupId>-->
+        <!--            <artifactId>spring-cloud-starter-loadbalancer</artifactId>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
