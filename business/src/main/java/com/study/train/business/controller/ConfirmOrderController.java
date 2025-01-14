@@ -1,13 +1,15 @@
 package com.study.train.business.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.study.train.business.req.ConfirmOrderReq;
 import com.study.train.business.req.TicketPayReq;
 import com.study.train.business.service.ConfirmOrderService;
 import com.study.train.common.resp.CommonResp;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/confirm-order")
@@ -18,7 +20,7 @@ public class ConfirmOrderController {
 
 
     @PostMapping("/save-order")
-    public CommonResp<TicketPayReq> saveOrder(@Valid @RequestBody ConfirmOrderReq confirmOrderReq) throws JsonProcessingException {
+    public CommonResp<TicketPayReq> saveOrder(@Valid @RequestBody ConfirmOrderReq confirmOrderReq) {
         TicketPayReq ticketPayReq = confirmOrderService.saveConfirm(confirmOrderReq);
         return new CommonResp<>(ticketPayReq);
     }

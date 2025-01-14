@@ -187,7 +187,7 @@ const goPay = async () => {
       SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
       router.push("/orderConfirm");
     }else {
-      notification.error({description: data.message});
+      notification.error({description: resp.data.message});
       router.push("/ticket");
     }
 

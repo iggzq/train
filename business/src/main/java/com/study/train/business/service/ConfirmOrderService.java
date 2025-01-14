@@ -8,7 +8,6 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
@@ -24,11 +23,12 @@ import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
+import org.apache.seata.core.context.RootContext;
+import org.apache.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -121,8 +121,9 @@ public class ConfirmOrderService {
     }
 
 
-    @Transactional
-    public TicketPayReq saveConfirm(ConfirmOrderReq req) throws JsonProcessingException {
+    @GlobalTransactional
+    public TicketPayReq saveConfirm(ConfirmOrderReq req) {
+        LOG.info("seata全局事务ID: {}", RootContext.getXID());
         // 此处省略了业务校验，如车次是否存在
         // 1.检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
         List<ConfirmOrderTicketReq> tickets = req.getTickets();
@@ -174,14 +175,20 @@ public class ConfirmOrderService {
         LOG.info("最终选座结果：{}", finalSeatList);
 
         // 5.车次减去已购票数并增添用户购票结果
-        List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
+        try {
+            List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
+            paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 5, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
+        } catch (Exception e) {
+            LOG.error("保存购票信息失败", e);
+            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_EXCEPTION);
+        }
         // 6.设置支付过期时间,若订单未支付，则恢复余票
-        paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 5, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
         // 7.返回支付信息,结束购票逻辑
         TicketPayReq ticketPayReq = new TicketPayReq();
         ticketPayReq.setAmount(String.valueOf(totalMoney));
         ticketPayReq.setTradeName("车票");
         ticketPayReq.setTradeNum(String.valueOf(snowflakeNextId));
+
         return ticketPayReq;
     }
 
