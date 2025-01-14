@@ -7,7 +7,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "member",url = "http://localhost:8001")
+//@FeignClient(name = "member",url = "http://localhost:8001")
+@FeignClient(name = "member")
 public interface MemberFeign {
     @PostMapping("/member/feign/ticket/save")
     CommonResp<Object> save(@RequestBody MemberTicketReq memberTicketReq);

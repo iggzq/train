@@ -1,15 +1,8 @@
 spring:
   application:
-    name: member
-
-  profiles:
-    active: dev
+    name: batch
   cloud:
     nacos:
-      config:
-        server-addr: 127.0.0.1:8848
-        file-extension: yaml
-        namespace: train
       discovery:
         server-addr: 127.0.0.1:8848
         namespace: train
