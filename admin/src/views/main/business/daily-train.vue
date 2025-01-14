@@ -4,7 +4,6 @@
     <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD"
                    placeholder="请选择日期"/>
     <a-button type="primary" @click="handleQuery()">查找/刷新</a-button>
-    <a-button type="primary" @click="onAdd">新增</a-button>
     <a-button type="danger" shape="round" @click="onClickGenDaily">手动生成车次信息</a-button>
   </a-space>
   <a-table :data-source="dailyTrains"
@@ -33,43 +32,6 @@
       </template>
     </template>
   </a-table>
-  <a-modal v-model:visible="visible" title="每日车次" @ok="handleOk" ok-text="确认" cancel-text="取消">
-    <a-form :model="dailyTrain" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
-      <a-form-item label="日期">
-        <a-date-picker v-model:value="dailyTrain.date" valueFormat="YYYY-MM-DD"
-                       placeholder="请选择日期"/>
-      </a-form-item>
-      <a-form-item label="车次编号">
-        <train-select-view v-model="dailyTrain.code" @change="onChangeCode"></train-select-view>
-      </a-form-item>
-      <a-form-item label="车次类型">
-        <a-select v-model:value="dailyTrain.type">
-          <a-select-option v-for="item in TRAIN_TYPE_ARRAY" :key="item.key" :value="item.key">{{ item.value }}
-          </a-select-option>
-        </a-select>
-      </a-form-item>
-      <a-form-item label="始发站">
-        <a-input v-model:value="dailyTrain.start" disabled/>
-      </a-form-item>
-      <a-form-item label="始发站拼音">
-        <a-input v-model:value="dailyTrain.startPinyin" disabled/>
-      </a-form-item>
-      <a-form-item label="出发时间">
-        <a-time-picker v-model:value="dailyTrain.startTime" valueFormat="HH:mm:ss"
-                       placeholder="请选择时间" disabled/>
-      </a-form-item>
-      <a-form-item label="终点站">
-        <a-input v-model:value="dailyTrain.end" disabled/>
-      </a-form-item>
-      <a-form-item label="终点站拼音">
-        <a-input v-model:value="dailyTrain.endPinyin" disabled/>
-      </a-form-item>
-      <a-form-item label="到站时间">
-        <a-time-picker v-model:value="dailyTrain.endTime" valueFormat="HH:mm:ss"
-                       placeholder="请选择时间" disabled/>
-      </a-form-item>
-    </a-form>
-  </a-modal>
   <a-modal v-model:visible="genDailyVisible" title="生成车次" @ok="handleGenDailyOk"
            :confirm-loading="genDailyLoading" ok-text="确认" cancel-text="取消">
     <a-form :model="genDaily" :label-col="{span: 4}" :wrapper-col="{span: 20}">
@@ -172,11 +134,6 @@ const columns = [
   }
 ];
 
-const onAdd = () => {
-  dailyTrain.value = {};
-  visible.value = true;
-};
-
 const onEdit = (record) => {
   dailyTrain.value = window.Tool.copy(record);
   visible.value = true;
@@ -190,22 +147,6 @@ const onDelete = (record) => {
       handleQuery({
         page: pagination.value.current,
         size: pagination.value.pageSize,
-      });
-    } else {
-      notification.error({description: data.message});
-    }
-  });
-};
-
-const handleOk = () => {
-  axios.post("/business/admin/daily-train/save", dailyTrain.value).then((response) => {
-    let data = response.data;
-    if (data.success) {
-      notification.success({description: "保存成功！"});
-      visible.value = false;
-      handleQuery({
-        page: pagination.value.current,
-        size: pagination.value.pageSize
       });
     } else {
       notification.error({description: data.message});

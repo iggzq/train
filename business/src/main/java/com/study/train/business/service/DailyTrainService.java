@@ -18,6 +18,8 @@ import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +64,7 @@ public class DailyTrainService {
 
     }
 
+    @Cacheable(value = "DailyTrainService.queryList")
     public PageResp<DailyTrainQueryResp> queryList(DailyTrainQueryReq dailyTrainQueryReq) {
         DailyTrainExample dailyTrainExample = new DailyTrainExample();
         dailyTrainExample.setOrderByClause("date desc");
@@ -96,6 +99,8 @@ public class DailyTrainService {
     }
 
 
+    @CacheEvict(value = "DailyTrainService.queryList", allEntries = true)
+    @Transactional
     public void genDaily(Date date) {
         List<Train> trains = trainService.selectAll();
         if (CollUtil.isEmpty(trains)) {
@@ -107,7 +112,6 @@ public class DailyTrainService {
         }
     }
 
-    @Transactional
     public void genDailyTrain(Date date, Train train) {
         LOG.info("生成日期【{}】车次【{}】的信息开始", DateTime.of(date).toString("yyyy-MM-dd"), train.getCode());
         //删除该车次每日数据

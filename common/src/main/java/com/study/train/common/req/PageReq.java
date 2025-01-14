@@ -27,4 +27,12 @@ public class PageReq {
     public void setSize(Integer size) {
         this.size = size;
     }
+
+    @Override
+    public String toString() {
+        return "PageReq{" +
+                "page=" + page +
+                ", size=" + size +
+                '}';
+    }
 }

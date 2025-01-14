@@ -6,11 +6,12 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Setter
 @Getter
-public class DailyTrainQueryResp {
+public class DailyTrainQueryResp implements Serializable {
 
     /**
      * id
