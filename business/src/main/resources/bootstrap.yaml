@@ -6,11 +6,26 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
         namespace: train
+      username: nacos
+      password: 86530890a
 seata:
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: 127.0.0.1:8848
+      group: SEATA_GROUP
+      namespace: train
+      username: nacos
+      password: 86530890a
+  config:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8848
+      namespace: train
+      group: SEATA_GROUP
+      username: nacos
+      password: 86530890a
+      data-id: seataServer.yml
   tx-service-group: train-group
-  service:
-    vgroup-mapping:
-      train-group: default
-    grouplist:
-      default: 127.0.0.1:8091
 
