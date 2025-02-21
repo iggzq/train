@@ -24,10 +24,11 @@ import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.apache.seata.core.context.RootContext;
-import org.apache.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -62,6 +63,9 @@ public class ConfirmOrderService {
 
     @Resource
     private PaymentService paymentService;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
 
     public void save(ConfirmOrderSaveReq confirmOrderSaveReq) {
@@ -121,75 +125,86 @@ public class ConfirmOrderService {
     }
 
 
-    @GlobalTransactional
+    //    @GlobalTransactional
     public TicketPayReq saveConfirm(ConfirmOrderReq req) {
         LOG.info("seata全局事务ID: {}", RootContext.getXID());
-        // 此处省略了业务校验，如车次是否存在
-        // 1.检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
-        List<ConfirmOrderTicketReq> tickets = req.getTickets();
-        ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
-        confirmOrderExample.createCriteria()
-                .andStatusNotEqualTo(ConfirmOrderStatusEnum.CANCEL.getCode())
-                .andStatusNotEqualTo(ConfirmOrderStatusEnum.FAILURE.getCode())
-                .andDateEqualTo(req.getDate()).andMemberIdEqualTo(loginMemberHolder.getId())
-                .andTrainCodeEqualTo(req.getTrainCode());
-        List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
-        if (!confirmOrders.isEmpty()) {
-            throw new BusinessException(BusinessExceptionEnum.ORDER_ALREADY_EXIST);
+        // 添加分布式锁
+        LOG.info("saveConfirm抢锁开始");
+        String lockKey = "confirm-order:" + req.getTrainCode() + ":" + req.getDate();
+        if (Boolean.FALSE.equals(redisTemplate.opsForValue().setIfAbsent(lockKey, "1"))) {
+            LOG.info("{} 抢锁失败", Thread.currentThread().getName());
+            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_LOCK_FAIL);
         }
-        // 2.创建订单对象，并保存订单到订单信息表
-        Date date = req.getDate();
-        String trainCode = req.getTrainCode();
-        String start = req.getStart();
-        String end = req.getEnd();
-        DateTime now = DateTime.now();
-        long snowflakeNextId = SnowUtil.getSnowflakeNextId();
-        ConfirmOrder confirmOrder = new ConfirmOrder();
-        BeanUtils.copyProperties(req, confirmOrder);
-        confirmOrder.setId(snowflakeNextId);
-        confirmOrder.setMemberId(loginMemberHolder.getId());
-        confirmOrder.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
-        confirmOrder.setCreateTime(now);
-        confirmOrder.setUpdateTime(now);
-        confirmOrder.setTickets(JSON.toJSONString(tickets));
-        confirmOrderMapper.insert(confirmOrder);
-
-        // 3.查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
-        DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
-        Float totalMoney = reduceTicketNum(req, dailyTrainTicket);
-
-        // 4.创建最终选座对象，用以保存选座结果
-        List<DailyTrainStationSeat> finalSeatList = new ArrayList<>();
-        for (ConfirmOrderTicketReq ticket : tickets) {
-            if (StrUtil.isBlank(ticket.getSeatPosition())) {
-                // 4.1 没有选座，进入自动选座逻辑
-                LOG.info("本张票没有选座");
-                getSeat(finalSeatList, date, trainCode, ticket.getSeatTypeCode(), null, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
-            } else {
-                // 4.2 有选座，进入指定选座逻辑
-                LOG.info("本张票有选座");
-                getSeat(finalSeatList, date, trainCode, ticket.getSeatTypeCode(), ticket.getSeatPosition(), dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
-            }
-        }
-
-        LOG.info("最终选座结果：{}", finalSeatList);
-
-        // 5.车次减去已购票数并增添用户购票结果
         try {
-            List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
-            paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 5, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
-        } catch (Exception e) {
-            LOG.error("保存购票信息失败", e);
-            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_EXCEPTION);
-        }
-        // 6.设置支付过期时间,若订单未支付，则恢复余票
-        // 7.返回支付信息,结束购票逻辑
-        TicketPayReq ticketPayReq = new TicketPayReq();
-        ticketPayReq.setAmount(String.valueOf(totalMoney));
-        ticketPayReq.setTradeName("车票");
-        ticketPayReq.setTradeNum(String.valueOf(snowflakeNextId));
+            // 此处省略了业务校验，如车次是否存在
+            List<ConfirmOrderTicketReq> tickets = req.getTickets();
+            // 1.检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
+//        ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
+//        confirmOrderExample.createCriteria()
+//                .andStatusNotEqualTo(ConfirmOrderStatusEnum.CANCEL.getCode())
+//                .andStatusNotEqualTo(ConfirmOrderStatusEnum.FAILURE.getCode())
+//                .andDateEqualTo(req.getDate()).andMemberIdEqualTo(loginMemberHolder.getId())
+//                .andTrainCodeEqualTo(req.getTrainCode());
+//        List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExample(confirmOrderExample);
+//        if (!confirmOrders.isEmpty()) {
+//            throw new BusinessException(BusinessExceptionEnum.ORDER_ALREADY_EXIST);
+//        }
+            // 2.创建订单对象，并保存订单到订单信息表
+            Date date = req.getDate();
+            String trainCode = req.getTrainCode();
+            String start = req.getStart();
+            String end = req.getEnd();
+            DateTime now = DateTime.now();
+            long snowflakeNextId = SnowUtil.getSnowflakeNextId();
+            ConfirmOrder confirmOrder = new ConfirmOrder();
+            BeanUtils.copyProperties(req, confirmOrder);
+            confirmOrder.setId(snowflakeNextId);
+            confirmOrder.setMemberId(loginMemberHolder.getId());
+            confirmOrder.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
+            confirmOrder.setCreateTime(now);
+            confirmOrder.setUpdateTime(now);
+            confirmOrder.setTickets(JSON.toJSONString(tickets));
+            confirmOrderMapper.insert(confirmOrder);
 
-        return ticketPayReq;
+            // 3.查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
+            DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
+            Float totalMoney = reduceTicketNum(req, dailyTrainTicket);
+
+            // 4.创建最终选座对象，用以保存选座结果
+            List<DailyTrainStationSeat> finalSeatList = new ArrayList<>();
+            for (ConfirmOrderTicketReq ticket : tickets) {
+                if (StrUtil.isBlank(ticket.getSeatPosition())) {
+                    // 4.1 没有选座，进入自动选座逻辑
+                    LOG.info("本张票没有选座");
+                    getSeat(finalSeatList, date, trainCode, ticket.getSeatTypeCode(), null, dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
+                } else {
+                    // 4.2 有选座，进入指定选座逻辑
+                    LOG.info("本张票有选座");
+                    getSeat(finalSeatList, date, trainCode, ticket.getSeatTypeCode(), ticket.getSeatPosition(), dailyTrainTicket.getStartIndex(), dailyTrainTicket.getEndIndex());
+                }
+            }
+
+            LOG.info("最终选座结果：{}", finalSeatList);
+
+            // 5.车次减去已购票数并增添用户购票结果
+            try {
+                List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
+                paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 5, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
+            } catch (Exception e) {
+                LOG.error("保存购票信息失败", e);
+                throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_EXCEPTION);
+            }
+            // 6.设置支付过期时间,若订单未支付，则恢复余票
+            // 7.返回支付信息,结束购票逻辑
+            TicketPayReq ticketPayReq = new TicketPayReq();
+            ticketPayReq.setAmount(String.valueOf(totalMoney));
+            ticketPayReq.setTradeName("车票");
+            ticketPayReq.setTradeNum(String.valueOf(snowflakeNextId));
+
+            return ticketPayReq;
+        } finally {
+            redisTemplate.delete(lockKey);
+        }
     }
 
     private void getSeat(List<DailyTrainStationSeat> finalSeatList, Date date, String reqTrainCode, String reqCarriageType, String reqSeatPosition, Integer startIndex, Integer endIndex) {

@@ -15,7 +15,6 @@ import com.study.train.common.resp.CommonResp;
 import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.apache.seata.core.context.RootContext;
-import org.apache.seata.spring.annotation.GlobalTransactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,7 +43,7 @@ public class AfterConfirmOrderService {
      * 确认订单成功后，修改数据库，同时调用会员服务接口，为会员增加一张车票
      *
      */
-    @GlobalTransactional
+//    @GlobalTransactional
     public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketReq> tickets, ConfirmOrder confirmOrder, float amount) throws Exception {
         LOG.info("seata全局事务ID save:{}", RootContext.getXID());
         List<MemberTicketReq> memberTicketReqs = new ArrayList<>();
@@ -112,9 +111,6 @@ public class AfterConfirmOrderService {
             confirmOrderForUpdate.setId(confirmOrder.getId());
             confirmOrderForUpdate.setAmount(amount);
             confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
-        }
-        if(1 == 1){
-            throw new Exception("测试");
         }
         return memberTicketReqs;
     }
