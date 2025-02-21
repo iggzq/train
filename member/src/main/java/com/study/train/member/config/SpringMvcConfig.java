@@ -22,8 +22,8 @@ public class SpringMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(memberInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/member/send-code",
-                        "/member/login",
+                        "/send-code",
+                        "/login",
                         "/feign/ticket/**"
                 );
     }

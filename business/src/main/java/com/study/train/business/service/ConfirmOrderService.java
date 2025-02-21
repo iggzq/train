@@ -24,6 +24,8 @@ import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.apache.seata.core.context.RootContext;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class ConfirmOrderService {
@@ -66,6 +69,9 @@ public class ConfirmOrderService {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
 
     public void save(ConfirmOrderSaveReq confirmOrderSaveReq) {
@@ -131,11 +137,15 @@ public class ConfirmOrderService {
         // 添加分布式锁
         LOG.info("saveConfirm抢锁开始");
         String lockKey = "confirm-order:" + req.getTrainCode() + ":" + req.getDate();
-        if (Boolean.FALSE.equals(redisTemplate.opsForValue().setIfAbsent(lockKey, "1"))) {
-            LOG.info("{} 抢锁失败", Thread.currentThread().getName());
-            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_LOCK_FAIL);
-        }
+        RLock lock = null;
         try {
+            lock = redissonClient.getLock(lockKey);
+            if (lock.tryLock(0, TimeUnit.SECONDS)) {
+                LOG.info("{} 成功拿锁", Thread.currentThread().getName());
+            } else {
+                LOG.info("{} 抢锁失败", Thread.currentThread().getName());
+                throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_LOCK_FAIL);
+            }
             // 此处省略了业务校验，如车次是否存在
             List<ConfirmOrderTicketReq> tickets = req.getTickets();
             // 1.检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
@@ -200,11 +210,18 @@ public class ConfirmOrderService {
             ticketPayReq.setAmount(String.valueOf(totalMoney));
             ticketPayReq.setTradeName("车票");
             ticketPayReq.setTradeNum(String.valueOf(snowflakeNextId));
-
             return ticketPayReq;
+
+        } catch (InterruptedException e) {
+            LOG.error("购票异常", e);
         } finally {
-            redisTemplate.delete(lockKey);
+            LOG.info("购票流程结束，释放锁!");
+            if (null != lock && lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+//            redisTemplate.delete(lockKey);
         }
+        return null;
     }
 
     private void getSeat(List<DailyTrainStationSeat> finalSeatList, Date date, String reqTrainCode, String reqCarriageType, String reqSeatPosition, Integer startIndex, Integer endIndex) {

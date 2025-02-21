@@ -1,5 +1,6 @@
 package com.study.train.common.interceptor;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.study.train.common.context.LoginMemberHolder;
@@ -25,11 +26,15 @@ public class MemberInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        LOG.info("MemberInterceptor开始");
         String token = request.getHeader(TOKEN_HEADER);
-        LOG.info("获取会员登陆:【{}】，请求 URI: {}", token, request.getRequestURI());
-        JSONObject jsonObject = JWTutil.getJSONObject(token);
-        LOG.info("当前登陆会员:【{}】", jsonObject);
-        loginMemberHolder.setMember(JSONUtil.toBean(jsonObject, MemberLoginResp.class));
+        if (StrUtil.isNotBlank(token)) {
+            LOG.info("获取会员登陆:【{}】，请求 URI: {}", token, request.getRequestURI());
+            JSONObject jsonObject = JWTutil.getJSONObject(token);
+            LOG.info("当前登陆会员:【{}】", jsonObject);
+            loginMemberHolder.setMember(JSONUtil.toBean(jsonObject, MemberLoginResp.class));
+        }
+        LOG.info("MemberInterceptor结束");
         return true;
     }
 }
