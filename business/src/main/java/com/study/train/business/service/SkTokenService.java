@@ -10,6 +10,7 @@ import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.SkToken;
 import com.study.train.business.domain.SkTokenExample;
 import com.study.train.business.mapper.SkTokenMapper;
+import com.study.train.business.mapper.customer.SkTokenMapperCust;
 import com.study.train.business.req.SkTokenQueryReq;
 import com.study.train.business.req.SkTokenSaveReq;
 import com.study.train.business.resp.SkTokenQueryResp;
@@ -37,6 +38,15 @@ public class SkTokenService {
     @Resource
     private DailyTrainStationService dailyTrainStationService;
 
+    @Resource
+    private SkTokenMapperCust skTokenMapperCust;
+
+    public boolean validSkToken(Date date, String trainCode, Long memberId) {
+        LOG.info("会员【{}】获取日期【{}】车次【{}】的令牌开始", memberId, DateUtil.formatDate(date), trainCode);
+        int decrease = skTokenMapperCust.decrease(date, trainCode);
+        return decrease > 0;
+    }
+
     /**
      * 初始化
      */
@@ -61,7 +71,7 @@ public class SkTokenService {
         LOG.info("车次【{}】到站数：{}", trainCode, stationCount);
 
         // 3/4需要根据实际卖票比例来定，一趟火车最多可以卖（seatCount * stationCount）张火车票
-        int count = (int) (seatCount * stationCount * 3/4);
+        int count = (int) (seatCount * stationCount);
         LOG.info("车次【{}】初始生成令牌数：{}", trainCode, count);
         skToken.setCount(count);
 
