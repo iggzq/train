@@ -12,6 +12,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
+import com.study.train.business.enums.RedisKeyPreEnum;
 import com.study.train.business.enums.SeatTypeEnum;
 import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.req.*;
@@ -138,15 +139,15 @@ public class ConfirmOrderService {
     public TicketPayReq saveConfirm(ConfirmOrderReq req) {
         LOG.info("seata全局事务ID: {}", RootContext.getXID());
         boolean validSkToken = skTokenService.validSkToken(req.getDate(), req.getTrainCode(), loginMemberHolder.getId());
-        if (validSkToken){
+        if (validSkToken) {
             LOG.info("令牌校验通过");
-        }else {
+        } else {
             LOG.info("令牌校验不通过");
             throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_SK_TOKEN_FAIL);
         }
         // 添加分布式锁
         LOG.info("saveConfirm抢锁开始");
-        String lockKey = "confirm-order:" + req.getTrainCode() + ":" + req.getDate();
+        String lockKey = RedisKeyPreEnum.CONFIRM_ORDER.getKey() + req.getTrainCode() + ":" + req.getDate();
         RLock lock = null;
         try {
             lock = redissonClient.getLock(lockKey);

@@ -110,9 +110,9 @@ public class DailyTrainStationService {
     /**
      * 按车次查询全部车站
      */
-    public long countByTrainCode(String trainCode) {
+    public long countByTrainCode(Date date, String trainCode) {
         DailyTrainStationExample example = new DailyTrainStationExample();
-        example.createCriteria().andTrainCodeEqualTo(trainCode);
+        example.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
         long stationCount = dailyTrainStationMapper.countByExample(example);
         return stationCount;
     }
