@@ -113,10 +113,23 @@ public class DailyTrainStationSeatService {
         LOG.info("生成日期【{}】车次【{}】的每日座位数据结束", date, trainCode);
     }
 
-    public List<DailyTrainStationSeat> countSeat(Date date,String trainCode){
-        DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
-        dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
-        return dailyTrainStationSeatMapper.selectByExample(dailyTrainStationSeatExample);
+    public int countSeat(Date date, String trainCode) {
+        return countSeat(date, trainCode, null);
+    }
+
+    public int countSeat(Date date, String trainCode, String seatType) {
+        DailyTrainStationSeatExample example = new DailyTrainStationSeatExample();
+        DailyTrainStationSeatExample.Criteria criteria = example.createCriteria();
+        criteria.andDateEqualTo(date)
+                .andTrainCodeEqualTo(trainCode);
+        if (StrUtil.isNotBlank(seatType)) {
+            criteria.andSeatTypeEqualTo(seatType);
+        }
+        long l = dailyTrainStationSeatMapper.countByExample(example);
+        if (l == 0L) {
+            return -1;
+        }
+        return (int) l;
     }
 
     public List<DailyTrainStationSeat> selectByCarriage(Date date,String trainCode,Integer carriageIndex){

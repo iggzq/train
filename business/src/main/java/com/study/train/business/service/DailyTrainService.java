@@ -49,6 +49,9 @@ public class DailyTrainService {
     @Resource
     DailyTrainTicketService dailyTrainTicketService;
 
+    @Resource
+    private SkTokenService skTokenService;
+
     public void save(DailyTrainSaveReq dailyTrainSaveReq) {
         DateTime now = new DateTime();
         DailyTrain dailyTrain = BeanUtil.copyProperties(dailyTrainSaveReq, DailyTrain.class);
@@ -102,12 +105,13 @@ public class DailyTrainService {
     @CacheEvict(value = "DailyTrainService.queryList", allEntries = true)
     @Transactional
     public void genDaily(Date date) {
-        List<Train> trains = trainService.selectAll();
-        if (CollUtil.isEmpty(trains)) {
+        List<Train> trainList = trainService.selectAll();
+        if (CollUtil.isEmpty(trainList)) {
             LOG.info("没有车次基础数据，任务结束");
             return;
         }
-        for (Train train : trains) {
+
+        for (Train train : trainList) {
             genDailyTrain(date, train);
         }
     }
@@ -134,6 +138,8 @@ public class DailyTrainService {
         dailyTrainStationSeatService.genDaily(date, train.getCode());
         //生成票数信息
         dailyTrainTicketService.genDaily(dailyTrain, date, train.getCode());
+        // 生成令牌余量数据
+        skTokenService.genDaily(date, train.getCode());
         LOG.info("生成日期【{}】车次【{}】的信息结束", DateTime.of(date).toString("yyyy-MM-dd"), train.getCode());
     }
 }
