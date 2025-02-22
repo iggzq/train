@@ -17,12 +17,16 @@ import com.study.train.business.resp.SkTokenQueryResp;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class SkTokenService {
@@ -41,8 +45,26 @@ public class SkTokenService {
     @Resource
     private SkTokenMapperCust skTokenMapperCust;
 
+    @Autowired
+    private RedissonClient redissonClient;
+
     public boolean validSkToken(Date date, String trainCode, Long memberId) {
         LOG.info("会员【{}】获取日期【{}】车次【{}】的令牌开始", memberId, DateUtil.formatDate(date), trainCode);
+        String lockKey = "sk:token:" + trainCode + ":" + DateUtil.formatDate(date)+ ":" + memberId;
+        RLock lock = null;
+        try{
+            lock = redissonClient.getLock(lockKey);
+            if (lock.tryLock(0,5, TimeUnit.SECONDS)) {
+                LOG.info("{} 成功拿到令牌锁", Thread.currentThread().getName());
+            } else {
+                LOG.info("{} 没抢到令牌锁", Thread.currentThread().getName());
+                return false;
+            }
+        }catch (InterruptedException e){
+            LOG.error("{} 获取令牌锁异常", Thread.currentThread().getName());
+            return false;
+        }
+
         int decrease = skTokenMapperCust.decrease(date, trainCode);
         return decrease > 0;
     }
