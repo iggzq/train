@@ -74,8 +74,8 @@ public class ConfirmOrderService {
     @Autowired
     private RedissonClient redissonClient;
 
-    @Resource
-    SkTokenService skTokenService;
+
+
 
 
     public void save(ConfirmOrderSaveReq confirmOrderSaveReq) {
@@ -138,13 +138,6 @@ public class ConfirmOrderService {
     //    @GlobalTransactional
     public TicketPayReq saveConfirm(ConfirmOrderReq req) {
         LOG.info("seata全局事务ID: {}", RootContext.getXID());
-        boolean validSkToken = skTokenService.validSkToken(req.getDate(), req.getTrainCode(), loginMemberHolder.getId());
-        if (validSkToken) {
-            LOG.info("令牌校验通过");
-        } else {
-            LOG.info("令牌校验不通过");
-            throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_SK_TOKEN_FAIL);
-        }
         // 添加分布式锁
         LOG.info("saveConfirm抢锁开始");
         String lockKey = RedisKeyPreEnum.CONFIRM_ORDER.getKey() + req.getTrainCode() + ":" + req.getDate();
@@ -230,7 +223,6 @@ public class ConfirmOrderService {
             if (null != lock && lock.isHeldByCurrentThread()) {
                 lock.unlock();
             }
-//            redisTemplate.delete(lockKey);
         }
         return null;
     }

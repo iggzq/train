@@ -77,30 +77,12 @@ const columns = [
   }
 ];
 
-const onAdd = () => {
-  skToken.value = {};
-  visible.value = true;
-};
 
 const onEdit = (record) => {
   skToken.value = window.Tool.copy(record);
   visible.value = true;
 };
 
-const onDelete = (record) => {
-  axios.delete("/business/admin/sk-token/delete/" + record.id).then((response) => {
-    const data = response.data;
-    if (data.success) {
-      notification.success({description: "删除成功！"});
-      handleQuery({
-        page: pagination.value.current,
-        size: pagination.value.pageSize,
-      });
-    } else {
-      notification.error({description: data.message});
-    }
-  });
-};
 
 const handleOk = () => {
   axios.post("/business/admin/sk-token/save", skToken.value).then((response) => {

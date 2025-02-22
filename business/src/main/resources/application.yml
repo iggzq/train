@@ -28,6 +28,11 @@ spring:
 mybatis:
   mapper-locations: classpath:/mapper/**/*xml
 
+rocketmq:
+  name-server: http://localhost:9876
+  producer:
+    group: train
+
 logging:
   level:
     com.study.train.business.mapper: trace
