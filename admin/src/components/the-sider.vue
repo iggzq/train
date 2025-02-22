@@ -66,6 +66,11 @@
         <template #title>
           <coffee-outlined/> &nbsp; 业务管理
         </template>
+        <a-menu-item key="/business/sk-token">
+          <router-link to="/business/sk-token">
+            <user-outlined/> &nbsp; 令牌余量
+          </router-link>
+        </a-menu-item>
 
         <a-menu-item key="/business/confirm-order">
           <router-link to="/business/confirm-order">
@@ -104,11 +109,11 @@
         </a-menu-item>
 
       </a-sub-menu>
-<!--      <a-menu-item key="/about">-->
-<!--        <router-link to="/about">-->
-<!--          <user-outlined/> &nbsp; 关于-->
-<!--        </router-link>-->
-<!--      </a-menu-item>-->
+      <!--      <a-menu-item key="/about">-->
+      <!--        <router-link to="/about">-->
+      <!--          <user-outlined/> &nbsp; 关于-->
+      <!--        </router-link>-->
+      <!--      </a-menu-item>-->
 
 
     </a-menu>
