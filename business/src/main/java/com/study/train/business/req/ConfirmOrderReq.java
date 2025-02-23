@@ -56,6 +56,11 @@ public class ConfirmOrderReq {
     @NotEmpty(message = "【车票】不能为空")
     private List<ConfirmOrderTicketReq> tickets;
 
+    /**
+     * 日志跟踪号
+     */
+    private String logId;
+
 
     @Override
     public String toString() {

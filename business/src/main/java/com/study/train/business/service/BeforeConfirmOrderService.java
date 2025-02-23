@@ -1,22 +1,23 @@
 package com.study.train.business.service;
 
+import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
-import com.study.train.business.enums.RedisKeyPreEnum;
+import com.study.train.business.domain.ConfirmOrder;
+import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.enums.RocketMQTopicEnum;
+import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.req.ConfirmOrderReq;
 import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.exception.BusinessException;
 import com.study.train.common.exception.BusinessExceptionEnum;
+import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.MDC;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class BeforeConfirmOrderService {
@@ -33,12 +34,8 @@ public class BeforeConfirmOrderService {
     @Resource
     private RocketMQTemplate rocketMQTemplate;
 
-    private final RedissonClient redissonClient;
-
-    @Autowired
-    public BeforeConfirmOrderService(RedissonClient redissonClient) {
-        this.redissonClient = redissonClient;
-    }
+    @Resource
+    private ConfirmOrderMapper confirmOrderMapper;
 
     public void beforeSaveConfirmOrder(ConfirmOrderReq req) {
         // 检验令牌余量
@@ -50,32 +47,23 @@ public class BeforeConfirmOrderService {
             throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_SK_TOKEN_FAIL);
         }
 
-        // 添加分布式锁
-        LOG.info("saveConfirm抢锁开始");
-        String lockKey = RedisKeyPreEnum.CONFIRM_ORDER.getKey() + req.getTrainCode() + ":" + req.getDate();
-        RLock lock = null;
-        try {
-            lock = redissonClient.getLock(lockKey);
-            if (lock.tryLock(0, TimeUnit.SECONDS)) {
-                LOG.info("{} 成功拿锁", Thread.currentThread().getName());
-            } else {
-                LOG.info("{} 抢锁失败", Thread.currentThread().getName());
-                throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_LOCK_FAIL);
-            }
-            String reqJson = JSON.toJSONString(req);
-            LOG.info("发送mq开始，消息：{}", reqJson);
-            rocketMQTemplate.convertAndSend(
-                    RocketMQTopicEnum.CONFIRM_ORDER.getKey(),
-                    reqJson
-            );
-            LOG.info("发送mq结束");
-        } catch (InterruptedException e) {
-            LOG.error("购票异常", e);
-        } finally {
-            LOG.info("购票流程结束，释放锁!");
-            if (null != lock && lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
+        DateTime now = DateTime.now();
+        long snowflakeNextId = SnowUtil.getSnowflakeNextId();
+        ConfirmOrder confirmOrder = new ConfirmOrder();
+        BeanUtils.copyProperties(req, confirmOrder);
+        confirmOrder.setId(snowflakeNextId);
+        confirmOrder.setMemberId(loginMemberHolder.getId());
+        confirmOrder.setStatus(ConfirmOrderStatusEnum.INIT.getCode());
+        confirmOrder.setCreateTime(now);
+        confirmOrder.setUpdateTime(now);
+        confirmOrder.setTickets(JSON.toJSONString(req.getTickets()));
+        confirmOrderMapper.insert(confirmOrder);
+
+        req.setLogId(MDC.get("LOG_ID"));
+        req.setMemberId(loginMemberHolder.getId());
+        String reqJson = JSON.toJSONString(req);
+        LOG.info("发送mq开始，消息：{}", reqJson);
+        rocketMQTemplate.convertAndSend(RocketMQTopicEnum.CONFIRM_ORDER.getKey(), reqJson);
+        LOG.info("发送mq结束");
     }
 }

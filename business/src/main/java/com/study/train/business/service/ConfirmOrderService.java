@@ -7,7 +7,6 @@ import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
@@ -29,7 +28,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -73,9 +71,6 @@ public class ConfirmOrderService {
 
     @Autowired
     private RedissonClient redissonClient;
-
-
-
 
 
     public void save(ConfirmOrderSaveReq confirmOrderSaveReq) {
@@ -136,7 +131,7 @@ public class ConfirmOrderService {
 
 
     //    @GlobalTransactional
-    public TicketPayReq saveConfirm(ConfirmOrderReq req) {
+    public void saveConfirm(ConfirmOrderReq req) {
         LOG.info("seata全局事务ID: {}", RootContext.getXID());
         // 添加分布式锁
         LOG.info("saveConfirm抢锁开始");
@@ -168,17 +163,34 @@ public class ConfirmOrderService {
             String trainCode = req.getTrainCode();
             String start = req.getStart();
             String end = req.getEnd();
-            DateTime now = DateTime.now();
             long snowflakeNextId = SnowUtil.getSnowflakeNextId();
-            ConfirmOrder confirmOrder = new ConfirmOrder();
-            BeanUtils.copyProperties(req, confirmOrder);
-            confirmOrder.setId(snowflakeNextId);
-            confirmOrder.setMemberId(loginMemberHolder.getId());
-            confirmOrder.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
-            confirmOrder.setCreateTime(now);
-            confirmOrder.setUpdateTime(now);
-            confirmOrder.setTickets(JSON.toJSONString(tickets));
-            confirmOrderMapper.insert(confirmOrder);
+//            DateTime now = DateTime.now();
+//            ConfirmOrder confirmOrder = new ConfirmOrder();
+//            BeanUtils.copyProperties(req, confirmOrder);
+//            confirmOrder.setId(snowflakeNextId);
+//            confirmOrder.setMemberId(confirmOrder.getMemberId());
+//            confirmOrder.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
+//            confirmOrder.setCreateTime(now);
+//            confirmOrder.setUpdateTime(now);
+//            confirmOrder.setTickets(JSON.toJSONString(tickets));
+//            confirmOrderMapper.insert(confirmOrder);
+
+            ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
+            confirmOrderExample.setOrderByClause("id asc");
+            confirmOrderExample.createCriteria()
+                    .andStatusEqualTo(ConfirmOrderStatusEnum.INIT.getCode())
+                    .andDateEqualTo(date)
+                    .andMemberIdEqualTo(req.getMemberId())
+                    .andTrainCodeEqualTo(trainCode);
+            List<ConfirmOrder> confirmOrders = confirmOrderMapper.selectByExampleWithBLOBs(confirmOrderExample);
+            ConfirmOrder confirmOrder;
+            if (confirmOrders.isEmpty()) {
+                LOG.info("找不到原始订单，结束");
+                return;
+            } else {
+                LOG.info("找到原始订单");
+                confirmOrder = confirmOrders.get(0);
+            }
 
             // 3.查询票余量，判断是否可以购买,若不可以，抛出异常，若可以，则更新票余量
             DailyTrainTicket dailyTrainTicket = dailyTrainTicketService.selectByUnique(date, trainCode, start, end);
@@ -214,17 +226,15 @@ public class ConfirmOrderService {
             ticketPayReq.setAmount(String.valueOf(totalMoney));
             ticketPayReq.setTradeName("车票");
             ticketPayReq.setTradeNum(String.valueOf(snowflakeNextId));
-            return ticketPayReq;
 
         } catch (InterruptedException e) {
             LOG.error("购票异常", e);
         } finally {
-            LOG.info("购票流程结束，释放锁!");
+            LOG.info("{} 购票流程结束，释放锁!", Thread.currentThread().getName());
             if (null != lock && lock.isHeldByCurrentThread()) {
                 lock.unlock();
             }
         }
-        return null;
     }
 
     private void getSeat(List<DailyTrainStationSeat> finalSeatList, Date date, String reqTrainCode, String reqCarriageType, String reqSeatPosition, Integer startIndex, Integer endIndex) {

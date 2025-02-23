@@ -167,7 +167,7 @@ const handleQueryPassengers = () => {
 }
 
 const goPay = async () => {
-  axios.post("/business/confirm-order/save-order",{
+  axios.post("/business/confirm-order/save-order", {
     dailyTrainTicketId: dailyTrainTicket.id,
     date: dailyTrainTicket.date,
     trainCode: dailyTrainTicket.trainCode,
@@ -186,7 +186,7 @@ const goPay = async () => {
       SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
       SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
       router.push("/orderConfirm");
-    }else {
+    } else {
       notification.error({description: resp.data.message});
       router.push("/ticket");
     }
@@ -270,7 +270,7 @@ watch(() => passengerChecked.value, () => {
   justify-content: flex-end;
 }
 
-.top-text{
+.top-text {
   align-items: baseline;
 }
 
