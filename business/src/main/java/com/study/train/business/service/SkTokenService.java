@@ -148,7 +148,6 @@ public class SkTokenService {
         int count = (int) (seatCount * stationCount);
         LOG.info("车次【{}】初始生成令牌数：{}", trainCode, count);
         skToken.setCount(count);
-
         skTokenMapper.insert(skToken);
     }
 

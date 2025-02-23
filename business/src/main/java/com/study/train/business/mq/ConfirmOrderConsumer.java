@@ -17,6 +17,6 @@ public class ConfirmOrderConsumer implements RocketMQListener<MessageExt> {
     @Override
     public void onMessage(MessageExt messageExt) {
         byte[] body = messageExt.getBody();
-        LOG.info("消费确认订单消息：{}", new String(body));
+        LOG.info("ROCKETMQ收到消息，消费确认订单消息：{}", new String(body));
     }
 }

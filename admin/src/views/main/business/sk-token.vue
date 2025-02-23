@@ -117,7 +117,7 @@ const handleQuery = (param) => {
     loading.value = false;
     let data = response.data;
     if (data.success) {
-      skTokens.value = data.content.list;
+      skTokens.value = data.content.data;
       // 设置分页控件的值
       pagination.value.current = param.page;
       pagination.value.total = data.content.total;
