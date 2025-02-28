@@ -9,7 +9,6 @@ import com.study.train.business.mapper.ConfirmOrderMapper;
 import com.study.train.business.mapper.DailyTrainStationSeatMapper;
 import com.study.train.business.mapper.customer.DailyTrainTicketMapperCust;
 import com.study.train.business.req.ConfirmOrderTicketReq;
-import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.utils.SnowUtil;
@@ -25,10 +24,8 @@ import java.util.List;
 
 @Service
 public class AfterConfirmOrderService {
-    private static final Logger LOG = LoggerFactory.getLogger(ConfirmOrderService.class);
 
-    @Resource
-    private LoginMemberHolder loginMemberHolder;
+    private static final Logger LOG = LoggerFactory.getLogger(AfterConfirmOrderService.class);
 
     @Resource
     private DailyTrainStationSeatMapper dailyTrainStationSeatMapper;
@@ -41,7 +38,6 @@ public class AfterConfirmOrderService {
 
     /**
      * 确认订单成功后，修改数据库，同时调用会员服务接口，为会员增加一张车票
-     *
      */
 //    @GlobalTransactional
     public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketReq> tickets, ConfirmOrder confirmOrder, float amount) throws Exception {
@@ -89,7 +85,7 @@ public class AfterConfirmOrderService {
             // 调用会员服务接口，为会员增加一张车票
             MemberTicketReq memberTicketReq = new MemberTicketReq();
             memberTicketReq.setId(SnowUtil.getSnowflakeNextId());
-            memberTicketReq.setMemberId(loginMemberHolder.getId());
+            memberTicketReq.setMemberId(confirmOrder.getMemberId());
             memberTicketReq.setPassengerId(tickets.get(j).getPassengerId());
             memberTicketReq.setPassengerName(tickets.get(j).getPassengerName());
             memberTicketReq.setTrainDate(dailyTrainTicket.getDate());

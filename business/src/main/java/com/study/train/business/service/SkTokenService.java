@@ -24,6 +24,7 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -54,26 +55,31 @@ public class SkTokenService {
     public SkTokenService(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
+
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+    @Value("${spring.profiles.active}")
+    private String env;
 
 
     public boolean validSkToken(Date date, String trainCode, Long memberId) {
         LOG.info("会员【{}】获取日期【{}】车次【{}】的令牌开始", memberId, DateUtil.formatDate(date), trainCode);
         String lockKey = RedisKeyPreEnum.SK_TOKEN.getKey() + trainCode + ":" + DateUtil.formatDate(date) + ":" + memberId;
         RLock lock;
-        try {
-            lock = redissonClient.getLock(lockKey);
-            if (lock.tryLock(0, 5, TimeUnit.SECONDS)) {
-                LOG.info("{} 成功拿到令牌锁", Thread.currentThread().getName());
-            } else {
-                LOG.info("{} 没抢到令牌锁", Thread.currentThread().getName());
+        if (!env.equals("dev")) {
+            try {
+                lock = redissonClient.getLock(lockKey);
+                if (lock.tryLock(0, 5, TimeUnit.SECONDS)) {
+                    LOG.info("{} 成功拿到令牌锁", Thread.currentThread().getName());
+                } else {
+                    LOG.info("{} 没抢到令牌锁", Thread.currentThread().getName());
+                    return false;
+                }
+            } catch (InterruptedException e) {
+                LOG.error("{} 获取令牌锁异常", Thread.currentThread().getName());
                 return false;
             }
-        } catch (InterruptedException e) {
-            LOG.error("{} 获取令牌锁异常", Thread.currentThread().getName());
-            return false;
         }
         String skTokenCountKey = RedisKeyPreEnum.SK_TOKEN_COUNT.getKey() + trainCode + ":" + DateUtil.formatDate(date) + ":" + memberId;
         Object skTokenCount = stringRedisTemplate.opsForValue().get(skTokenCountKey);

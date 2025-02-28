@@ -91,7 +91,7 @@ const passengers = ref([]);
 const passengerOptions = ref([]);
 const passengerChecked = ref([]);
 const tickets = ref([]);
-let totalMoney = 0;
+// let totalMoney = 0;
 const PASSENGER_TYPE_ARRAY = window.PASSENGER_TYPE_ARRAY;
 const orderInfo = ref({});
 const pagination = ref({
@@ -176,16 +176,16 @@ const goPay = async () => {
     tickets: tickets.value
   }).then((resp) => {
     if (resp.data.success) {
-      let data = resp.data;
+      // let data = resp.data;
       orderInfo.value = resp.data;
-      totalMoney = data.content.amount;
+      // totalMoney = data.content.amount;
       notification.success({description: "下单成功！"});
-      SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
-      SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
-      SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
-      SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
-      SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
-      router.push("/orderConfirm");
+      // SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
+      // SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
+      // SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
+      // SessionStorage.set(SESSION_CONFIRM_TICKETS, tickets);
+      // SessionStorage.set(SESSION_PAY_INFO, orderInfo.value);
+      router.push("/my-ticket");
     } else {
       notification.error({description: resp.data.message});
       router.push("/ticket");

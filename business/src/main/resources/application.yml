@@ -4,6 +4,8 @@ server:
     context-path: /business
 
 spring:
+  profiles:
+    active: dev
   #数据库连接
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
