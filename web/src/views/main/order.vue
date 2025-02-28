@@ -74,6 +74,21 @@
   <div class="GoPay">
     <a-button type="primary" @click="goPay" shape="round">去支付</a-button>
   </div>
+  <a-modal v-model:visible="lineModalVisible" title="排队购票" :footer="null" :maskClosable="false" :closable="false"
+           style="top: 50px; width: 400px">
+    <div class="book-line">
+      <div v-show="confirmOrderLineCount < 0">
+        <loading-outlined/>
+        系统正在处理中...
+      </div>
+      <div v-show="confirmOrderLineCount >= 0">
+        <loading-outlined/>
+        您前面还有{{ confirmOrderLineCount }}位用户在购票，排队中，请稍候
+      </div>
+    </div>
+    <br/>
+<!--    <a-button type="danger" @click="onCancelOrder">取消购票</a-button>-->
+  </a-modal>
 </template>
 <script setup>
 import {onMounted, ref, watch} from "vue";
@@ -113,6 +128,10 @@ const columns = [{
   title: '座位编号',
   dataIndex: 'seatPosition'
 }];
+const lineModalVisible = ref(false);
+const confirmOrderLineCount = ref(-1);
+const confirmOrderId = ref();
+
 for (let KEY in SEAT_TYPE) {
   let key = KEY.toLowerCase();
   if (dailyTrainTicket[key] >= 0) {
@@ -178,8 +197,11 @@ const goPay = async () => {
     if (resp.data.success) {
       // let data = resp.data;
       orderInfo.value = resp.data;
+      confirmOrderId.value = resp.data.content;
       // totalMoney = data.content.amount;
-      notification.success({description: "下单成功！"});
+      // notification.success({description: "下单成功！"});
+      lineModalVisible.value = true;
+      queryLineCount();
       // SessionStorage.set(SESSION_TOTAL_MONEY, totalMoney);
       // SessionStorage.set(SESSION_CONFIRM_SEAT_TYPES, seatTypes);
       // SessionStorage.set(SESSION_CONFIRM_COLUMNS, columns);
@@ -192,6 +214,44 @@ const goPay = async () => {
     }
 
   })
+
+// 确认订单后定时查询
+  let queryLineCountInterval;
+
+  // 定时查询订单结果/排队数量
+  const queryLineCount = () => {
+    confirmOrderLineCount.value = -1;
+    queryLineCountInterval = setInterval(function () {
+      axios.get("/business/confirm-order/query-line-count?id=" + confirmOrderId.value).then((response) => {
+        let data = response.data;
+        if (data.success) {
+          let result = data.content;
+          switch (result) {
+            case -1 :
+              notification.success({description: "购票成功！"});
+              lineModalVisible.value = false;
+              clearInterval(queryLineCountInterval);
+              break;
+            case -2:
+              notification.error({description: "购票失败！"});
+              lineModalVisible.value = false;
+              clearInterval(queryLineCountInterval);
+              break;
+            case -3:
+              notification.error({description: "抱歉，没票了！"});
+              lineModalVisible.value = false;
+              clearInterval(queryLineCountInterval);
+              break;
+            default:
+              confirmOrderLineCount.value = result;
+          }
+        } else {
+          notification.error({description: data.message});
+        }
+      });
+    }, 500);
+  };
+
   let seatTypeTmp = Tool.copy(seatTypes);
   if (tickets.value.length === 0) {
     notification.error({description: '请选择乘客！'});

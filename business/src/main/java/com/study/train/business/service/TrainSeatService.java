@@ -6,14 +6,16 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.business.domain.*;
-import com.study.train.business.req.TrainSeatQueryReq;
+import com.study.train.business.domain.TrainCarriage;
+import com.study.train.business.domain.TrainSeat;
+import com.study.train.business.domain.TrainSeatExample;
 import com.study.train.business.enums.SeatColEnum;
-import com.study.train.common.utils.SnowUtil;
-import com.study.train.common.resp.PageResp;
-import com.study.train.business.req.TrainSeatSaveReq;
 import com.study.train.business.mapper.TrainSeatMapper;
+import com.study.train.business.req.TrainSeatQueryReq;
+import com.study.train.business.req.TrainSeatSaveReq;
 import com.study.train.business.resp.TrainSeatQueryResp;
+import com.study.train.common.resp.PageResp;
+import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,7 @@ public class TrainSeatService {
             trainSeat.setCreateTime(now);
             trainSeat.setUpdateTime(now);
             trainSeatMapper.insert(trainSeat);
-        }else {
+        } else {
             trainSeat.setUpdateTime(now);
             trainSeatMapper.updateByPrimaryKey(trainSeat);
         }
@@ -65,19 +67,19 @@ public class TrainSeatService {
 
         List<TrainSeatQueryResp> trainSeatQueryResps = BeanUtil.copyToList(trainSeats, TrainSeatQueryResp.class);
         PageResp<TrainSeatQueryResp> pageResp = new PageResp<>();
-            pageResp.setTotal(pageInfo.getTotal());
-            pageResp.setData(trainSeatQueryResps);
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(trainSeatQueryResps);
 
         return pageResp;
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         trainSeatMapper.deleteByPrimaryKey(id);
     }
 
     // 生成座位
     @Transactional
-    public void genTrainSeat(String trainCode){
+    public void genTrainSeat(String trainCode) {
         DateTime now = DateTime.now();
         //清空座位
         TrainSeatExample trainSeatExample = new TrainSeatExample();
@@ -105,7 +107,7 @@ public class TrainSeatService {
                     trainSeat.setId(SnowUtil.getSnowflakeNextId());
                     trainSeat.setTrainCode(trainCode);
                     trainSeat.setCarriageIndex(trainCarriage.getIndex());
-                    trainSeat.setRow(StrUtil.fillBefore(String.valueOf(row),'0',2));
+                    trainSeat.setRow(StrUtil.fillBefore(String.valueOf(row), '0', 2));
                     trainSeat.setCol(seatColEnum.getKey());
                     trainSeat.setSeatType(seatType);
                     trainSeat.setCarriageSeatIndex(seatIndex++);
