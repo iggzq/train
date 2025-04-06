@@ -12,10 +12,12 @@ import com.alibaba.fastjson2.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
+import com.study.train.business.domain.TrainSeatIsSoldOutAndData;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.enums.RedisKeyPreEnum;
 import com.study.train.business.enums.SeatTypeEnum;
 import com.study.train.business.mapper.ConfirmOrderMapper;
+import com.study.train.business.mapper.DailyTrainStationCarriageMapper;
 import com.study.train.business.req.ConfirmOrderQueryReq;
 import com.study.train.business.req.ConfirmOrderReq;
 import com.study.train.business.req.ConfirmOrderSaveReq;
@@ -37,10 +39,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -71,6 +70,9 @@ public class ConfirmOrderService {
 
     @Resource
     private RedissonClient redissonClient;
+
+    @Resource
+    private DailyTrainStationCarriageMapper dailyTrainStationCarriageMapper;
 
 
     public void save(ConfirmOrderSaveReq confirmOrderSaveReq) {
@@ -129,13 +131,14 @@ public class ConfirmOrderService {
     }
 
 
-    //    @GlobalTransactional
+//    @GlobalTransactional
     public void saveConfirm(ConfirmOrderReq req) {
         LOG.info("seata全局事务ID: {}", RootContext.getXID());
         // 添加分布式锁
         LOG.info("saveConfirm抢锁开始");
         String lockKey = RedisKeyPreEnum.CONFIRM_ORDER.getKey() + req.getTrainCode() + ":" + req.getDate();
         RLock lock = null;
+//        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10,10,0,TimeUnit.SECONDS,new LinkedBlockingDeque<>(10));
         try {
             lock = redissonClient.getLock(lockKey);
             if (lock.tryLock(0, TimeUnit.SECONDS)) {
@@ -149,7 +152,7 @@ public class ConfirmOrderService {
             // 1.检查该乘客是否已经下过单,每个日期的每个车次用户只能下一张单
 
             while (true) {
-                // 取确认订单表的记录，同日期车次，状态是I，分页处理，每次取N条
+                // 取确认订单表的记录，同日期车次，状态是I，分页处理，每次取100条
                 ConfirmOrderExample confirmOrderExample = new ConfirmOrderExample();
                 confirmOrderExample.setOrderByClause("id asc");
                 ConfirmOrderExample.Criteria criteria = confirmOrderExample.createCriteria();
@@ -165,6 +168,21 @@ public class ConfirmOrderService {
                 } else {
                     LOG.info("本次处理{}条订单", confirmOrderList.size());
                 }
+                // 用于存储按出发站和到达站分组后的订单
+                Map<String, List<ConfirmOrder>> ordersByStationPair = new HashMap<>();
+                // 将总集合confirmOrderList按出发站和到达站拆成多个订单集合，然后批量售卖
+//                confirmOrderList.forEach(confirmOrder -> {
+//                    String stationPair = confirmOrder.getStart() + ":" + confirmOrder.getEnd();
+//                    ordersByStationPair.computeIfAbsent(stationPair, k -> new ArrayList<>()).add(confirmOrder);
+//                });
+//                for (Map.Entry<String, List<ConfirmOrder>> entry : ordersByStationPair.entrySet()) {
+//                    List<ConfirmOrder> orders = entry.getValue();
+//                    try{
+//                        batchSell(orders);
+//                    }catch (BusinessException e){
+//                        LOG.info("本订单余票不足，继续售卖下一个订单");
+//                    }
+//                }
                 // 一条一条的卖
                 confirmOrderList.forEach(confirmOrder -> {
                     try {
@@ -200,6 +218,15 @@ public class ConfirmOrderService {
         confirmOrderForUpdate.setUpdateTime(new Date());
         confirmOrderForUpdate.setStatus(confirmOrder.getStatus());
         confirmOrderMapper.updateByPrimaryKeySelective(confirmOrderForUpdate);
+    }
+
+    /**
+     * 批量售票
+     */
+    private void batchSell(List<ConfirmOrder> orders) {
+        LOG.info("批量售票开始");
+        orders.forEach(confirmOrder -> {
+        });
     }
 
     /**
@@ -276,71 +303,80 @@ public class ConfirmOrderService {
         LOG.info("共查询{}个符合条件的车厢", dailyTrainStationCarriages.size());
         // 3.遍历所有符合条件的车厢，从车厢中选座位
         for (DailyTrainStationCarriage dailyTrainStationCarriage : dailyTrainStationCarriages) {
-            LOG.info("开始从车厢{}选座", dailyTrainStationCarriage.getIndex());
-            List<DailyTrainStationSeat> dailyTrainStationSeats = dailyTrainStationSeatService.selectByCarriage(date, reqTrainCode, dailyTrainStationCarriage.getIndex());
-            // 4.遍历车厢中的座位，判断座位是否可以出售，若可以，则加入到getSeatList中
-            // 5.根据用户选择的座位类型来决定i的初始值和跳转
-            int start = 0;
-            int jump = 1;
-            if (reqCarriageType.equals(SeatTypeEnum.YDZ.getKey())) {
-                if (ObjectUtil.isNotNull(reqSeatPosition)) {
-                    jump = 4;
-                    start = switch (reqSeatPosition) {
-                        case "A" -> 0;
-                        case "C" -> 1;
-                        case "D" -> 2;
-                        case "F" -> 3;
-                        default -> start;
-                    };
-                }
-            } else if (reqCarriageType.equals(SeatTypeEnum.EDZ.getKey())) {
-                if (ObjectUtil.isNotNull(reqSeatPosition)) {
-                    jump = 5;
-                    start = switch (reqSeatPosition) {
-                        case "A" -> 0;
-                        case "B" -> 1;
-                        case "C" -> 2;
-                        case "D" -> 3;
-                        case "F" -> 4;
-                        default -> start;
-                    };
-                }
+            if(dailyTrainStationCarriage.getIsFull()){
+                continue;
             }
 
-            // 6.遍历车厢中的座位，判断座位是否可以出售，若可以，则加入到getSeatList中
-            for (; start < dailyTrainStationSeats.size(); start += jump) {
-                // 7.获取车厢中的座位对象
-                DailyTrainStationSeat dailyTrainSeat = dailyTrainStationSeats.get(start);
-                String col = dailyTrainSeat.getCol();
-                // 8.
-                boolean alreadySellFlag = false;
-                for (DailyTrainStationSeat finalSeat : finalSeatList) {
-                    if (finalSeat.getId().equals(dailyTrainSeat.getId())) {
-                        alreadySellFlag = true;
-                        break;
+            LOG.info("开始从车厢{}选座", dailyTrainStationCarriage.getIndex());
+            TrainSeatIsSoldOutAndData trainSeatIsSoldOutAndData = dailyTrainStationSeatService.selectByCarriage(date, reqTrainCode, dailyTrainStationCarriage.getIndex());
+            if(!trainSeatIsSoldOutAndData.getIsSoldOut()) {
+                // 4.遍历车厢中的座位，判断座位是否可以出售，若可以，则加入到getSeatList中
+                // 5.根据用户选择的座位类型来决定i的初始值和跳转
+                int start = 0;
+                int jump = 1;
+                if (reqCarriageType.equals(SeatTypeEnum.YDZ.getKey())) {
+                    if (ObjectUtil.isNotNull(reqSeatPosition)) {
+                        jump = 4;
+                        start = switch (reqSeatPosition) {
+                            case "A" -> 0;
+                            case "C" -> 1;
+                            case "D" -> 2;
+                            case "F" -> 3;
+                            default -> start;
+                        };
                     }
-                }
-                if (alreadySellFlag) {
-                    LOG.info("座位{}已被出售", dailyTrainSeat.getCarriageSeatIndex());
-                    continue;
+                } else if (reqCarriageType.equals(SeatTypeEnum.EDZ.getKey())) {
+                    if (ObjectUtil.isNotNull(reqSeatPosition)) {
+                        jump = 5;
+                        start = switch (reqSeatPosition) {
+                            case "A" -> 0;
+                            case "B" -> 1;
+                            case "C" -> 2;
+                            case "D" -> 3;
+                            case "F" -> 4;
+                            default -> start;
+                        };
+                    }
                 }
 
-                if (StrUtil.isBlank(reqSeatPosition)) {
-                    LOG.info("有选座");
-                } else {
-                    if (!reqSeatPosition.equals(col)) {
+                // 6.遍历车厢中的座位，判断座位是否可以出售，若可以，则加入到getSeatList中
+                for (; start < trainSeatIsSoldOutAndData.getList().size(); start += jump) {
+                    // 7.获取车厢中的座位对象
+                    DailyTrainStationSeat dailyTrainSeat = trainSeatIsSoldOutAndData.getList().get(start);
+                    String col = dailyTrainSeat.getCol();
+                    // 8.
+                    boolean alreadySellFlag = false;
+                    for (DailyTrainStationSeat finalSeat : finalSeatList) {
+                        if (finalSeat.getId().equals(dailyTrainSeat.getId())) {
+                            alreadySellFlag = true;
+                            break;
+                        }
+                    }
+                    if (alreadySellFlag) {
+                        LOG.info("座位{}已被出售", dailyTrainSeat.getCarriageSeatIndex());
                         continue;
                     }
+
+                    if (StrUtil.isBlank(reqSeatPosition)) {
+                        LOG.info("有选座");
+                    } else {
+                        if (!reqSeatPosition.equals(col)) {
+                            continue;
+                        }
+                    }
+                    boolean canSellFlag = canSell(dailyTrainSeat, startIndex, endIndex);
+                    if (canSellFlag) {
+                        LOG.info("可以售卖，已选座");
+                        getSeatList.add(dailyTrainSeat);
+                    } else {
+                        continue;
+                    }
+                    finalSeatList.addAll(getSeatList);
                 }
-                boolean canSellFlag = canSell(dailyTrainSeat, startIndex, endIndex);
-                if (canSellFlag) {
-                    LOG.info("可以选座");
-                    getSeatList.add(dailyTrainSeat);
-                } else {
-                    continue;
-                }
-                finalSeatList.addAll(getSeatList);
-                return;
+            }else{
+                LOG.info("车厢{}已售完", dailyTrainStationCarriage.getIndex());
+                dailyTrainStationCarriage.setIsFull(true);
+                dailyTrainStationCarriageMapper.updateByPrimaryKey(dailyTrainStationCarriage);
             }
         }
     }
@@ -367,6 +403,7 @@ public class ConfirmOrderService {
 
     private Float reduceTicketNum(ConfirmOrderReq confirmOrderReq, DailyTrainTicket dailyTrainTicket) {
         float totalMoney = 0f;
+        // 这里缺里程的计算，因为里程数不清楚，这里暂不处理
         for (ConfirmOrderTicketReq ticketReq : confirmOrderReq.getTickets()) {
             String seatTypeCode = ticketReq.getSeatTypeCode();
             SeatTypeEnum seatTypeEnum = EnumUtil.getBy(SeatTypeEnum::getKey, seatTypeCode);

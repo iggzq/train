@@ -7,13 +7,17 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.study.train.business.domain.*;
-import com.study.train.common.utils.SnowUtil;
-import com.study.train.common.resp.PageResp;
+import com.study.train.business.domain.DailyTrainStationSeat;
+import com.study.train.business.domain.DailyTrainStationSeatExample;
+import com.study.train.business.domain.TrainSeat;
+import com.study.train.business.domain.TrainStation;
+import com.study.train.business.domain.TrainSeatIsSoldOutAndData;
+import com.study.train.business.mapper.DailyTrainStationSeatMapper;
 import com.study.train.business.req.DailyTrainStationSeatQueryReq;
 import com.study.train.business.req.DailyTrainStationSeatSaveReq;
-import com.study.train.business.mapper.DailyTrainStationSeatMapper;
 import com.study.train.business.resp.DailyTrainStationSeatQueryResp;
+import com.study.train.common.resp.PageResp;
+import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,9 +136,12 @@ public class DailyTrainStationSeatService {
         return (int) l;
     }
 
-    public List<DailyTrainStationSeat> selectByCarriage(Date date,String trainCode,Integer carriageIndex){
+    public TrainSeatIsSoldOutAndData selectByCarriage(Date date,String trainCode,Integer carriageIndex){
+        TrainSeatIsSoldOutAndData trainSeatStatusAndData = new TrainSeatIsSoldOutAndData();
         DailyTrainStationSeatExample dailyTrainStationSeatExample = new DailyTrainStationSeatExample();
         dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode).andCarriageIndexEqualTo(carriageIndex);
-        return dailyTrainStationSeatMapper.selectByExample(dailyTrainStationSeatExample);
+        trainSeatStatusAndData.setList(dailyTrainStationSeatMapper.selectByExample(dailyTrainStationSeatExample));
+        trainSeatStatusAndData.setIsSoldOut(dailyTrainStationSeatMapper.isSoldOut(date,trainCode,carriageIndex));
+        return trainSeatStatusAndData;
     }
 }

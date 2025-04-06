@@ -10,6 +10,7 @@
     <result column="seat_count" jdbcType="INTEGER" property="seatCount" />
     <result column="row_count" jdbcType="INTEGER" property="rowCount" />
     <result column="col_count" jdbcType="INTEGER" property="colCount" />
+    <result column="is_full" jdbcType="BOOLEAN" property="isFull"/>
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>

@@ -3,10 +3,10 @@ package com.study.train.common.context;
 import com.study.train.common.resp.MemberLoginResp;
 import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.SessionScope;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Component
-@SessionScope
+@RequestScope
 public class LoginMemberHolder {
 
     private MemberLoginResp member;

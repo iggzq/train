@@ -4,6 +4,7 @@ import com.study.train.business.domain.DailyTrainStationSeat;
 import com.study.train.business.domain.DailyTrainStationSeatExample;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface DailyTrainStationSeatMapper {
@@ -30,5 +31,7 @@ public interface DailyTrainStationSeatMapper {
     int updateByPrimaryKeySelective(DailyTrainStationSeat record);
 
     int updateByPrimaryKey(DailyTrainStationSeat record);
+
+    Boolean isSoldOut(Date date, String trainCode,Integer carriageIndex);
 
 }
