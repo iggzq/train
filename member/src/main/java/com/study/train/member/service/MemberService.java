@@ -8,6 +8,7 @@ import com.study.train.common.utils.JWTutil;
 import com.study.train.common.utils.SnowUtil;
 import com.study.train.member.domain.Member;
 import com.study.train.member.domain.MemberExample;
+import com.study.train.member.enums.RedisKeyPreEnum;
 import com.study.train.member.req.MemberLoginReq;
 import com.study.train.member.mapper.MemberMapper;
 import com.study.train.member.req.MemberRegisterReq;
@@ -16,10 +17,12 @@ import com.study.train.member.resp.MemberLoginResp;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class MemberService {
@@ -28,6 +31,9 @@ public class MemberService {
 
     @Resource
     private MemberMapper memberMapper;
+
+    @Resource
+    private RedisTemplate<String,String> redisTemplate;
 
     public int count() {
         return Math.toIntExact(memberMapper.countByExample(null));
@@ -93,9 +99,10 @@ public class MemberService {
 
         // 生成JWT
         String token = JWTutil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
+
+        // 保存用户登录状态到Redis中
+        redisTemplate.opsForValue().set(RedisKeyPreEnum.USER_LOGIN.getKey() + token, RedisKeyPreEnum.USER_LOGIN.getDesc(),24, TimeUnit.HOURS);
         memberLoginResp.setToken(token);
-
-
         return memberLoginResp;
 
     }

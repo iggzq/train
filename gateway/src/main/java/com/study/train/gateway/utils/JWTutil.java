@@ -19,7 +19,6 @@ public class JWTutil {
 
     private static final Logger LOG = LoggerFactory.getLogger(JWTutil.class);
 
-
     public static String createToken(Long id, String mobile) {
 
         DateTime now = DateTime.now();
