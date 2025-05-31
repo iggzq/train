@@ -13,7 +13,6 @@ import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
-import org.apache.seata.core.context.RootContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,7 @@ public class AfterConfirmOrderService {
      */
 //    @GlobalTransactional
     public List<MemberTicketReq> afterDoConfirm(DailyTrainTicket dailyTrainTicket, List<DailyTrainStationSeat> finalSeats, List<ConfirmOrderTicketReq> tickets, ConfirmOrder confirmOrder, float amount) throws Exception {
-        LOG.info("seata全局事务ID save:{}", RootContext.getXID());
+//        LOG.info("seata全局事务ID save:{}", RootContext.getXID());
         List<MemberTicketReq> memberTicketReqs = new ArrayList<>();
         for (int j = 0; j < finalSeats.size(); j++) {
             DailyTrainStationSeat dailyTrainSeat = finalSeats.get(j);
@@ -98,7 +97,7 @@ public class AfterConfirmOrderService {
             memberTicketReq.setEndStation(dailyTrainTicket.getEnd());
             memberTicketReq.setEndTime(dailyTrainTicket.getEndTime());
             memberTicketReq.setSeatType(dailyTrainSeat.getSeatType());
-            memberTicketReq.setStatus(ConfirmOrderStatusEnum.PENDING.getCode());
+            memberTicketReq.setStatus(ConfirmOrderStatusEnum.SUCCESS.getCode());
             CommonResp<Object> commonResp = memberFeign.save(memberTicketReq);
             memberTicketReqs.add(memberTicketReq);
             LOG.info("调用member接口，返回：{}", commonResp);

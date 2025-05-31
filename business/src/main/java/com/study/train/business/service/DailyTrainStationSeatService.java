@@ -90,7 +90,7 @@ public class DailyTrainStationSeatService {
         dailyTrainStationSeatExample.createCriteria().andDateEqualTo(date).andTrainCodeEqualTo(trainCode);
         dailyTrainStationSeatMapper.deleteByExample(dailyTrainStationSeatExample);
 
-
+        //获取该车次所有车站信息
         List<TrainStation> trainStations = trainStationService.selectByTrainCode(trainCode);
         String sell = StrUtil.fillBefore("", '0', trainStations.size() - 1);
 

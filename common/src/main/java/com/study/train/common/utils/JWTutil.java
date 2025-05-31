@@ -12,9 +12,12 @@ import java.util.Map;
 
 public class JWTutil {
 
+    // 密钥
     public static final String KEY = "HELLO,WORLD";
 
-    public static String createToken(Long id, String mobile) {
+    public static final String PRIVATE_KEY = "privateKey";
+
+    public static String createToken(Long id, String mobile){
         // 签发时间
         DateTime now = DateTime.now();
         // 过期时间
@@ -26,8 +29,13 @@ public class JWTutil {
         payload.put(JWTPayload.NOT_BEFORE, now);
         payload.put("id", id);
         payload.put("mobile", mobile);
-        // 生成token
+
+        //使用KEY创建token
         return JWTUtil.createToken(payload, KEY.getBytes());
+        //使用rsa256
+//        JWTSigner rs256 = JWTSignerUtil.createSigner("RS256", PRIVATE_KEY.getBytes());
+        // 生成token
+//        return JWTUtil.createToken(payload, rs256);
     }
 
     public static boolean validate(String token){
@@ -36,6 +44,8 @@ public class JWTutil {
     }
 
     public static JSONObject getJSONObject(String token){
+//        JWTSigner rs256 = JWTSignerUtil.createSigner("RS256", PRIVATE_KEY.getBytes());
+//        JWT jwt = JWTUtil.parseToken(token).setSigner(rs256);
         JWT jwt = JWTUtil.parseToken(token).setKey(KEY.getBytes());
         JSONObject payloads = jwt.getPayloads();
         payloads.remove(JWTPayload.NOT_BEFORE);

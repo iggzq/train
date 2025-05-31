@@ -99,7 +99,6 @@ public class MemberService {
 
         // 生成JWT
         String token = JWTutil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
-
         // 保存用户登录状态到Redis中
         redisTemplate.opsForValue().set(RedisKeyPreEnum.USER_LOGIN.getKey() + token, RedisKeyPreEnum.USER_LOGIN.getDesc(),24, TimeUnit.HOURS);
         memberLoginResp.setToken(token);

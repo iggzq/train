@@ -210,8 +210,8 @@
   <select id="isSoldOut" resultType="java.lang.Boolean">
     SELECT COUNT(*) = 0 AS sold_out
     FROM daily_train_seat
-    WHERE carriageIndex = #{carriageIndex}
-      AND trainCode = #{trainCode}
+    WHERE carriage_index = #{carriageIndex}
+      AND train_code = #{trainCode}
       AND date = #{date}
       AND REPLACE(sell, '1', '') != '';
   </select>

@@ -19,7 +19,6 @@ import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +66,6 @@ public class DailyTrainService {
 
     }
 
-    @Cacheable(value = "DailyTrainService.queryList")
     public PageResp<DailyTrainQueryResp> queryList(DailyTrainQueryReq dailyTrainQueryReq) {
         DailyTrainExample dailyTrainExample = new DailyTrainExample();
         dailyTrainExample.setOrderByClause("date desc");
@@ -129,6 +127,7 @@ public class DailyTrainService {
         dailyTrain.setCreateTime(now);
         dailyTrain.setUpdateTime(now);
         dailyTrain.setDate(date);
+        //保存每日车次信息
         dailyTrainMapper.insert(dailyTrain);
         //生成该车次车站信息
         dailyTrainStationService.genDaily(date, train.getCode());

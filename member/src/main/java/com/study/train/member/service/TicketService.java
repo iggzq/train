@@ -13,7 +13,7 @@ import com.study.train.member.mapper.TicketMapper;
 import com.study.train.member.req.TicketQueryReq;
 import com.study.train.member.resp.TicketQueryResp;
 import jakarta.annotation.Resource;
-import org.apache.seata.core.context.RootContext;
+//import org.apache.seata.core.context.RootContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class TicketService {
     TicketMapper ticketMapper;
 
     public void save(MemberTicketReq memberTicketReq) {
-        LOG.info("seata全局事务ID save:{}", RootContext.getXID());
+//        LOG.info("seata全局事务ID save:{}", RootContext.getXID());
         DateTime now = new DateTime();
         Ticket ticket = BeanUtil.copyProperties(memberTicketReq, Ticket.class);
         ticket.setCreateTime(now);

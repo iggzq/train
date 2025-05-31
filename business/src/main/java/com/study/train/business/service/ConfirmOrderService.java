@@ -12,7 +12,6 @@ import com.alibaba.fastjson2.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.study.train.business.domain.*;
-import com.study.train.business.domain.TrainSeatIsSoldOutAndData;
 import com.study.train.business.enums.ConfirmOrderStatusEnum;
 import com.study.train.business.enums.RedisKeyPreEnum;
 import com.study.train.business.enums.SeatTypeEnum;
@@ -30,7 +29,6 @@ import com.study.train.common.req.MemberTicketReq;
 import com.study.train.common.resp.PageResp;
 import com.study.train.common.utils.SnowUtil;
 import jakarta.annotation.Resource;
-import org.apache.seata.core.context.RootContext;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -133,7 +131,7 @@ public class ConfirmOrderService {
 
 //    @GlobalTransactional
     public void saveConfirm(ConfirmOrderReq req) {
-        LOG.info("seata全局事务ID: {}", RootContext.getXID());
+//        LOG.info("seata全局事务ID: {}", RootContext.getXID());
         // 添加分布式锁
         LOG.info("saveConfirm抢锁开始");
         String lockKey = RedisKeyPreEnum.CONFIRM_ORDER.getKey() + req.getTrainCode() + ":" + req.getDate();
@@ -285,7 +283,7 @@ public class ConfirmOrderService {
         try {
             List<MemberTicketReq> memberTicketReqs = afterConfirmOrderService.afterDoConfirm(dailyTrainTicket, finalSeatList, tickets, confirmOrder, totalMoney);
             // 6.设置支付过期时间,若订单未支付，则恢复余票
-            paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 5, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
+//            paymentService.setPaymentStatusWithExpiration(String.valueOf(confirmOrder.getId()), confirmOrder, 5, finalSeatList, dailyTrainTicket, req, memberTicketReqs);
         } catch (Exception e) {
             LOG.error("保存购票信息失败", e);
             throw new BusinessException(BusinessExceptionEnum.CONFIRM_ORDER_EXCEPTION);
@@ -338,7 +336,6 @@ public class ConfirmOrderService {
                         };
                     }
                 }
-
                 // 6.遍历车厢中的座位，判断座位是否可以出售，若可以，则加入到getSeatList中
                 for (; start < trainSeatIsSoldOutAndData.getList().size(); start += jump) {
                     // 7.获取车厢中的座位对象
@@ -358,7 +355,7 @@ public class ConfirmOrderService {
                     }
 
                     if (StrUtil.isBlank(reqSeatPosition)) {
-                        LOG.info("有选座");
+                        LOG.info("无选座");
                     } else {
                         if (!reqSeatPosition.equals(col)) {
                             continue;
@@ -372,6 +369,7 @@ public class ConfirmOrderService {
                         continue;
                     }
                     finalSeatList.addAll(getSeatList);
+                    break;
                 }
             }else{
                 LOG.info("车厢{}已售完", dailyTrainStationCarriage.getIndex());

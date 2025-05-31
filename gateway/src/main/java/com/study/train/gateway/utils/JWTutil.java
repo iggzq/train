@@ -15,6 +15,7 @@ import java.util.Map;
 
 public class JWTutil {
 
+    // 服务器端私钥
     public static final String KEY = "HELLO,WORLD";
 
     private static final Logger LOG = LoggerFactory.getLogger(JWTutil.class);
@@ -38,6 +39,7 @@ public class JWTutil {
 
     public static boolean validate(String token) {
         try {
+            //Key为服务器端私钥
             JWT jwt = JWTUtil.parseToken(token).setKey(KEY.getBytes());
             return jwt.validate(0);
         } catch (Exception e) {
