@@ -31,6 +31,9 @@ const routes = [
         },{
             path: '/my-ticket',
             component: () => import('../views/main/my-ticket.vue')
+        },{
+            path: '/all-ticket',
+            component: () => import('../views/main/all-ticket.vue')
         }]
     },
     {

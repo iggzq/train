@@ -37,4 +37,9 @@ public class MemberController {
     public CommonResp<MemberLoginResp> login(@Valid @RequestBody MemberLoginReq memberLoginReq) {
         return new CommonResp<>(memberService.login(memberLoginReq));
     }
+
+    @GetMapping("/getPermission")
+    public  CommonResp<Boolean> getPermission(@RequestParam String mobile) {
+        return new CommonResp<>(memberService.getPermission(mobile));
+    }
 }

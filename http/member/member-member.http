@@ -29,3 +29,7 @@ Content-Type: application/json
     client.global.set("token",response.body.content.token);
 %}
 ###
+###
+GET http://localhost:8000/member/admin/member/query-list
+Accept: application/json
+###

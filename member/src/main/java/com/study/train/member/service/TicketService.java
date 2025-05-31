@@ -11,9 +11,9 @@ import com.study.train.member.domain.Ticket;
 import com.study.train.member.domain.TicketExample;
 import com.study.train.member.mapper.TicketMapper;
 import com.study.train.member.req.TicketQueryReq;
+import com.study.train.member.req.TicketUpdatePublicReq;
 import com.study.train.member.resp.TicketQueryResp;
 import jakarta.annotation.Resource;
-//import org.apache.seata.core.context.RootContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -66,6 +66,29 @@ public class TicketService {
         pageResp.setData(ticketQueryResps);
 
         return pageResp;
+    }
+
+    public PageResp<TicketQueryResp> queryListStatus(TicketQueryReq ticketQueryReq) {
+        PageHelper.startPage(ticketQueryReq.getPage(), ticketQueryReq.getSize());
+        List<Ticket> tickets = ticketMapper.selectByPermission();
+
+        PageInfo<Ticket> pageInfo = new PageInfo<>(tickets);
+
+        LOG.info("总行数：{}", pageInfo.getTotal());
+        LOG.info("总页数:{}", pageInfo.getPages());
+
+        List<TicketQueryResp> ticketQueryResps = BeanUtil.copyToList(tickets, TicketQueryResp.class);
+        PageResp<TicketQueryResp> pageResp = new PageResp<>();
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setData(ticketQueryResps);
+        return pageResp;
+    }
+
+    public void changePublicShow(TicketUpdatePublicReq memberTicketReq) {
+        DateTime now = new DateTime();
+        Ticket ticket = BeanUtil.copyProperties(memberTicketReq, Ticket.class);
+        ticket.setUpdateTime(now);
+        ticketMapper.updateByPrimaryKeySelective(ticket);
     }
 
     public void delete(Long id) {

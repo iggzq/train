@@ -38,6 +38,8 @@ public class Ticket {
 
     private String status;
 
+    private Boolean publicShow;
+
     private Date createTime;
 
     private Date updateTime;

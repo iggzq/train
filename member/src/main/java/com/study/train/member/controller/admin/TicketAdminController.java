@@ -14,13 +14,19 @@ import org.springframework.web.bind.annotation.*;
 public class TicketAdminController {
 
     @Resource
-    private TicketService TicketService;
+    private TicketService ticketService;
 
 
 
     @GetMapping("/query-list")
     public CommonResp<PageResp<TicketQueryResp>> queryList(@Valid TicketQueryReq ticketQueryReq) {
-        PageResp<TicketQueryResp> list = TicketService.queryList(ticketQueryReq);
+        PageResp<TicketQueryResp> list = ticketService.queryList(ticketQueryReq);
+        return new CommonResp<>(list);
+    }
+
+    @GetMapping("/query-list-status")
+    public CommonResp<PageResp<TicketQueryResp>> queryListStatus(@Valid TicketQueryReq ticketQueryReq) {
+        PageResp<TicketQueryResp> list = ticketService.queryListStatus(ticketQueryReq);
         return new CommonResp<>(list);
     }
 

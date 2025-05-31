@@ -4,6 +4,7 @@
     <resultMap id="BaseResultMap" type="com.study.train.member.domain.Member">
         <id column="id" jdbcType="BIGINT" property="id"/>
         <result column="mobile" jdbcType="VARCHAR" property="mobile"/>
+        <result column="is_school_admin" jdbcType="TINYINT" property="isSchoolAdmin"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -66,7 +67,7 @@
         </where>
     </sql>
     <sql id="Base_Column_List">
-        id, mobile
+        id, mobile, is_school_admin
     </sql>
     <select id="selectByExample" parameterType="com.study.train.member.domain.MemberExample" resultMap="BaseResultMap">
         select
@@ -155,6 +156,11 @@
         <set>
             <if test="mobile != null">
                 mobile = #{mobile,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <set>
+            <if test="isSchoolAdmin != null">
+                is_school_admin =  #{isSchoolAdmin,jdbcType=BIT},
             </if>
         </set>
         where id = #{id,jdbcType=BIGINT}

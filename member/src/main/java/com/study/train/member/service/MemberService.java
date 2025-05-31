@@ -9,8 +9,8 @@ import com.study.train.common.utils.SnowUtil;
 import com.study.train.member.domain.Member;
 import com.study.train.member.domain.MemberExample;
 import com.study.train.member.enums.RedisKeyPreEnum;
-import com.study.train.member.req.MemberLoginReq;
 import com.study.train.member.mapper.MemberMapper;
+import com.study.train.member.req.MemberLoginReq;
 import com.study.train.member.req.MemberRegisterReq;
 import com.study.train.member.req.MemberSendCodeReq;
 import com.study.train.member.resp.MemberLoginResp;
@@ -33,7 +33,7 @@ public class MemberService {
     private MemberMapper memberMapper;
 
     @Resource
-    private RedisTemplate<String,String> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
 
     public int count() {
         return Math.toIntExact(memberMapper.countByExample(null));
@@ -100,7 +100,7 @@ public class MemberService {
         // 生成JWT
         String token = JWTutil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
         // 保存用户登录状态到Redis中
-        redisTemplate.opsForValue().set(RedisKeyPreEnum.USER_LOGIN.getKey() + token, RedisKeyPreEnum.USER_LOGIN.getDesc(),24, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(RedisKeyPreEnum.USER_LOGIN.getKey() + token, RedisKeyPreEnum.USER_LOGIN.getDesc(), 24, TimeUnit.HOURS);
         memberLoginResp.setToken(token);
         return memberLoginResp;
 
@@ -116,6 +116,12 @@ public class MemberService {
         } else {
             return members.get(0);
         }
+    }
+
+    public Boolean getPermission(String mobile) {
+        MemberExample memberExample = new MemberExample();
+        memberExample.createCriteria().andMobileEqualTo(mobile);
+        return memberMapper.selectByExample(memberExample).get(0).getIsSchoolAdmin();
     }
 
 }

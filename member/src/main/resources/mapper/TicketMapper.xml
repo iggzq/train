@@ -16,6 +16,7 @@
         <result column="end_station" jdbcType="VARCHAR" property="endStation"/>
         <result column="end_time" jdbcType="TIME" property="endTime"/>
         <result column="seat_type" jdbcType="CHAR" property="seatType"/>
+        <result column="public_show" jdbcType="TINYINT" property="publicShow"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="status" jdbcType="VARCHAR" property="status"/>
@@ -84,7 +85,7 @@
         id
         , member_id, passenger_id, passenger_name, train_date, train_code, carriage_index,
     seat_row, seat_col, start_station, start_time, end_station, end_time, seat_type, 
-    create_time, update_time, status
+    public_show, create_time, update_time, status
     </sql>
     <select id="selectByExample" parameterType="com.study.train.member.domain.TicketExample" resultMap="BaseResultMap">
         select
@@ -246,6 +247,12 @@
             <include refid="Example_Where_Clause"/>
         </if>
     </select>
+    <select id="selectByPermission" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from ticket
+        where public_show = 1
+    </select>
     <update id="updateByExampleSelective" parameterType="map">
         update ticket
         <set>
@@ -369,6 +376,9 @@
             </if>
             <if test="seatType != null">
                 seat_type = #{seatType,jdbcType=CHAR},
+            </if>
+            <if test="publicShow != null">
+                public_show = #{publicShow,jdbcType=BIT},
             </if>
             <if test="status != null">
                 status = #{status,jdbcType=CHAR},

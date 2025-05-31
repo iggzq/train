@@ -1,25 +1,18 @@
 package com.study.train.member.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.Data;
+
+@Data
 public class Member {
+
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     private String mobile;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getMobile() {
-        return mobile;
-    }
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
+    private Boolean isSchoolAdmin;
 
     @Override
     public String toString() {

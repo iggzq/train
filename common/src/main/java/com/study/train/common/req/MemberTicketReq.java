@@ -94,6 +94,9 @@ public class MemberTicketReq {
     @NotBlank(message = "【座位类型】不能为空")
     private String seatType;
 
+
+    private Boolean publicShow;
+
     /**
      * 用户座位状态
      */

@@ -67,6 +67,9 @@ const routes = [
             children: [{
                 path: 'ticket',
                 component: () => import('../views/main/member/ticket.vue')
+            },{
+                path: 'member',
+                component: () => import('../views/main/member/member.vue')
             }]
         }]
     }, {},

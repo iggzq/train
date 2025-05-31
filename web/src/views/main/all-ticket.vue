@@ -1,7 +1,6 @@
 <template>
   <a-space class="top_button">
     <a-button type="primary" @click="handleQuery()">刷新</a-button>
-
   </a-space>
   <a-table :data-source="tickets"
            :columns="columns"
@@ -25,17 +24,6 @@
           </span>
         </span>
       </template>
-      <template v-else-if="column.dataIndex === 'status'">
-        <span v-for="item in ORDER_STATUS" :key="item.code">
-          <span v-if="item.code === record.status">
-            {{ item.desc }}
-          </span>
-          <!--          <a-button type="primary" shape="round"  v-if="item.code === 'P'" @click="ensureGoPay">去支付</a-button>-->
-        </span>
-      </template>
-      <template v-else-if="column.dataIndex === 'publicShow'">
-        <a-switch v-model:checked="record.publicShow" @change="changePublicShow(record)"/>
-      </template>
     </template>
   </a-table>
 </template>
@@ -45,10 +33,8 @@ import {onMounted, ref} from "vue";
 import {notification} from "ant-design-vue";
 import axios from "axios";
 
-
 const SEAT_COL_ARRAY = window.SEAT_COL_ARRAY;
 const SEAT_TYPE_ARRAY = window.SEAT_TYPE_ARRAY;
-const ORDER_STATUS = window.CONFIRM_ORDER_STATUS_ARRAY;
 const tickets = ref([]);
 // 分页的三个属性名是固定的
 const pagination = ref({
@@ -112,16 +98,7 @@ const columns = [
     title: '座位类型',
     dataIndex: 'seatType',
     key: 'seatType',
-  }, {
-    title: '订单状态',
-    dataIndex: 'status',
-    key: 'status',
-  },{
-    title: '是否公开订单信息',
-    dataIndex: 'publicShow',
-    key: 'publicShow',
   },
-
 ];
 
 
@@ -133,7 +110,7 @@ const handleQuery = (param) => {
     };
   }
   loading.value = true;
-  axios.get("/member/ticket/query-list", {
+  axios.get("/member/admin/ticket/query-list-status", {
     params: {
       page: param.page,
       size: param.size
@@ -143,7 +120,6 @@ const handleQuery = (param) => {
     let data = response.data;
     if (data.success) {
       tickets.value = data.content.data;
-      console.log(tickets.value);
       // 设置分页控件的值
       pagination.value.current = param.page;
       pagination.value.total = data.content.total;
@@ -162,20 +138,6 @@ const handleTableChange = (page) => {
   });
 };
 
-const changePublicShow = (record) => {
-  axios.post("/member/ticket/changePublicShow", {
-    id : record.id,
-    publicShow: record.publicShow
-  }).then((response) => {
-    let data = response.data;
-    if (data.success) {
-      notification.success({description: data.content});
-    } else {
-      notification.error({description: data.content});
-    }
-  });
-}
-
 onMounted(() => {
   handleQuery({
     page: 1,
@@ -183,17 +145,6 @@ onMounted(() => {
   });
 });
 
-// const ensureGoPay = () => {
-//   axios.post("/business/ticket-pay/pay",{
-//     tradeNum: orderInfo.content.tradeNum,
-//     tradeName: orderInfo.content.tradeName,
-//     subject: orderInfo.content.subject,
-//   }).then((resp) => {
-//     const htmlCode = resp.data;
-//     const newWindow = window.open('', '_blank');
-//     newWindow.document.write(htmlCode);
-//   })
-// }
 </script>
 <style scoped>
 .top_button {

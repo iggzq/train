@@ -20,6 +20,11 @@
             <MenuUnfoldOutlined/> &nbsp; 购票信息
           </router-link>
         </a-menu-item>
+        <a-menu-item key="/member/member">
+          <router-link to="/member/member">
+            <MenuUnfoldOutlined/> &nbsp; 用户管理
+          </router-link>
+        </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="batch">
         <template #title>

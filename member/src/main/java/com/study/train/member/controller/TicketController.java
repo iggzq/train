@@ -4,13 +4,12 @@ import com.study.train.common.context.LoginMemberHolder;
 import com.study.train.common.resp.CommonResp;
 import com.study.train.common.resp.PageResp;
 import com.study.train.member.req.TicketQueryReq;
+import com.study.train.member.req.TicketUpdatePublicReq;
 import com.study.train.member.resp.TicketQueryResp;
 import com.study.train.member.service.TicketService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/ticket")
@@ -29,6 +28,12 @@ public class TicketController {
         PageResp<TicketQueryResp> pageResp = ticketService.queryList(req);
         commonResp.setContent(pageResp);
         return commonResp;
+    }
+
+    @PostMapping("/changePublicShow")
+    public CommonResp<String> changePublicShow(@RequestBody TicketUpdatePublicReq ticket) {
+        ticketService.changePublicShow(ticket);
+        return new CommonResp<>("修改成功");
     }
 
 }
